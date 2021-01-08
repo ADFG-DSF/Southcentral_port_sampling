@@ -1,0 +1,33 @@
+
+model{
+  # priors:
+  alpha[1] <- 0 #area baseline
+  for (a in 2:A){alpha[a] ~ dnorm(0, 0.0001)}
+  
+  for (a in 1:A){beta[1,a] <- 0 } #area baseline
+  beta[2, 1] <- 0 ; #fleet baseline
+  for (a in 2:A){ beta[2,a] ~ dnorm(0, 0.0001)}
+  
+  tau ~ dgamma(0.001, 0.001) # prior for mixed effect precision
+  sd <- sqrt(1/tau)
+
+  for(f in 1:2){ #loop around fleet
+    for(y in 1:Y){ # loop around years
+      count[y,f,1:A] ~ dmulti(q[y,f,1:A], M[y,f])
+      for(a in 1:A){
+        re[y,f,a] ~ dnorm(0, tau)
+        q[y,f,a] <- phi[y,f,a]/sum(phi[y,f,])
+        log(phi[y,f,a]) <- alpha[a] + beta[f,a] + re[y,f,a]
+      }
+    }
+  }
+  for(p in 1:pred_n){
+    pred[p,1:A] ~ dmulti(q_pred[p,1:A], 1)
+    for(a in 1:A){
+      re_pred[p,a] ~ dnorm(0, tau)
+      q_pred[p,a] <- phi_pred[p,a]/sum(phi_pred[p,])
+      log(phi_pred[p,a]) <- alpha[a] + beta[pred_fleet[p] + 1,a] + re_pred[p,a]
+    }
+  }
+}
+

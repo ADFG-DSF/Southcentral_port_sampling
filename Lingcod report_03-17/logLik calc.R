@@ -1,4 +1,4 @@
-#Sloppy code required objects from multinomial effort.R
+#Sloppy code required objects from multinomial demo (homer).R
 
 mod_fyl
 logLik(mod_fyl)
@@ -35,6 +35,26 @@ sum(ll2)
 
 
 
+b = data.frame(
+intercept = post$mean$alpha,
+fleet = if(!is.null(post$mean$beta)){t(post$mean$beta)} else matrix(0, nrow = length(post$mean$alpha), ncol = 2),
+year = if(!is.null(post$mean$epsilon)){post$mean$epsilon} else rep(0, length(post$mean$alpha))) %>%
+as.matrix() %>%
+t()
+b
+dat <- rbind(jags_dat[[4]]$count[,1,], jags_dat[[4]]$count[,2,])
+x = data.frame(
+area = 1,
+charter = rep(1:0, each = length(unique(data_full$yearc))),
+private = rep(0:1, each = length(unique(data_full$yearc))),
+yearc = rep(min(data_full$yearc):max(data_full$yearc), times = 2)) %>%
+dplyr::arrange(area, private, yearc) %>%
+as.matrix()
+p <- exp(x%*%b)/apply(exp(x%*%b), 1, sum)
+
+ll <- rep(NA, dim(x)[1])
+for(i in 1:dim(x)[1]) {ll[i] <- dmultinom(dat[i, ], prob = p[i,], log = TRUE)}
+sum(ll)
 
 
 
