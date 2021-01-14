@@ -9,7 +9,7 @@ stat_areas <-
 int_boat <- 
   readxl::read_excel(".\\Data\\dat_int.xls", 
                      range = "dat_int!A2:K38301",
-                     col_names = c("year", "port", "hH", "pH", "npH", "H", "fleet", "target", "stat_area", "E", "yH"), 
+                     col_names = c("year", "port", "hH", "pH", "npH", "lH", "fleet", "target", "stat_area", "E", "yH"), 
                      col_types = c("numeric", "text", rep("numeric", 4), rep("text", 2), rep("numeric", 3))) %>%
   dplyr::left_join(stat_areas, by = "stat_area") %>%
   dplyr::mutate(year = as.numeric(year))
@@ -23,20 +23,20 @@ int_boat[int_boat$port == "Cordova", ] %>% print(n = 200)
 int_boat <- int_boat[!int_boat$port == "Cordova", ] #38319 before, 38192 after
 
 #Rows with H = NA
-table(int_boat$year, is.na(int_boat$H))
-table(int_boat$year, is.na(int_boat$hH) & is.na(int_boat$npH) & is.na(int_boat$pH) & is.na(int_boat$H) & is.na(int_boat$yH)) #OK
+table(int_boat$year, is.na(int_boat$lH))
+table(int_boat$year, is.na(int_boat$hH) & is.na(int_boat$npH) & is.na(int_boat$pH) & is.na(int_boat$lH) & is.na(int_boat$yH)) #OK
 #Note in early years there is no data in these rows. Delete
-int_boat[int_boat$year == 1992 & is.na(int_boat$H), ] %>% print(n = 1000) 
-int_boat[int_boat$year == 1993 & is.na(int_boat$H), ] %>% print(n = 1000)
-int_boat[int_boat$year == 1994 & is.na(int_boat$H), ] %>% print(n = 1000)
-int_boat <- int_boat[!(is.na(int_boat$H) & int_boat$year %in% 1992:1994), ] #38192 before, 37972 after
+int_boat[int_boat$year == 1992 & is.na(int_boat$lH), ] %>% print(n = 1000) 
+int_boat[int_boat$year == 1993 & is.na(int_boat$lH), ] %>% print(n = 1000)
+int_boat[int_boat$year == 1994 & is.na(int_boat$lH), ] %>% print(n = 1000)
+int_boat <- int_boat[!(is.na(int_boat$lH) & int_boat$year %in% 1992:1994), ] #38192 before, 37972 after
 #Note in later years crews appeared to use NA in place of zero. Change to zero
-int_boat[int_boat$year == 2008 & is.na(int_boat$H), ] %>% print(n = 1000)
-int_boat[int_boat$year == 2009 & is.na(int_boat$H), ] %>% print(n = 1000)
-int_boat[int_boat$year == 2011 & is.na(int_boat$H), ] %>% print(n = 1000)
-int_boat$H <- ifelse(is.na(int_boat$H) & int_boat$year %in% c(2008, 2009, 2011), 0, int_boat$H)
-table(int_boat$year, is.na(int_boat$H)) #OK
-table(int_boat$year, is.na(int_boat$hH) & is.na(int_boat$npH) & is.na(int_boat$pH) & is.na(int_boat$H) & is.na(int_boat$yH)) #OK
+int_boat[int_boat$year == 2008 & is.na(int_boat$lH), ] %>% print(n = 1000)
+int_boat[int_boat$year == 2009 & is.na(int_boat$lH), ] %>% print(n = 1000)
+int_boat[int_boat$year == 2011 & is.na(int_boat$lH), ] %>% print(n = 1000)
+int_boat$lH <- ifelse(is.na(int_boat$lH) & int_boat$year %in% c(2008, 2009, 2011), 0, int_boat$lH)
+table(int_boat$year, is.na(int_boat$lH)) #OK
+table(int_boat$year, is.na(int_boat$hH) & is.na(int_boat$npH) & is.na(int_boat$pH) & is.na(int_boat$lH) & is.na(int_boat$yH)) #OK
 
 #Note Military fleet in Seward
 table(int_boat$fleet)

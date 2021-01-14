@@ -1,4 +1,4 @@
-## Make Jags dataset to effort composition estimates
+## Make Jags dataset for composition estimates
 ##
 make_jagsdat <- function(dat, port, stat){
   data <- dat[dat$port == port, c("year", "fleet", "area", stat)] %>%
@@ -23,6 +23,46 @@ make_jagsdat <- function(dat, port, stat){
     M = apply(count, c(1,2), sum))
 }
 ##
+
+## Make Jags dataset for composition estimates model selection
+##
+make_jagsdatpred <- function(dat, port, yr){
+  dat$yearc <- dat$year - median(unique(dat$year))
+  temp <- dat[dat$port == port & dat$year != yr, c("yearc", "fleet", "area", "E")] %>%
+    dplyr::arrange(yearc, fleet, area)
+  train <- temp %>%
+    dplyr::group_by(yearc, fleet, area) %>%
+    dplyr::summarise(E = sum(E))
+  train_full <- expand.grid(list(yearc = unique(train$yearc), 
+                                 fleet = unique(train$fleet), 
+                                 area = unique(train$area))) %>%
+    dplyr::left_join(train, by = c("yearc", "fleet", "area")) %>%
+    dplyr::mutate(value = ifelse(is.na(E), 0, E))
+  
+  count = array(train_full$value,
+                dim = c(length(unique(train_full$yearc)),
+                        2,
+                        length(unique(train_full$area))))
+  
+  test <- 
+    dat[dat$port == port & dat$year == yr, c("yearc", "fleet", "area", "E")] %>%
+    dplyr::arrange(yearc, fleet, area)
+  pred_yr <- test$yearc
+  pred_fleet <- ifelse(test$fleet == "Charter", 0, 1)
+  pred_area <- test$area
+  pred_n <- dim(test)[1]
+  
+  list(
+    count = count,
+    yearc = unique(train$yearc),
+    A = length(unique(train$area)),
+    Y = length(unique(train$yearc)),
+    M = apply(count, c(1,2), sum),
+    pred_n = pred_n,
+    pred_fleet = pred_fleet,
+    pred_year = pred_yr,
+    pred_area = pred_area)
+}
 
 ## Plot composition data and estimates
 ##
@@ -79,12 +119,12 @@ plot_post <- function(post, dat, plotport, inc_re = FALSE){
   p2 <- as.data.frame(exp(x%*%b + re(post$q50$re))/apply(exp(x%*%b + re(post$q50$re)), 1, sum)) %>% setNames(unique(data$area));
   p2$fleet <- rep(c("Charter", "Private"), each = length(unique(data_full$yearc)))
   p2$yearc <- rep(min(data_full$yearc):max(data_full$yearc), times = 2)
-  
-  p2 <- 
+
+  p2 <-
     tidyr::pivot_longer(p2, -c(fleet, yearc), names_to = "area") %>%
     dplyr::mutate(area = factor(area, levels = rev(unique(data$area)))) %>%
-    dplyr::arrange(fleet, yearc, area) %>% 
-    dplyr::group_by(fleet, yearc) %>% 
+    dplyr::arrange(fleet, yearc, area) %>%
+    dplyr::group_by(fleet, yearc) %>%
     dplyr::mutate(pct = cumsum(value))
   p2$area <- factor(p2$area, levels = unique(data$area))
   
@@ -151,4 +191,13 @@ p_post <- function(post, dat, plotport){
   # p2$yearc <- rep(min(data_full$yearc):max(data_full$yearc), times = 2)
   
   list(p = p, p_re = p2)
+}
+
+## Manaul calculation of deviance wo re
+get_deviance <- function(dat, preds){
+  ll <- rep(NA, dim(preds[[1]])[1])
+  for(i in 1:dim(preds[[1]])[1]) {ll[i] <- dmultinom(dat[i, ], 
+                                                     prob = as.matrix(preds[[1]][i,]), 
+                                                     log = TRUE)}
+  -2*sum(ll)
 }

@@ -336,7 +336,7 @@ sd
 #Homer
 plot_post(post_alpha[[1]], int_area[int_area$year >= 2000, ], ports[1])
 plot_post(post_beta[[1]], int_area[int_area$year >= 2000, ], ports[1])
-plot_post(post_epsilon[[1]], int_area[int_area$year >= 2000, ], ports[1]) #Lowest DIC and best
+plot_post(post_epsilon[[1]], int_area[int_area$year >= 2000, ], ports[1]) #Lowest DIC
 plot_post(post_gamma[[1]], int_area[int_area$year >= 2000, ], ports[1])
 jags_dat[[1]]$M
 #jagsUI::traceplot(post_epsilon[[1]])
@@ -344,23 +344,23 @@ jags_dat[[1]]$M
 #Kodiak
 plot_post(post_alpha[[2]], int_area[int_area$year >= 2000, ], ports[2]) 
 plot_post(post_beta[[2]], int_area[int_area$year >= 2000, ], ports[2])
-plot_post(post_epsilon[[2]], int_area[int_area$year >= 2000, ], ports[2]) #Lowest DIC and best
+plot_post(post_epsilon[[2]], int_area[int_area$year >= 2000, ], ports[2]) #Tied for Lowest DIC
 plot_post(post_gamma[[2]], int_area[int_area$year >= 2000, ], ports[2])
 jags_dat[[2]]$M
 #jagsUI::traceplot(post_epsilon[[2]])
 
 #Seward
-plot_post(post_alpha[[3]], int_area[int_area$year >= 2000, ], ports[3]) #Lowest DIC? Try dropping Eastern PWS
-plot_post(post_beta[[3]], int_area[int_area$year >= 2000, ], ports[3])
+plot_post(post_alpha[[3]], int_area[int_area$year >= 2000, ], ports[3])
+plot_post(post_beta[[3]], int_area[int_area$year >= 2000, ], ports[3])  #Lowest DIC excluding alpha (which has >>> sd)
 plot_post(post_epsilon[[3]], int_area[int_area$year >= 2000, ], ports[3])
 plot_post(post_gamma[[3]], int_area[int_area$year >= 2000, ], ports[3])
 jags_dat[[3]]$M
 jags_dat[[3]]$count[,,5]
 
 #Valdez
-plot_post(post_alpha[[4]], int_area[int_area$year >= 2000, ], ports[4]) #lowest DIC. Run without fleet
+plot_post(post_alpha[[4]], int_area[int_area$year >= 2000, ], ports[4])
 plot_post(post_beta[[4]], int_area[int_area$year >= 2000, ], ports[4])
-plot_post(post_epsilon[[4]], int_area[int_area$year >= 2000, ], ports[4])
+plot_post(post_epsilon[[4]], int_area[int_area$year >= 2000, ], ports[4]) #lowest DIC and lowest sd
 plot_post(post_gamma[[4]], int_area[int_area$year >= 2000, ], ports[4])
 jags_dat[[4]]$M
 #jagsUI::traceplot(post_alpha[[4]])
@@ -368,7 +368,7 @@ jags_dat[[4]]$M
 #Whittier
 plot_post(post_alpha[[5]], int_area[int_area$year >= 2000, ], ports[5])
 plot_post(post_beta[[5]], int_area[int_area$year >= 2000, ], ports[5])
-plot_post(post_epsilon[[5]], int_area[int_area$year >= 2000, ], ports[5]) #best
+plot_post(post_epsilon[[5]], int_area[int_area$year >= 2000, ], ports[5]) #lowest DIC and lowest sd
 plot_post(post_gamma[[5]], int_area[int_area$year >= 2000, ], ports[5])
 jags_dat[[5]]$M
 #jagsUI::traceplot(post_epsilon[[5]])
@@ -388,17 +388,10 @@ y <- rbind(jags_dat[[1]]$count[,1,], jags_dat[[1]]$count[,2,])
 
 
 
-
+## Manual calculation of deviance wo re
 get_devdata <- function(dat){rbind(dat$count[,1,], dat$count[,2,])}
 dev_dat <- lapply(jags_dat, get_devdata)
 
-get_deviance <- function(dat, preds){
-  ll <- rep(NA, dim(preds[[1]])[1])
-  for(i in 1:dim(preds[[1]])[1]) {ll[i] <- dmultinom(dat[i, ], 
-                                                prob = as.matrix(preds[[1]][i,]), 
-                                                log = TRUE)}
-  -2*sum(ll)
-}
 preds_alpha <-
   mapply(p_post, 
          post = post_alpha, 
@@ -423,8 +416,13 @@ preds_gamma <-
          plotport = ports, 
          MoreArgs = list(dat = int_area[int_area$year >= 2000, ]), 
          SIMPLIFY = FALSE)
-data.frame(
-  alpha = mapply(get_deviance, dat = dev_dat, preds = preds_alpha),
-  beta = mapply(get_deviance, dat = dev_dat, preds = preds_beta),
-  epsilon = mapply(get_deviance, dat = dev_dat, preds = preds_epsilon),
-  gamma = mapply(get_deviance, dat = dev_dat, preds = preds_gamma))
+manual_deviance <- 
+  data.frame(
+    alpha = mapply(get_deviance, dat = dev_dat, preds = preds_alpha),
+    beta = mapply(get_deviance, dat = dev_dat, preds = preds_beta),
+    epsilon = mapply(get_deviance, dat = dev_dat, preds = preds_epsilon),
+    gamma = mapply(get_deviance, dat = dev_dat, preds = preds_gamma))
+manual_deviance - 2 * data.frame(alpha = c(5, 4, 4, 3, 3), 
+                                 beta = c(9, 7, 7, 5, 5),
+                                 epsilon = c(13, 10, 10, 7, 7),
+                                 gamma = c(17, 13, 13, 9, 9))
