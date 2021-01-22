@@ -3,12 +3,11 @@ source(".\\functions.R")
 library(magrittr)
 library(ggplot2)
 
-table(is.na(int_boat$E), int_boat$year)
-dat_Homer <- lapply(2000:2017, function(x) make_jagsdatpred(int_boat[int_boat$year >= 2000, ], "Homer", x))
-dat_Kodiak <- lapply(2000:2017, function(x) make_jagsdatpred(int_boat[int_boat$year >= 2000, ], "Kodiak", x))
-dat_Seward <- lapply(2000:2017, function(x) make_jagsdatpred(int_boat[int_boat$year >= 2000, ], "Seward", x))
-dat_Valdez <- lapply(2000:2017, function(x) make_jagsdatpred(int_boat[int_boat$year >= 2000, ], "Valdez", x))
-dat_Whittier <- lapply(2000:2017, function(x) make_jagsdatpred(int_boat[int_boat$year >= 2000, ], "Whittier", x))
+dat_Homer <- lapply(1993:2017, function(x) make_jagsdatpred(int_boat, "Homer", "lH", x))
+dat_Kodiak <- lapply(1993:2017, function(x) make_jagsdatpred(int_boat, "Kodiak", x))
+dat_Seward <- lapply(1993:2017, function(x) make_jagsdatpred(int_boat, "Seward", x))
+dat_Valdez <- lapply(1993:2017, function(x) make_jagsdatpred(int_boat, "Valdez", x))
+dat_Whittier <- lapply(1993:2017, function(x) make_jagsdatpred(int_boat, "Whittier", x))
 
 
 
