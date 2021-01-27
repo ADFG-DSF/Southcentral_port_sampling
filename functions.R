@@ -27,29 +27,28 @@ make_jagsdat <- function(dat, port, stat){
 ## Make Jags dataset for composition estimates model selection
 ##
 make_jagsdatpred <- function(dat, port, stat, yr){
-  dat$yearc <- dat$year - median(unique(dat$year))
-  temp <- dat[dat$port == port & dat$year != yr, c("yearc", "fleet", "area", stat)] %>%
-    dplyr::arrange(yearc, fleet, area)
-  train <- temp %>%
-    dplyr::group_by(yearc, fleet, area) %>%
-    dplyr::summarise(lH = sum(!!dplyr::sym(stat)))
-  train_full <- expand.grid(list(yearc = unique(train$yearc), 
-                                 fleet = unique(train$fleet), 
-                                 area = unique(train$area))) %>%
-    dplyr::left_join(train, by = c("yearc", "fleet", "area")) %>%
+  loo_yearc <- yr - median(unique(dat$year[dat$port == port]))
+  temp <- dat[dat$port == port, c("year", "fleet", "area", stat)] %>%
+    dplyr::mutate(yearc = year - median(unique(year)))
+  temp_full <- expand.grid(list(yearc = unique(temp$yearc),
+                                 fleet = unique(temp$fleet),
+                                 area = unique(temp$area))) %>%
+    dplyr::left_join(temp, by = c("yearc", "fleet", "area")) %>%
+    dplyr::arrange(area, fleet, yearc) %>%
     dplyr::mutate(value = ifelse(is.na(!!dplyr::sym(stat)), 0, !!dplyr::sym(stat)))
   
-  count = array(train_full$value,
-                dim = c(length(unique(train_full$yearc)),
+  train <- temp_full[!(temp_full$yearc %in% loo_yearc),]
+  count = array(train$value,
+                dim = c(length(unique(train$yearc)),
                         2,
-                        length(unique(train_full$area))))
+                        length(unique(train$area))))
   
-  test <- 
-    dat[dat$port == port & dat$year == yr, c("yearc", "fleet", "area", stat)] %>%
-    dplyr::arrange(yearc, fleet, area)
+  test <- temp_full[temp_full$yearc %in% loo_yearc,]
   pred_yr <- test$yearc
   pred_fleet <- ifelse(test$fleet == "Charter", 0, 1)
-  pred_area <- test$area
+  lo_count <- matrix(test$value,
+                     nrow = 2, 
+                     ncol = length(unique(test$area)))
   pred_n <- dim(test)[1]
   
   list(
@@ -58,15 +57,16 @@ make_jagsdatpred <- function(dat, port, stat, yr){
     A = length(unique(train$area)),
     Y = length(unique(train$yearc)),
     M = apply(count, c(1,2), sum),
-    pred_n = pred_n,
-    pred_fleet = pred_fleet,
-    pred_year = pred_yr,
-    pred_area = pred_area)
+    pred_M = apply(lo_count, 1, sum),
+    pred_fleet = c(0, 1),
+    pred_year = rep(loo_yearc, 2),
+    lo_count = lo_count)
 }
+
 
 ## Plot composition data and estimates
 ##
-plot_post <- function(post, dat, stat, plotport, inc_pred = "mean"){
+plot_post <- function(post, dat, stat, plotport, inc_pred = "mean", bystock = TRUE){
   stopifnot(inc_pred %in% c("none", "mean", "re"))
   data <- dat[dat$port == plotport, c("year", "fleet", "area", stat)] %>%
     dplyr::arrange(area, fleet, year) %>%
@@ -93,11 +93,11 @@ plot_post <- function(post, dat, stat, plotport, inc_pred = "mean"){
   out <- data_full %>%
     ggplot(aes(x = yearc, weight = value, fill = area)) +
     geom_area(stat = "count", position = "fill", color = "white", alpha = 0.25) +
-    facet_grid(. ~ fleet) +
     scale_y_continuous(name = "Percent") +
     scale_x_continuous(name = "Year", breaks = seq(min(data$yearc), max(data$yearc), 3), labels = seq(min(data$year), max(data$year), 3)) +
     theme_bw(base_size = 16) +
     theme(legend.position = "bottom")
+  if(bystock == TRUE){out <- out + facet_grid(. ~ fleet)}
   
   if(inc_pred == "none"){return(out)}
   else{if(inc_pred == "mean"){

@@ -24,13 +24,13 @@ model{
       }
     }
   }
-  for(p in 1:pred_n){
-    pred[p,1:A] ~ dmulti(q_pred[p,1:A], 1)
-    for(a in 1:A){
-      re_pred[p,a] ~ dnorm(0, tau)
-      q_pred[p,a] <- phi_pred[p,a]/sum(phi_pred[p,])
-      log(phi_pred[p,a]) <- alpha[a] + beta[pred_fleet[p] + 1,a] + epsilon[a]*pred_year[p] + re_pred[p,a]
-    }
+  for(f in 1:2){ #loop around fleet
+    pred_count[f,1:A] ~ dmulti(q_pred[f,1:A], pred_M[f])
+      for(a in 1:A){
+        re_pred[f,a] ~ dnorm(0, tau)
+        q_pred[f,a] <- phi_pred[f,a]/sum(phi_pred[f,])
+        log(phi_pred[f,a]) <- alpha[a] + beta[pred_fleet[f] + 1,a] + epsilon[a]*pred_year[f] + re_pred[f,a]
+      }
   }
 }
 

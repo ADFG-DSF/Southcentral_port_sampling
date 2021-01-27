@@ -49,6 +49,18 @@ plot_post(post_Homer[[1]], int_ling, "H", ports[1])
 plot_post(post_Homer[[2]], int_ling, "H", ports[1])
 plot_post(post_Homer[[3]], int_ling, "H", ports[1])
 plot_post(post_Homer[[4]], int_ling, "H", ports[1])
+lapply(post_Homer, function(x) x$sims.list$sd) %>% 
+  do.call(cbind, .) %>% 
+  as.data.frame() %>% 
+  setNames(c("alpha", "beta", "epsilon", "gamma")) %>%
+  tidyr::pivot_longer(tidyr::everything()) %>% 
+  ggplot(aes(x = value)) + 
+  geom_histogram() + 
+  facet_grid(name ~ .)
+gridExtra::marrangeGrob(list(plot_post(post_Homer[[1]], int_ling, "H", ports[1]),
+                             plot_post(post_Homer[[2]], int_ling, "H", ports[1]),
+                             plot_post(post_Homer[[3]], int_ling, "H", ports[1]),
+                             plot_post(post_Homer[[4]], int_ling, "H", ports[1])), nrow = 2, ncol = 2)
 
 #Homer Charter data only
 jags_datH[[1]]$F = 1
@@ -85,10 +97,20 @@ data.frame(Deviance = sapply(postH_Kodiak, function(x) x$mean$deviance),
            pD = sapply(postH_Kodiak, function(x) x$pD), 
            DIC = sapply(postH_Kodiak, function(x) x$DIC),
            sd = sapply(postH_Kodiak, function(x) x$mean$sd))
+lapply(postH_Kodiak, function(x) x$sims.list$sd) %>% 
+  do.call(cbind, .) %>% 
+  as.data.frame() %>% 
+  setNames(c("alpha", "beta", "epsilon", "gamma")) %>%
+  tidyr::pivot_longer(tidyr::everything()) %>% 
+  ggplot(aes(x = value)) + 
+  geom_histogram() + 
+  facet_grid(name ~ .)
 plot_post(postH_Kodiak[[1]], int_ling, "H", ports[2])
 plot_post(postH_Kodiak[[2]], int_ling, "H", ports[2])
 plot_post(postH_Kodiak[[3]], int_ling, "H", ports[2])
 plot_post(postH_Kodiak[[4]], int_ling, "H", ports[2])
+gridExtra::marrangeGrob(lapply(postH_Kodiak, plot_post, int_ling, "H", ports[[2]]), nrow = 2, ncol = 2)
+
 
 
 
@@ -109,12 +131,21 @@ data.frame(Deviance = sapply(postH_Seward, function(x) x$mean$deviance),
            pD = sapply(postH_Seward, function(x) x$pD), 
            DIC = sapply(postH_Seward, function(x) x$DIC),
            sd = sapply(postH_Seward, function(x) x$mean$sd))
+lapply(postH_Seward, function(x) x$sims.list$sd) %>% 
+  do.call(cbind, .) %>% 
+  as.data.frame() %>% 
+  setNames(c("alpha", "beta", "epsilon", "gamma")) %>%
+  tidyr::pivot_longer(tidyr::everything()) %>% 
+  ggplot(aes(x = value)) + 
+  geom_histogram() + 
+  facet_grid(name ~ .)
 plot_post(postH_Seward[[1]], int_ling, "H", ports[3])
 plot_post(postH_Seward[[2]], int_ling, "H", ports[3])
 plot_post(postH_Seward[[3]], int_ling, "H", ports[3])
 plot_post(postH_Seward[[4]], int_ling, "H", ports[3])
+gridExtra::marrangeGrob(lapply(postH_Seward, plot_post, int_ling, "H", ports[[3]]), nrow = 2, ncol = 2)
 
-
+plot_post(postH_Seward[[1]], int_ling, "H", ports[3], bystock = FALSE)
 
 
 
@@ -138,10 +169,21 @@ data.frame(Deviance = sapply(postH_Valdez, function(x) x$mean$deviance),
            pD = sapply(postH_Valdez, function(x) x$pD), 
            DIC = sapply(postH_Valdez, function(x) x$DIC),
            sd = sapply(postH_Valdez, function(x) x$mean$sd))
+lapply(postH_Valdez, function(x) x$sims.list$sd) %>% 
+  do.call(cbind, .) %>% 
+  as.data.frame() %>% 
+  setNames(c("alpha", "beta", "epsilon", "gamma")) %>%
+  tidyr::pivot_longer(tidyr::everything()) %>% 
+  ggplot(aes(x = value)) + 
+  geom_histogram() + 
+  facet_grid(name ~ .)
 plot_post(postH_Valdez[[1]], int_ling, "H", ports[4])
 plot_post(postH_Valdez[[2]], int_ling, "H", ports[4])
 plot_post(postH_Valdez[[3]], int_ling, "H", ports[4])
 plot_post(postH_Valdez[[4]], int_ling, "H", ports[4])
+gridExtra::marrangeGrob(lapply(postH_Valdez, plot_post, int_ling, "H", ports[[4]]), nrow = 2, ncol = 2)
+
+plot_post(postH_Valdez[[1]], int_ling, "H", ports[4], bystock = FALSE)
 
 
 
@@ -164,10 +206,19 @@ data.frame(Deviance = sapply(postH_Whittier, function(x) x$mean$deviance),
            pD = sapply(postH_Whittier, function(x) x$pD), 
            DIC = sapply(postH_Whittier, function(x) x$DIC),
            sd = sapply(postH_Whittier, function(x) x$mean$sd))
+lapply(postH_Whittier, function(x) x$sims.list$sd) %>% 
+  do.call(cbind, .) %>% 
+  as.data.frame() %>% 
+  setNames(c("alpha", "beta", "epsilon", "gamma")) %>%
+  tidyr::pivot_longer(tidyr::everything()) %>% 
+  ggplot(aes(x = value)) + 
+  geom_histogram() + 
+  facet_grid(name ~ .)
 plot_post(postH_Whittier[[1]], int_ling, "H", ports[5])
 plot_post(postH_Whittier[[2]], int_ling, "H", ports[5])
 plot_post(postH_Whittier[[3]], int_ling, "H", ports[5])
 plot_post(postH_Whittier[[4]], int_ling, "H", ports[5])
+jags_datH[[5]]$M
 
 
 
