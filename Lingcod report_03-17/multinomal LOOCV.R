@@ -383,22 +383,99 @@ saveRDS(post_gamma_pred_Whittier, ".\\Lingcod report_03-17\\Interview post\\post
 
 
 
+
+
+#Homer Charter Only
+#jags w overdisersion on each observation
+#area mean
+writeLines("
+model{
+  # priors:
+  alpha[1] <- 0 #area baseline
+  for (a in 2:A){alpha[a] ~ dnorm(0, 0.0001)}
+  
+  tau ~ dgamma(0.001, 0.001) # prior for mixed effect precision
+  sd <- sqrt(1/tau)
+
+  for(y in 1:Y){ # loop around years
+    count[y,1,1:A] ~ dmulti(q[y,1:A], M[y,1])
+    for(a in 1:A){
+      re[y,a] ~ dnorm(0, tau)
+      q[y,a] <- phi[y,a]/sum(phi[y,])
+      log(phi[y,a]) <- alpha[a] + re[y,a]
+    }
+  }
+  pred_count[1, 1:A] ~ dmulti(q_pred[1:A], pred_M[1])
+  for(a in 1:A){
+    re_pred[a] ~ dnorm(0, tau)
+    q_pred[a] <- phi_pred[a]/sum(phi_pred[])
+    log(phi_pred[a]) <- alpha[a] + re_pred[a]
+  }
+}
+", con="model_alpha0_pred.txt")
+modfile_alpha0_pred <- 'model_alpha0_pred.txt'
+ni <- 5E4; nb <- ni/2; nc <- 3; nt <- 100
+post_alpha0_pred_Homer <- 
+  lapply(dat_Homer, 
+         function(x){x2 <- x[names(x) != "pred_area"]
+         OLREjags_re <- jagsUI::jags(x2, 
+                                     parameters.to.save = parameters_alpha_pred, 
+                                     model.file = modfile_alpha0_pred, 
+                                     n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
+                                     parallel = TRUE)})
+saveRDS(post_alpha0_pred_Homer, ".\\Lingcod report_03-17\\Interview post\\post_alpha0_pred_Homer.rds")
+
+
+#Homer Charter only
+#area slopes
+writeLines("
+model{
+  # priors:
+  alpha[1] <- 0 #area baseline
+  for (a in 2:A){alpha[a] ~ dnorm(0, 0.0001)}
+
+  epsilon[1] <- 0 #area baseline
+  for (a in 2:A){epsilon[a] ~ dnorm(0, 0.0001)}
+  
+  tau ~ dgamma(0.001, 0.001) # prior for mixed effect precision
+  sd <- sqrt(1/tau)
+
+  for(y in 1:Y){ # loop around years
+    count[y,1,1:A] ~ dmulti(q[y,1:A], M[y,1])
+    for(a in 1:A){
+      re[y,a] ~ dnorm(0, tau)
+      q[y,a] <- phi[y,a]/sum(phi[y,])
+      log(phi[y,a]) <- alpha[a] + epsilon[a]*yearc[y] + re[y,a]
+    }
+  }
+  pred_count[1,1:A] ~ dmulti(q_pred[1:A], pred_M[1])
+    for(a in 1:A){
+      re_pred[a] ~ dnorm(0, tau)
+      q_pred[a] <- phi_pred[a]/sum(phi_pred[])
+      log(phi_pred[a]) <- alpha[a] + epsilon[a]*pred_year[1] + re_pred[a]
+    }
+}
+", con="model_epsilon0_pred.txt")
+modfile_epsilon0_pred <- 'model_epsilon0_pred.txt'
+post_epsilon0_pred_Homer <- 
+  lapply(dat_Homer, 
+         function(x){x2 <- x[names(x) != "pred_area"]
+         OLREjags_re <- jagsUI::jags(x2, 
+                                     parameters.to.save = parameters_epsilon_pred, 
+                                     model.file = modfile_epsilon0_pred, 
+                                     n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
+                                     parallel = TRUE)})
+saveRDS(post_epsilon0_pred_Homer, ".\\Lingcod report_03-17\\Interview post\\post_epsilon0_pred_Homer.rds")
+
+
+
+
+
+
+
 #Not sure how to evaluate cross-validated predictions
 #Maybe the most direct route is just to calcualte the log-liklihood for the left our observations given the modeled probabilities
 #Seems like the best choice
-get_llpred <- function(pred, obs){
-  ll <- matrix(NA, 
-               nrow = dim(pred$sims.list$q_pred)[1],
-               ncol = dim(pred$sims.list$q_pred)[2])
-#  sum_ll <- vector(mode = "numeric", length = dim(pred$sims.list$q_pred)[1])
-  for(i in 1:dim(pred$sims.list$q_pred)[1]){
-    ll[i, 1] <- dmultinom(obs$lo_count[1, ], prob = pred$sims.list$q_pred[i, 1, ], log = TRUE)
-    ll[i, 2] <- dmultinom(obs$lo_count[2, ], prob = pred$sims.list$q_pred[i, 2, ], log = TRUE)
-  }
-  apply(ll, 1, sum)
-}
-
-
 ll_Homer <- 
   data.frame(alpha = Map(get_llpred, pred = post_alpha_pred_Homer, obs = dat_Homer) %>% Reduce('+', .),
              beta = Map(get_llpred, pred = post_beta_pred_Homer, obs = dat_Homer) %>% Reduce('+', .),
@@ -412,6 +489,26 @@ ggplot(data = ll_Homer, aes(x = value)) +
   geom_vline(data = aggregate(value ~ name, data = ll_Homer, FUN = quantile, probs = c(0.1)), aes(xintercept = value), col='green', size=1) +
   geom_vline(data = aggregate(value ~ name, data = ll_Homer, FUN = quantile, probs = c(0.8)), aes(xintercept = value), col='green', size=1) +
   facet_grid(name ~ .)
+
+get_llpred0 <- function(pred, obs){
+  ll <- vector("numeric", length = dim(pred$sims.list$q_pred)[1])
+  for(i in 1:dim(pred$sims.list$q_pred)[1]){
+    ll[i] <- dmultinom(obs$lo_count[1, ], prob = pred$sims.list$q_pred[i, ], log = TRUE)
+  }
+  ll
+}
+ll_Homer0 <- 
+  data.frame(alpha = Map(get_llpred0, pred = post_alpha0_pred_Homer, obs = dat_Homer) %>% Reduce('+', .),
+             epsilon = Map(get_llpred0, pred = post_epsilon0_pred_Homer, obs = dat_Homer) %>% Reduce('+', .)) %>%
+  tidyr::pivot_longer(cols = alpha:epsilon)
+aggregate(value ~ name, data = ll_Homer0, FUN = median)
+ggplot(data = ll_Homer0, aes(x = value)) + 
+  geom_histogram() +
+  geom_vline(data = aggregate(value ~ name, data = ll_Homer0, FUN = median), aes(xintercept = value), col='red', size=2) +
+  geom_vline(data = aggregate(value ~ name, data = ll_Homer0, FUN = quantile, probs = c(0.1)), aes(xintercept = value), col='green', size=1) +
+  geom_vline(data = aggregate(value ~ name, data = ll_Homer0, FUN = quantile, probs = c(0.8)), aes(xintercept = value), col='green', size=1) +
+  facet_grid(name ~ .)
+
 
 ll_Kodiak <- 
   data.frame(alpha = Map(get_llpred, pred = post_alpha_pred_Kodiak, obs = dat_Kodiak) %>% Reduce('+', .),

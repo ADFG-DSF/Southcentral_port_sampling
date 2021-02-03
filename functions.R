@@ -99,8 +99,7 @@ plot_post <- function(post, dat, stat, plotport, inc_pred = "mean", bystock = TR
     theme(legend.position = "bottom")
   if(bystock == TRUE){out <- out + facet_grid(. ~ fleet)}
   
-  if(inc_pred == "none"){return(out)}
-  else{if(inc_pred == "mean"){
+  if(inc_pred %in% c("mean", "re")){
     b <- 
       data.frame(
         intercept = post$mean$alpha,
@@ -122,35 +121,29 @@ plot_post <- function(post, dat, stat, plotport, inc_pred = "mean", bystock = TR
       dplyr::mutate(pct = cumsum(value))
     p$area <- factor(p$area, levels = unique(data$area))
     
-    return(out + geom_line(data = p, aes(x = yearc, y = pct, color = area), inherit.aes = FALSE, size = 1.1))}
-    else{
-      b <- 
-        data.frame(
-          intercept = post$mean$alpha,
-          fleet = if(!is.null(post$mean$beta)){t(post$mean$beta)} else matrix(0, nrow = length(post$mean$alpha), ncol = 2),
-          year = if(!is.null(post$mean$epsilon)){post$mean$epsilon} else rep(0, length(post$mean$alpha)),
-          year = if(!is.null(post$mean$gamma)){t(post$mean$gamma)} else matrix(0, nrow = length(post$mean$alpha), ncol = 2)) %>%
-        as.matrix() %>%
-        t()
-      
-      re <- function(post_re){
-        re_mat <- matrix(NA, nrow = prod(dim(post_re[,,1])), ncol = dim(post_re)[3])
-        for(i in 1:dim(post_re)[3]){re_mat[,i] <- c(post_re[,1,i], post_re[,2,i])}
-        re_mat
-      }
-      
-      p2 <- as.data.frame(exp(x%*%b + re(post$q50$re))/apply(exp(x%*%b + re(post$q50$re)), 1, sum)) %>% setNames(unique(data$area));
-      p2$fleet <- rep(c("Charter", "Private"), each = length(unique(data_full$yearc)))
-      p2$yearc <- rep(min(data_full$yearc):max(data_full$yearc), times = 2)
-      
-      p2 <-
-        tidyr::pivot_longer(p2, -c(fleet, yearc), names_to = "area") %>%
-        dplyr::mutate(area = factor(area, levels = rev(unique(data$area)))) %>%
-        dplyr::arrange(fleet, yearc, area) %>%
-        dplyr::group_by(fleet, yearc) %>%
-        dplyr::mutate(pct = cumsum(value))
-      p2$area <- factor(p2$area, levels = unique(data$area))
-      return(out + geom_line(data = p2, aes(x = yearc, y = pct, color = area), inherit.aes = FALSE, linetype = 1))}}
+    re <- function(post_re){
+      re_mat <- matrix(NA, nrow = prod(dim(post_re[,,1])), ncol = dim(post_re)[3])
+      for(i in 1:dim(post_re)[3]){re_mat[,i] <- c(post_re[,1,i], post_re[,2,i])}
+      re_mat
+    }
+    
+    p2 <- as.data.frame(exp(x%*%b + re(post$q50$re))/apply(exp(x%*%b + re(post$q50$re)), 1, sum)) %>% setNames(unique(data$area));
+    p2$fleet <- rep(c("Charter", "Private"), each = length(unique(data_full$yearc)))
+    p2$yearc <- rep(min(data_full$yearc):max(data_full$yearc), times = 2)
+    
+    p2 <-
+      tidyr::pivot_longer(p2, -c(fleet, yearc), names_to = "area") %>%
+      dplyr::mutate(area = factor(area, levels = rev(unique(data$area)))) %>%
+      dplyr::arrange(fleet, yearc, area) %>%
+      dplyr::group_by(fleet, yearc) %>%
+      dplyr::mutate(pct = cumsum(value))
+    p2$area <- factor(p2$area, levels = unique(data$area))
+  }
+  if(inc_pred == "none"){return(out)}
+  else{if(inc_pred == "mean"){return(out + geom_line(data = p, aes(x = yearc, y = pct, color = area), inherit.aes = FALSE, size = 1.1))}
+    else{return(out + 
+                  geom_line(data = p, aes(x = yearc, y = pct, color = area), inherit.aes = FALSE, size = 1.1) + 
+                  geom_line(data = p2, aes(x = yearc, y = pct, color = area), inherit.aes = FALSE, linetype = 1))}}
 }
 
 ## Multinomial probabilities from posterior
@@ -245,3 +238,26 @@ plot_int <- function(dat, Hvar){
   out
 }
 
+tab_data <- function(yr_range, jag_dat, areas){
+  temp <- data.frame(year = rep(yr_range, times = 2),
+                     fleet = rep(c("Charter", "Private"), each = length(yr_range)),
+                     count = rbind(jag_dat$count[,1,], jag_dat$count[,2,]))
+  names(temp) <- c("year", "fleet", areas)
+  temp
+}
+
+#Not sure how to evaluate cross-validated predictions
+#Maybe the most direct route is just to calcualte the log-liklihood for the left our observations given the modeled probabilities
+#Seems like the best choice
+
+get_llpred <- function(pred, obs){
+  ll <- matrix(NA, 
+               nrow = dim(pred$sims.list$q_pred)[1],
+               ncol = dim(pred$sims.list$q_pred)[2])
+  #  sum_ll <- vector(mode = "numeric", length = dim(pred$sims.list$q_pred)[1])
+  for(i in 1:dim(pred$sims.list$q_pred)[1]){
+    ll[i, 1] <- dmultinom(obs$lo_count[1, ], prob = pred$sims.list$q_pred[i, 1, ], log = TRUE)
+    ll[i, 2] <- dmultinom(obs$lo_count[2, ], prob = pred$sims.list$q_pred[i, 2, ], log = TRUE)
+  }
+  apply(ll, 1, sum)
+}

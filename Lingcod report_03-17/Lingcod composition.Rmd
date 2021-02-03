@@ -1,0 +1,445 @@
+---
+title: "Lingcod H and E composition"
+author: "Adam Reimer"
+date: "1/26/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE)
+library(magrittr)
+library(ggplot2)
+int_boat <- readRDS("..\\Data\\int_boat.rds")
+source("..\\functions.R")
+source("..\\models.R")
+
+int_ling <- 
+  int_boat %>%
+  dplyr::group_by(port, year, fleet, area) %>% 
+  dplyr::summarise(H = sum(lH), E = sum(E)) %>%
+  dplyr::ungroup()
+ports <- unique(int_ling$port)
+aggregate(E ~ year + port, int_ling, sum)
+jags_datH <- lapply(ports, make_jagsdat, dat = int_ling, stat = "H")
+postH_HomerCharter <- readRDS(".\\Interview post\\postH_HomerCharter.rds")
+postH_Kodiak <- readRDS(".\\Interview post\\postH_Kodiak.rds")
+postH_Seward <- readRDS(".\\Interview post\\postH_Seward.rds")
+postH_Valdez <- readRDS(".\\Interview post\\postH_Valdez.rds")
+postH_Whittier <- readRDS(".\\Interview post\\postH_Whittier.rds")
+```
+
+## Methods
+
+Biologists have an interest in the spatial distribution of Lingcod sport harvest and effort from 5 Southcentral Alaska ports (Homer, Kodiak, Seward, Valdez and Whittier). All anglers from a random sample of returning boats are interviewed about fleet membership (charter or private), the target species, the number of fish caught by species, the number of anglers fishing and the area that was fished. Thus, we sample clusters of anglers from single geographic areas during each interview. We seek inference at the scale of the entire port so interview data is pooled  within each port annually for spatial distribution analysis using mutinomial logistic regression. Separate analyses are conducted for each port.   
+
+Annual harvest data $H_{yfa}$ for year $y$ and fleet $f$ in area $a$ was modeled as:
+
+\begin{equation}
+H_{yfa}~\sim~\textrm{Multinomial}(p_{yfa}, M_{yf})
+\end{equation}
+
+where $M_{yf}~=~\sum_{a}H_{yfa}$ is the total number of fish harvested by interviewed anglers and 
+
+\begin{align*}
+p_{yfa} & ~=~\frac{\phi_{yfa}}{\sum_{a}\phi_{yfa}}\\
+\log(\phi_{yfa}) & ~=~\alpha_a + \beta_{fa} + \epsilon_{a}*y + \gamma_{fa}*y + re_{yfa}
+\end{align*}
+
+subject to the constrain that $\phi_{yf1}~=~\phi_{y1a}~=~1$. We expect considerable overdispersion and the term $re_{yfa} [\sim~\textrm{Normal}(0, \sigma)]$ is an observation level random effect allowing us to model variability that occurs outside of the categorical sampling process. This model was fit using Jags to run 3 chains for 10K iterations each using a 3K iteration burn-in while retaining every 20th iteration. Convergence was assessed using convergence plots and Gelman's $R^2$.  
+
+To detect differences in spatial distribution by fleet and through time we used cross validation to identify the best performing model from among four candidate models.  
+  
+* $\alpha$: Distribution differs by area.  
+* $\alpha + \beta$: Distribution differs by area and fleet.  
+* $\alpha + \beta + \epsilon$: Distribution differs by area and fleet with a shared temporal trend.  
+* $\alpha + \beta + \epsilon + \gamma$: Distribution differs by area and fleet with different temporal trends for each fleet.
+  
+During cross validation data from year $i$ ($H_{ifa}$) was withheld while each model was fit to data for all other years for cross validation. Model performance was evaluated by calculating the log pointwise predictive density of the withheld data relative to the predicted multinomial probability from the model fit to all years $\ne i$ ($p_{ifa}^{(-is)}$) where s indices the number of simulations from the posterior density.
+
+\begin{equation}
+$lppd~=~\sum\limits_{y}^{Y_(y \neq i)}\left[\frac{1}{S}\sum\limits_{s}^{S}\sum\limits_{f}^{2}\frac{M_{yf}!}{\prod_a H_{yfa}!}\prod_a p_{yfa}^{(-is)}\right]$
+\end{equation}
+
+## Harvest Compostion
+Before we attempt inference we need to make sure we have sufficient samples. From the table below we can see that Lingcod harvest by the private fleet in Homer has not been sampled at a high enough rate be estimated. Also note that sampling did not begin in Whittier till 2000. 
+```{r}
+#table(int_boat$year, int_boat$port)
+data.frame(1992:2017,
+           rbind(c(0,0), jags_datH[[1]]$M), 
+           jags_datH[[2]]$M,
+           jags_datH[[3]]$M,
+           jags_datH[[4]]$M,
+           rbind(matrix(0, nrow = 6, ncol = 2), jags_datH[[5]]$M)) %>%
+  setNames(c("Year", 
+             "Homer-Charter", "Homer-Private", 
+             "Kodiak-Charter", "Kodiak-Private", 
+             "Seward-Charter", "Seward-Private", 
+             "Valdez-Charter", "Valdez-Private", 
+             "Whittier-Charter", "Whittier-Private")) %>%
+  knitr::kable(caption = "Number of lingcod harvested by interviewed anglers by year, port and fleet")
+```
+
+### Seward
+
+I'll illustrate the model section process in gory detail for Seward, and then present abbreviate results for the other ports. Parameter estimates for these models are difficult to interpret so we will compare models using plots of predicted probabilities overlain on the original data. The plot below is for the $\alpha$ model, i.e one that assumes the same probability of harvesting lingcod from each area regardless of fleet. The thick likes show the mean probability predicted by the models while the thin lines show the actual model fit after inclusion the random effect. Because we are looking at spatial composition of the harvest the y axis is scaled from 0-1 and the raw data shows the observed composition in any year. For example charter fleet harvest from interviewed anglers in 1992 was ~18% Western PWS outside, ~ 44% Resurrection Bay, 25% PWS outside and 13% North Gulf. The mean response for the same fleet and year was ~13% Western PWS outside, ~ 42% Resurrection Bay, 26% PWS outside and 19% North Gulf. While the mean response is fairly close to our empirical data for the charter fleet in 1992 it is wildly off for other combinations of year and fleet. Also note that the actual model fit is fairly close to the empiriacal data of both fleets for every year. This should illustrate why we need to do out-of-sample prediction to pick a best model... while its easy to see shared means poorly predict the data in most years the random effect allows the model fit the data fairly well. Note that $\sigma$=`r postH_Seward[[1]]$mean$sd` for this model. We will see that $\sigma$ decreases for the better fitting models.
+  
+```{r, fig.height=6, fig.width=10}
+plot_post(postH_Seward[[1]], int_ling, "H", ports[3], inc_pred = "re")
+```
+  
+The plot below is for the $\beta$ model, i.e one that assumes the each fleet has a unique probability of harvesting lingcod from each area. We expect the mean response (thick lines) for this model to be better. Note that $\sigma$=`r postH_Seward[[2]]$mean$sd` for this model. So while this model is an obvious improvement visually the model is also less reliant on a large random effect to fit the data.
+
+```{r, fig.height=6, fig.width=10}
+plot_post(postH_Seward[[2]], int_ling, "H", ports[3], inc_pred = "re")
+```
+  
+The plot below is for the $\epsilon$ model, i.e one that assumes the each fleet has a unique probability of harvesting lingcod from each area and a shared temporal trend. In my mind this model should be an even better fit; for example, it looks like lingcod harvest has decreased in Resurrection bay for both fleets. Note that $\sigma$=`r postH_Seward[[3]]$mean$sd` for this model.
+  
+```{r, fig.height=6, fig.width=10}
+plot_post(postH_Seward[[3]], int_ling, "H", ports[3], inc_pred = "re")
+```
+  
+The plot below is for the $\gamma$ model, i.e one that assumes the each fleet has a unique probability of harvesting lingcod from each area and a unique temporal trend. In my mind this model MAY be an improvement... I see a larger increase in harvest from PWS outside for the charter fleet than I do for the private fleet... but I'm not positive (Note the $\epsilon$ model also captures this pattern). I'm also not positive after actual seeing the modeled mean response (thick lines) for the $\gamma$ model. Note that $\sigma$=`r postH_Seward[[4]]$mean$sd` for this model size the random effect decreased again although marginally.
+
+```{r, fig.height=6, fig.width=10}
+plot_post(postH_Seward[[4]], int_ling, "H", ports[3], inc_pred = "re")
+```
+  
+We can use cross validation to help us determine which model best fits the data. In the table below we see our predictive criteria (lppd) is lowest (indicating the best fit) for the $/gamma$ model. This agrees with the pattern we have already noted with the random effects.  In laymen's terms our model indicates that charter and private lingcod anglers in Seward not only fished different areas but also changed their harvest locations at different rates.
+  
+```{r}
+int_area <- 
+  int_boat %>%
+  dplyr::group_by(port, year, fleet, area) %>%
+  dplyr::summarize(lH = sum(lH), E = sum(E)) %>%
+  dplyr::ungroup()
+dat_Homer <- lapply(1993:2017, function(x) make_jagsdatpred(int_area, "Homer", "lH", x))
+dat_Kodiak <- lapply(1993:2017, function(x) make_jagsdatpred(int_area, "Kodiak", "lH", x))
+dat_Seward <- lapply(1993:2017, function(x) make_jagsdatpred(int_area, "Seward", "lH", x))
+dat_Valdez <- lapply(1993:2017, function(x) make_jagsdatpred(int_area, "Valdez", "lH", x))
+dat_Whittier <- lapply(1993:2017, function(x) make_jagsdatpred(int_area, "Whittier", "lH", x))
+
+post_alpha0_pred_Homer <- readRDS(".\\Interview post\\post_alpha0_pred_Homer.rds")
+post_alpha_pred_Kodiak <- readRDS(".\\Interview post\\post_alpha_pred_Kodiak.rds")
+post_alpha_pred_Seward <- readRDS(".\\Interview post\\post_alpha_pred_Seward.rds")
+post_alpha_pred_Valdez <- readRDS(".\\Interview post\\post_alpha_pred_Valdez.rds")
+post_alpha_pred_Whittier <- readRDS(".\\Interview post\\post_alpha_pred_Whittier.rds")
+
+post_beta_pred_Kodiak <- readRDS(".\\Interview post\\post_beta_pred_Kodiak.rds")
+post_beta_pred_Seward <- readRDS(".\\Interview post\\post_beta_pred_Seward.rds")
+post_beta_pred_Valdez <- readRDS(".\\Interview post\\post_beta_pred_Valdez.rds")
+post_beta_pred_Whittier <- readRDS(".\\Interview post\\post_beta_pred_Whittier.rds")
+
+post_epsilon0_pred_Homer <- readRDS(".\\Interview post\\post_epsilon0_pred_Homer.rds")
+post_epsilon_pred_Kodiak <- readRDS(".\\Interview post\\post_epsilon_pred_Kodiak.rds")
+post_epsilon_pred_Seward <- readRDS(".\\Interview post\\post_epsilon_pred_Seward.rds")
+post_epsilon_pred_Valdez <- readRDS(".\\Interview post\\post_epsilon_pred_Valdez.rds")
+post_epsilon_pred_Whittier <- readRDS(".\\Interview post\\post_epsilon_pred_Whittier.rds")
+
+post_gamma_pred_Kodiak <- readRDS(".\\Interview post\\post_gamma_pred_Kodiak.rds")
+post_gamma_pred_Seward <- readRDS(".\\Interview post\\post_gamma_pred_Seward.rds")
+post_gamma_pred_Valdez <- readRDS(".\\Interview post\\post_gamma_pred_Valdez.rds")
+post_gamma_pred_Whittier <- readRDS(".\\Interview post\\post_gamma_pred_Whittier.rds")
+
+ll_Seward <- 
+  data.frame(alpha = Map(get_llpred, pred = post_alpha_pred_Seward, obs = dat_Seward) %>% Reduce('+', .),
+             beta = Map(get_llpred, pred = post_beta_pred_Seward, obs = dat_Seward) %>% Reduce('+', .),
+             epsilon = Map(get_llpred, pred = post_epsilon_pred_Seward, obs = dat_Seward) %>% Reduce('+', .),
+             gamma = Map(get_llpred, pred = post_gamma_pred_Seward, obs = dat_Seward) %>% Reduce('+', .)) %>%
+  tidyr::pivot_longer(cols = alpha:gamma)
+aggregate(value ~ name, data = ll_Seward, FUN = median) %>%
+  dplyr::mutate(sigma = sapply(postH_Seward, function(x) x$mean$sd)) %>%
+  knitr::kable(, col.names = c("Model", "lppd", "sigma"),
+               caption = "Model selection criteria for spatial distribution of lingcod harvested out of Seward, 1992-2017")
+```
+  
+Here are the actual parameter estimates for the $\gamma$ model since we would like to use that to describe spatial composition of lingcod harvest in Seward.
+  
+```{r}
+postH_Seward[[4]]$summary[!grepl("re", rownames(postH_Seward[[4]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
+  knitr::kable()
+```
+  
+### Kodiak
+
+Model selection criteria for Kodiak indicate the $\beta$ model should be preferred, i.e one with different composition estimates for each fleet but no temporal trend.
+  
+```{r}
+ll_Kodiak <- 
+  data.frame(alpha = Map(get_llpred, pred = post_alpha_pred_Kodiak, obs = dat_Kodiak) %>% Reduce('+', .),
+             beta = Map(get_llpred, pred = post_beta_pred_Kodiak, obs = dat_Kodiak) %>% Reduce('+', .),
+             epsilon = Map(get_llpred, pred = post_epsilon_pred_Kodiak, obs = dat_Kodiak) %>% Reduce('+', .),
+             gamma = Map(get_llpred, pred = post_gamma_pred_Kodiak, obs = dat_Kodiak) %>% Reduce('+', .)) %>%
+  tidyr::pivot_longer(cols = alpha:gamma)
+aggregate(value ~ name, data = ll_Kodiak, FUN = median) %>%
+  dplyr::mutate(sigma = sapply(postH_Kodiak, function(x) x$mean$sd)) %>%
+  knitr::kable(, col.names = c("Model", "lppd", "sigma"),
+               caption = "Model selection criteria for spatial distribution of lingcod harvested out of Kodiak, 1992-2017")
+```
+
+```{r, fig.height=6, fig.width=10}
+plot_post(postH_Kodiak[[2]], int_ling, "H", ports[2], inc_pred = "re")
+```
+
+```{r}
+postH_Kodiak[[2]]$summary[!grepl("re", rownames(postH_Kodiak[[2]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
+  knitr::kable()
+```
+  
+### Valdez
+
+Model selection criteria for Valdez indicate the $\epsilon$ model should be preferred, i.e one with different composition estimates for each fleet and a shared temporal trend.
+  
+```{r}
+ll_Valdez <- 
+  data.frame(alpha = Map(get_llpred, pred = post_alpha_pred_Valdez, obs = dat_Valdez) %>% Reduce('+', .),
+             beta = Map(get_llpred, pred = post_beta_pred_Valdez, obs = dat_Valdez) %>% Reduce('+', .),
+             epsilon = Map(get_llpred, pred = post_epsilon_pred_Valdez, obs = dat_Valdez) %>% Reduce('+', .),
+             gamma = Map(get_llpred, pred = post_gamma_pred_Valdez, obs = dat_Valdez) %>% Reduce('+', .)) %>%
+  tidyr::pivot_longer(cols = alpha:gamma)
+aggregate(value ~ name, data = ll_Valdez, FUN = median) %>%
+  dplyr::mutate(sigma = sapply(postH_Valdez, function(x) x$mean$sd)) %>%
+  knitr::kable(, col.names = c("Model", "lppd", "sigma"),
+               caption = "Model selection criteria for spatial distribution of lingcod harvested out of Valdez, 1992-2017")
+```
+
+```{r, fig.height=6, fig.width=10}
+plot_post(postH_Valdez[[3]], int_ling, "H", ports[4], inc_pred = "re")
+```
+
+```{r}
+postH_Valdez[[3]]$summary[!grepl("re", rownames(postH_Valdez[[3]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
+  knitr::kable()
+```
+  
+### Whittier
+
+Model selection criteria for Valdez indicate the $\gamma$ model should be preferred, i.e one with different composition estimates for each fleet and unique temporal trends.
+  
+```{r}
+ll_Whittier <- 
+  data.frame(alpha = Map(get_llpred, pred = post_alpha_pred_Whittier[6:25], obs = dat_Whittier[6:25]) %>% Reduce('+', .),
+             beta = Map(get_llpred, pred = post_beta_pred_Whittier[6:25], obs = dat_Whittier[6:25]) %>% Reduce('+', .),
+             epsilon = Map(get_llpred, pred = post_epsilon_pred_Whittier[6:25], obs = dat_Whittier[6:25]) %>% Reduce('+', .),
+             gamma = Map(get_llpred, pred = post_gamma_pred_Whittier[6:25], obs = dat_Whittier[6:25]) %>% Reduce('+', .)) %>%
+  tidyr::pivot_longer(cols = alpha:gamma)
+aggregate(value ~ name, data = ll_Whittier, FUN = median) %>%
+  dplyr::mutate(sigma = sapply(postH_Whittier, function(x) x$mean$sd)) %>%
+  knitr::kable(, col.names = c("Model", "lppd", "sigma"),
+               caption = "Model selection criteria for spatial distribution of lingcod harvested out of Whittier, 1999-2017")
+```
+  
+```{r, fig.height=6, fig.width=10}
+plot_post(postH_Whittier[[4]], int_ling, "H", ports[5], inc_pred = "re")
+```
+
+```{r}
+postH_Whittier[[4]]$summary[!grepl("re", rownames(postH_Whittier[[4]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
+  knitr::kable()
+```
+  
+### Homer
+
+In Homer we did not have sufficient data to estimate composition for the private fleet, so only the $\alpha$ and $\epsilon$ models are applicable. Model selection criteria for Homer indicate the $\alpha$ model should be preferred.
+  
+```{r}
+get_llpred0 <- function(pred, obs){
+  ll <- vector("numeric", length = dim(pred$sims.list$q_pred)[1])
+  for(i in 1:dim(pred$sims.list$q_pred)[1]){
+    ll[i] <- dmultinom(obs$lo_count[1, ], prob = pred$sims.list$q_pred[i, ], log = TRUE)
+  }
+  ll
+}
+ll_Homer <- 
+  data.frame(alpha = Map(get_llpred0, pred = post_alpha0_pred_Homer, obs = dat_Homer) %>% Reduce('+', .),
+             epsilon = Map(get_llpred0, pred = post_epsilon0_pred_Homer, obs = dat_Homer) %>% Reduce('+', .)) %>%
+  tidyr::pivot_longer(cols = alpha:epsilon)
+aggregate(value ~ name, data = ll_Homer, FUN = median) %>%
+  dplyr::mutate(sigma = sapply(postH_HomerCharter, function(x) x$mean$sd)) %>%
+  knitr::kable(, col.names = c("Model", "lppd", "sigma"),
+               caption = "Model selection criteria for spatial distribution of lingcod harvested out of Whittier, 1999-2017")
+```
+  
+```{r, fig.height=6, fig.width=10}
+plot_post0 <- function(post, dat, stat, plotport){
+  data <- dat[dat$port == plotport, c("year", "fleet", "area", stat)] %>%
+    dplyr::arrange(area, fleet, year) %>%
+    dplyr::mutate(yearc = year - median(year)) %>%
+    dplyr::filter(fleet == "Charter")
+  data_full <- expand.grid(list(yearc = unique(data$yearc), 
+                                area = unique(data$area),
+                                value = 0)) %>%
+    dplyr::left_join(data, by = c("yearc", "area")) %>%
+    dplyr::mutate(value = ifelse(is.na(!!dplyr::sym(stat)), value, !!dplyr::sym(stat)),
+                  area = factor(area, levels = unique(data$area)))
+  
+  x <- 
+    data.frame(
+      area = 1,
+      yearc = min(data_full$yearc):max(data_full$yearc)) %>%
+    dplyr::arrange(area, yearc) %>%
+    as.matrix()
+  
+  out <- data_full %>%
+    ggplot(aes(x = yearc, weight = value, fill = area)) +
+    geom_area(stat = "count", position = "fill", color = "white", alpha = 0.25) +
+    scale_y_continuous(name = "Percent") +
+    scale_x_continuous(name = "Year", breaks = seq(min(data$yearc), max(data$yearc), 3), labels = seq(min(data$year), max(data$year), 3)) +
+    theme_bw(base_size = 16) +
+    theme(legend.position = "bottom")
+  
+  b <- 
+    data.frame(
+      intercept = post$mean$alpha,
+      year = if(!is.null(post$mean$epsilon)){post$mean$epsilon} else rep(0, length(post$mean$alpha))) %>%
+    as.matrix() %>%
+    t()
+  
+  p <- as.data.frame(exp(x%*%b)/apply(exp(x%*%b), 1, sum)) %>% setNames(unique(data$area));
+  p$yearc <- min(data_full$yearc):max(data_full$yearc)
+  
+  p <- 
+    tidyr::pivot_longer(p, -"yearc", names_to = "area") %>%
+    dplyr::mutate(area = factor(area, levels = rev(unique(data$area)))) %>%
+    dplyr::arrange(yearc, area) %>% 
+    dplyr::group_by(yearc) %>% 
+    dplyr::mutate(pct = cumsum(value))
+  p$area <- factor(p$area, levels = unique(data$area))
+
+  out + geom_line(data = p, aes(x = yearc, y = pct, color = area), inherit.aes = FALSE, size = 1.1)
+}
+
+plot_post0(postH_HomerCharter[[1]], int_ling, "H", ports[1])
+```
+
+```{r}
+postH_HomerCharter[[1]]$summary[!grepl("re", rownames(postH_HomerCharter[[1]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
+  knitr::kable()
+```
+  
+## Effort
+  
+I did not run spatial composition estimates for effort at this time because we need to figure out a definition for lingcod effort. Currently boats who are targeting Rockfish (?maybe not but probably should), Bottomfish, Bottomfish and Salmon and Lingcod are classified as having fished for lingcod. If we look at Harvest, Effort and CPUE statistics from individual boats you can see some rational for that decision. The graph below shows box plots for lingcod Harvest, total effort and lingcod CPUE by target species. The numbers above each boxplot show the number of boats interviewed. The dots show outliers but also help us get an idea about what is being plotted. In this case our plot suggests that somewhere in our interview data a charter boat targeting halibut reported harvesting 28 lingcod. Two things stand out. First, the number of boats who defined themselves as targeting lingcod and harvested a lingcod is negligible. Second, only boats who targeted lingcod and bottomfish were able to have much success with lingcod relative to total effort (mean CPUE > 0). I don't know if our current filters were defined using data such as these but it does seem to support them in some sense.
+
+```{r, fig.height=6, fig.width=10, fig.cap="Lingcod boat scale Interview data"}
+plot_int(int_boat, "lH")
+```
+  
+The problem Martin identified is that these harvest rates are somewhat mitigated by the sheer number of anglers targeting Halibut such that halibut fisherman harvest a considerable portion of the total lingcod harvest, particularly in Valdez. I'm not sure this really is a problem when trying to define lingcod effort since it sounded like you guys go out of your way to keep the Halibut target group pretty clean. Bycatch happens.
+  
+```{r}
+lH_target <- 
+  aggregate(lH ~ port + target, int_boat, sum) %>%
+  tidyr::pivot_wider(id_cols = port, names_from = target, values_from = lH)
+out <- lH_target[, -1]/apply(lH_target[, -1], 1, sum)
+rownames(out) <- ports
+knitr::kable(out, 
+            digits = 2, 
+            caption ="Proportion of lingcod harvest by angler target species for each port")
+```
+  
+I'm not sure how effort data might be used, and I think that is critical in deciding what sort of filter is most helpful but here are a few options.
+ 
+### Existing filter but describe the harvest
+  
+I think we should consider the possibility that the existing filer is fine, i.e. people generally bottomfish for a species conglomerate and lingcod is one of the species they harvest. In my mind this is the most honest treatment of our data. If we took that route we could just report bottomfish effort either here or in the rockfish report. 
+
+```{r, fig.height=6, fig.width=10, fig.cap="Species composition data: Lingcod, Rockfish, Bottomfish, and Bottomfish & Salmon trips from Seward"}
+int_filter <- int_boat[int_boat$target %in% c("Lingcod", "Rockfish", "Bottomfish", "Bottomfish & Salmon") &
+                         int_boat$year >= 2000, ]
+int_boat$bH <- rowSums(int_boat[, c("pH", "npH", "yH", "hH")], na.rm = TRUE)
+#Use both criteria
+int_lgtt <- int_boat[(!(int_boat$bH >= int_boat$lH & int_boat$target %in% c("Rockfish", "Bottomfish", "Bottomfish & Salmon")) &
+                        !(int_boat$hH >= int_boat$lH & int_boat$target == "Halibut") & 
+                        int_boat$target %in% c("Rockfish", "Bottomfish", "Bottomfish & Salmon", "Halibut")) |
+                       int_boat$target == "Lingcod", ]
+int_CPUE1 <- int_boat[!is.na(int_boat$E) & int_boat$lH / int_boat$E > 1, ]
+int_CPUE4 <- int_boat[!is.na(int_boat$E) & int_boat$lH / int_boat$E > 0.4, ]
+dat_plot <- list(int_filter, int_lgtt[int_lgtt$year >= 2000, ], int_CPUE1, int_CPUE4)
+Filter_Seward <- lapply(dat_plot, plot_post, post = NA, stat = "E", plotport = "Seward", inc_pred = "none")
+Filter_Seward[[1]]
+```
+  
+We could take that a step further and report on the species bottomfish fishermen tend to harvest.
+  
+```{r, fig.height=6, fig.width=10, fig.cap="Bottomfish harvest compostion of Lingcod, Rockfish, Bottomfish, and Bottomfish & Salmon trips from Seward"}
+int_boat$rH <- rowSums(int_boat[, c("pH", "npH", "yH")], na.rm = TRUE)
+H_comp <- 
+  lapply(unique(int_boat$port), function(x){
+    dat <- int_boat[int_boat$port == x, ]
+    expand.grid(list(year = unique(dat$year),
+                     port = unique(dat$port),
+                     fleet = unique(dat$fleet), 
+                     target = unique(dat$target)))}) %>%
+  do.call(rbind, .) %>%
+  dplyr::left_join(int_boat, by = c("year", "port", "fleet", "target")) %>%
+  dplyr::select(year, fleet, port, target, hH, rH, lH) %>%
+  tidyr::pivot_longer(cols = dplyr::ends_with("H")) %>%
+  dplyr::mutate(name = factor(name, levels = c("hH", "lH", "rH"), labels = c("Halibut", "Lingcod", "Rockfish")))
+
+# H_comp <- 
+#   dplyr::select(int_boat, year, fleet, port, target, hH, bH, lH) %>%
+#   tidyr::pivot_longer(cols = dplyr::ends_with("H"))
+
+# * * Bottomfish trips ----------------------------------------------------
+ggplot(H_comp[H_comp$target %in% c("Rockfish", "Bottomfish", "Bottomfish & Salmon", "Lingcod"), ], aes(x = year, weight = value, fill = name)) +
+  geom_area(stat = "count", position = "fill", color = "white", alpha = 0.25) +
+  facet_grid(port ~ fleet) +
+  scale_y_continuous(name = "Percent") +
+  scale_x_continuous(name = "Year", breaks = seq(1993, 20017, 3)) +
+  theme_bw(base_size = 16) +
+  theme(legend.position = "bottom")
+```
+  
+### Alternative effort filters
+#### Lingcod Harvest > target Harvest
+Another option would be to identify lingcod effort based on success relative to other target species by selecting only those records where boat harvest more lingcod than whatever they identified as their target. As you can see this represents a minuscule portion of all interviews and also a fairly small portion of the harvest. The obvious problem is that not many boats remain in the dataset. I think we could make a good argument that these boat were lingcod fisherman whether they knew it or not but run into the same problem we have when asking lingcod fisherman to self identify... there just don't appear to be very many of them.
+
+```{r, fig.height=6, fig.width=10, fig.cap="Interview data: Lingcod Harvest > target Harvest"}
+lgtt_int <- table(int_lgtt$port) / table(int_boat$port)
+lgtt_har <- aggregate(lH ~ port, int_lgtt, sum)[,2] / aggregate(lH ~ port, int_boat, sum)[,2]
+lgtt_tab <- rbind(lgtt_int, lgtt_har)
+rownames(lgtt_tab) <- c("% of interviews", "% of harvest")
+knitr::kable(lgtt_tab, digits = 2)
+plot_int(int_lgtt , "lH")
+```
+  
+```{r, fig.height=6, fig.width=10, fig.cap="Composition data: Lingcod Harvest > target Harvest in Seward"}
+Filter_Seward[[2]]
+```
+
+#### Lingcod CPUE > 1
+A different option would be to identify lingcod effort by filtering based on CPUE. Martin suggest boats that harvest 2 or more lingcod but using a threshold harvest would tend to include large boats disproportionately. Defining by CPUE would be a similar statistic but scaled for boat size. I did this two ways. First I used CPUE > 1 which implies every angler caught one lingcod. Again, this results in a minuscule portion of all interviews but a larger portion of the Harvest.  
+  
+```{r, fig.height=6, fig.width=10, fig.cap="CPUE >1"}
+CPUE1_int <- table(int_CPUE1$port) / table(int_boat$port)
+CPUE1_har <- aggregate(lH ~ port, int_CPUE1, sum)[,2] / aggregate(lH ~ port, int_boat, sum)[,2]
+CPUE1_tab <- rbind(CPUE1_int, CPUE1_har)
+rownames(CPUE1_tab) <- c("% of interviews", "% of harvest")
+knitr::kable(CPUE1_tab, digits = 2)
+
+plot_int(int_CPUE1, "lH")
+```
+  
+```{r, fig.height=6, fig.width=10, fig.cap="Composition data: Lingcod CPUE > 1 in Seward"}
+Filter_Seward[[3]]
+```
+  
+#### Lingcod CPUE > 0.4
+Choosing CPUE > 0.4 is similar to Martins 2 fish since the mean number of anglers per boat is 5. We retain a lot more of the data (with respect to harvest anyway) but I'm not sure what it is telling us. Notice the empirical data looks a lot like the harvest composition plot which may not be surprising since we are accounting for a majority of the harvested lingcod. There is nothing magical about 1 or 0.4 and if we could motivate a different number i'd be willing to try it. I'm just not sure what we are trying to achieve.
+  
+```{r, fig.height=6, fig.width=10, fig.cap="CPUE > 0.4"}
+CPUE4_int <- table(int_CPUE4$port) / table(int_boat$port)
+CPUE4_har <- aggregate(lH ~ port, int_CPUE4, sum)[,2] / aggregate(lH ~ port, int_boat, sum)[,2]
+CPUE4_tab <- rbind(CPUE4_int, CPUE4_har)
+rownames(CPUE4_tab) <- c("% of interviews", "% of harvest")
+knitr::kable(CPUE4_tab, digits = 2)
+
+plot_int(int_CPUE4, "lH")
+#Note CPUE > .4 rough equivilent to Martin's > 2 lingcod.
+#quantile(int_boat$E, na.rm = TRUE)
+```
+    
+```{r, fig.height=6, fig.width=10, fig.cap="Composition data: Lingcod CPUE > 0.4 in Seward"}
+Filter_Seward[[4]]
+```

@@ -23,6 +23,28 @@ model{
 ", con="model_alpha.txt")
 modfile_alpha <- 'model_alpha.txt'
 
+#area mean with only 1 fleet
+writeLines("
+model{
+  # priors:
+  alpha[1] <- 0 #area baseline
+  for (a in 2:A){alpha[a] ~ dnorm(0, 0.0001)}
+  
+  tau ~ dgamma(0.001, 0.001) # prior for mixed effect precision
+  sd <- sqrt(1/tau)
+
+  for(y in 1:Y){ # loop around years
+    count[y,1:A] ~ dmulti(q[y,1:A], M[y])
+    for(a in 1:A){
+      re[y,a] ~ dnorm(0, tau)
+      q[y,a] <- phi[y,a]/sum(phi[y,])
+      log(phi[y,a]) <- alpha[a] + re[y,a]
+    }
+  }
+}
+", con="model_alpha0.txt")
+modfile_alpha0 <- 'model_alpha0.txt'
+
 
 #fleet/area mean
 writeLines("
@@ -66,14 +88,12 @@ model{
   tau ~ dgamma(0.001, 0.001) # prior for mixed effect precision
   sd <- sqrt(1/tau)
 
-  for(f in 1:1){ #loop around fleet
-    for(y in 1:Y){ # loop around years
-      count[y,f,1:A] ~ dmulti(q[y,f,1:A], M[y,f])
-      for(a in 1:A){
-        re[y,f,a] ~ dnorm(0, tau)
-        q[y,f,a] <- phi[y,f,a]/sum(phi[y,f,])
-        log(phi[y,f,a]) <- alpha[a] + epsilon[a]*yearc[y] + re[y,f,a]
-      }
+  for(y in 1:Y){ # loop around years
+    count[y,1:A] ~ dmulti(q[y,1:A], M[y])
+    for(a in 1:A){
+      re[y,a] ~ dnorm(0, tau)
+      q[y,a] <- phi[y,a]/sum(phi[y,])
+      log(phi[y,a]) <- alpha[a] + epsilon[a]*yearc[y] + re[y,a]
     }
   }
 }

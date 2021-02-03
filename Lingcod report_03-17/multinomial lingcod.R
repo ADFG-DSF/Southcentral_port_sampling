@@ -31,7 +31,7 @@ models <- list(alpha <- modfile_alpha,
 
 # * Homer Harvest -----------------------------------------------------------
 #None of the models are great.
-#Need to omit Parivate data... too sparse.
+#Need to omit Private data... too sparse.
 post_Homer <- mapply(jagsUI::jags,
                      parameters.to.save = params, model.file = models,
                      MoreArgs = list(data = jags_datH[[1]], n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb),
@@ -41,42 +41,28 @@ post_Homer[[1]]
 post_Homer[[2]]
 post_Homer[[3]]
 post_Homer[[4]]
-data.frame(Deviance = sapply(post_Homer, function(x) x$mean$deviance),
-           pD = sapply(post_Homer, function(x) x$pD), 
-           DIC = sapply(post_Homer, function(x) x$DIC),
-           sd = sapply(post_Homer, function(x) x$mean$sd))
-plot_post(post_Homer[[1]], int_ling, "H", ports[1])
-plot_post(post_Homer[[2]], int_ling, "H", ports[1])
-plot_post(post_Homer[[3]], int_ling, "H", ports[1])
-plot_post(post_Homer[[4]], int_ling, "H", ports[1])
-lapply(post_Homer, function(x) x$sims.list$sd) %>% 
-  do.call(cbind, .) %>% 
-  as.data.frame() %>% 
-  setNames(c("alpha", "beta", "epsilon", "gamma")) %>%
-  tidyr::pivot_longer(tidyr::everything()) %>% 
-  ggplot(aes(x = value)) + 
-  geom_histogram() + 
-  facet_grid(name ~ .)
-gridExtra::marrangeGrob(list(plot_post(post_Homer[[1]], int_ling, "H", ports[1]),
-                             plot_post(post_Homer[[2]], int_ling, "H", ports[1]),
-                             plot_post(post_Homer[[3]], int_ling, "H", ports[1]),
-                             plot_post(post_Homer[[4]], int_ling, "H", ports[1])), nrow = 2, ncol = 2)
 
 #Homer Charter data only
-jags_datH[[1]]$F = 1
-post_HomerCharter <- mapply(jagsUI::jags,
-                            parameters.to.save = params[c(1, 3)], model.file = list(alpha <- modfile_alpha,epsilon <- modfile_epsilon0),
-                            MoreArgs = list(data = jags_datH[[1]], n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb),
+jags_datH_Homer <- jags_datH[[1]]
+jags_datH_Homer$count <- jags_datH[[1]]$count[,1,]
+jags_datH_Homer$M <- jags_datH[[1]]$M[,1]
+ni <- 1E5; nb <- ni/3; nc <- 3; nt <- 20
+postH_HomerCharter <- mapply(jagsUI::jags,
+                            parameters.to.save = params[c(1, 3)], model.file = list(alpha <- modfile_alpha0,epsilon <- modfile_epsilon0),
+                            MoreArgs = list(data = jags_datH_Homer, n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb),
                             SIMPLIFY = FALSE)
-lapply(post_HomerCharter, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
-post_HomerCharter[[1]]
-post_HomerCharter[[2]]
-data.frame(Deviance = sapply(post_HomerCharter, function(x) x$mean$deviance),
-           pD = sapply(post_HomerCharter, function(x) x$pD), 
-           DIC = sapply(post_HomerCharter, function(x) x$DIC),
-           sd = sapply(post_HomerCharter, function(x) x$mean$sd))
-plot_post(post_HomerCharter[[1]], int_ling, "H", ports[1])
-plot_post(post_HomerCharter[[2]], int_ling, "H", ports[1])
+lapply(postH_HomerCharter, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
+saveRDS(postH_HomerCharter, ".\\Lingcod report_03-17\\Interview post\\postH_HomerCharter.rds")
+ni <- 1E4; nb <- ni/3; nc <- 3; nt <- 20
+postH_HomerCharter[[1]]
+postH_HomerCharter[[2]]
+data.frame(Deviance = sapply(postH_HomerCharter, function(x) x$mean$deviance),
+           pD = sapply(postH_HomerCharter, function(x) x$pD), 
+           DIC = sapply(postH_HomerCharter, function(x) x$DIC),
+           sd = sapply(postH_HomerCharter, function(x) x$mean$sd))
+plot_post(postH_HomerCharter[[1]], int_ling, "H", ports[1])
+plot_post(postH_HomerCharter[[2]], int_ling, "H", ports[1])
+
 
 
 
@@ -89,6 +75,7 @@ postH_Kodiak <- mapply(jagsUI::jags,
                        MoreArgs = list(data = jags_datH[[2]], n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb),
                        SIMPLIFY = FALSE)
 lapply(postH_Kodiak, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
+saveRDS(postH_Kodiak, ".\\Lingcod report_03-17\\Interview post\\postH_Kodiak.rds")
 postH_Kodiak[[1]]
 postH_Kodiak[[2]]
 postH_Kodiak[[3]]
@@ -123,6 +110,7 @@ postH_Seward <- mapply(jagsUI::jags,
                        MoreArgs = list(data = jags_datH[[3]], n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb),
                        SIMPLIFY = FALSE)
 lapply(postH_Seward, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
+saveRDS(postH_Seward, ".\\Lingcod report_03-17\\Interview post\\postH_Seward.rds")
 postH_Seward[[1]]
 postH_Seward[[2]]
 postH_Seward[[3]]
@@ -161,6 +149,7 @@ postH_Valdez <- mapply(jagsUI::jags,
                        MoreArgs = list(data = jags_datH[[4]], n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb),
                        SIMPLIFY = FALSE)
 lapply(postH_Valdez, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
+saveRDS(postH_Valdez, ".\\Lingcod report_03-17\\Interview post\\postH_Valdez.rds")
 postH_Valdez[[1]]
 postH_Valdez[[2]]
 postH_Valdez[[3]]
@@ -181,7 +170,6 @@ plot_post(postH_Valdez[[1]], int_ling, "H", ports[4])
 plot_post(postH_Valdez[[2]], int_ling, "H", ports[4])
 plot_post(postH_Valdez[[3]], int_ling, "H", ports[4])
 plot_post(postH_Valdez[[4]], int_ling, "H", ports[4])
-gridExtra::marrangeGrob(lapply(postH_Valdez, plot_post, int_ling, "H", ports[[4]]), nrow = 2, ncol = 2)
 
 plot_post(postH_Valdez[[1]], int_ling, "H", ports[4], bystock = FALSE)
 
@@ -198,6 +186,7 @@ postH_Whittier <- mapply(jagsUI::jags,
                          MoreArgs = list(data = jags_datH[[5]], n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb),
                          SIMPLIFY = FALSE)
 lapply(postH_Whittier, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
+saveRDS(postH_Whittier, ".\\Lingcod report_03-17\\Interview post\\postH_Whittier.rds")
 postH_Whittier[[1]]
 postH_Whittier[[2]]
 postH_Whittier[[3]]
@@ -224,13 +213,22 @@ jags_datH[[5]]$M
 
 
 # Lingcod Effort --------------------------------------------------
+int_boat$cut <- cut(int_boat$lH/int_boat$E, c(0, .1, .3, .4, .5 , .6, .7, .8, .9, 1, 1.5, 2, 2.5, 5))
+aggregate(lH ~ cut, int_boat, sum) %>%
+  dplyr::mutate(int = as.vector(table(int_boat$cut)),
+                pct_lH = lH/sum(lH),
+                pct_int = int/sum(int)) %>%
+  
 
 # * Harvest by target group ---------------------------------------
+table(int_boat$year, int_boat$target)
+table(int_boat$target)
+
 #Bycatch dominates
 lH_target <- 
   aggregate(lH ~ port + target, int_boat, sum) %>%
   tidyr::pivot_wider(id_cols = port, names_from = target, values_from = lH)
-lH_target[, -1]/apply(lH_target[, -1], 1, sum)
+lH_target[, -1]/apply(lH_target[, -1], 1, sum) 
 #similar information temporally
 lapply(unique(int_boat$port), function(x){dat <- int_boat[int_boat$port == x, ]
 expand.grid(list(year = unique(dat$year),
@@ -311,11 +309,15 @@ sapply(unique(int_boat$port), function(x){
   })
 int_lgtb <- int_boat[!(int_boat$bH >= int_boat$lH & int_boat$target %in% c("Rockfish", "Bottomfish", "Bottomfish & Salmon")), ]
 plot_int(int_lgtb, "lH")
-#Use both criteria
-int_lgtt <- int_boat[!(int_boat$bH >= int_boat$lH & int_boat$target %in% c("Rockfish", "Bottomfish", "Bottomfish & Salmon")) &
-                        !(int_boat$hH >= int_boat$lH & int_boat$target == "Halibut"), ]
-plot_int(int_lgtt , "lH")
 
+#Use both criteria
+int_lgtt <- int_boat[(!(int_boat$bH >= int_boat$lH & int_boat$target %in% c("Rockfish", "Bottomfish", "Bottomfish & Salmon")) &
+                        !(int_boat$hH >= int_boat$lH & int_boat$target == "Halibut") & 
+                        int_boat$target %in% c("Rockfish", "Bottomfish", "Bottomfish & Salmon", "Halibut")) |
+                       int_boat$target == "Lingcod", ]
+plot_int(int_lgtt , "lH")
+table(int_lgtt$port) / table(int_boat$port)
+aggregate(lH ~ port, int_lgtt, sum)[,2] / aggregate(lH ~ port, int_boat, sum)[,2]
 
 # * * CPUE > 1 --------------------------------------------------------------
 #Martin suggests a hard number of lingcod per boat but I think we should at least scale it by angler days.
@@ -335,6 +337,9 @@ sapply(unique(int_boat$port), function(x){
 })
 int_CPUE1 <- int_boat[!is.na(int_boat$E) & int_boat$lH / int_boat$E > 1, ]
 plot_int(int_CPUE1, "lH")
+table(int_CPUE1$port) / table(int_boat$port)
+aggregate(lH ~ port, int_CPUE1, sum)[,2] / aggregate(lH ~ port, int_boat, sum)[,2]
+
 int_CPUE4 <- int_boat[!is.na(int_boat$E) & int_boat$lH / int_boat$E > 0.4, ]
 plot_int(int_CPUE4, "lH")
 #Note CPUE > .4 rough equivilent to Martin's > 2 lingcod.
@@ -358,6 +363,7 @@ plot_int(int_2l, "lH")
 
 
 # * H comp by target group -----------------------------------------------
+int_boat$rH <- rowSums(int_boat[, c("pH", "npH", "yH")], na.rm = TRUE)
 H_comp <- 
   lapply(unique(int_boat$port), function(x){
     dat <- int_boat[int_boat$port == x, ]
@@ -367,12 +373,12 @@ H_comp <-
                      target = unique(dat$target)))}) %>%
   do.call(rbind, .) %>%
   dplyr::left_join(int_boat, by = c("year", "port", "fleet", "target")) %>%
-  dplyr::select(year, fleet, port, target, hH, pH, npyH, lH) %>%
+  dplyr::select(year, fleet, port, target, hH, rH, lH) %>%
   tidyr::pivot_longer(cols = dplyr::ends_with("H"))
 
-H_comp <- 
-  dplyr::select(int_boat, year, fleet, port, target, hH, pH, npyH, lH) %>%
-  tidyr::pivot_longer(cols = dplyr::ends_with("H"))
+# H_comp <- 
+#   dplyr::select(int_boat, year, fleet, port, target, hH, bH, lH) %>%
+#   tidyr::pivot_longer(cols = dplyr::ends_with("H"))
 
 
 # * * Halibut trips -------------------------------------------------------
@@ -385,7 +391,7 @@ ggplot(H_comp[H_comp$target == "Halibut", ], aes(x = year, weight = value, fill 
   theme(legend.position = "bottom")
 
 # * * Bottomfish trips ----------------------------------------------------
-ggplot(H_comp[H_comp$target %in% c("Rockfish", "Bottomfish", "Bottomfish & Salmon"), ], aes(x = year, weight = value, fill = name)) +
+ggplot(H_comp[H_comp$target %in% c("Rockfish", "Bottomfish", "Bottomfish & Salmon", "Lingcod"), ], aes(x = year, weight = value, fill = name)) +
   geom_area(stat = "count", position = "fill", color = "white", alpha = 0.25) +
   facet_grid(port ~ fleet) +
   scale_y_continuous(name = "Percent") +

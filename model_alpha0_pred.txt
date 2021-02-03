@@ -3,20 +3,23 @@ model{
   # priors:
   alpha[1] <- 0 #area baseline
   for (a in 2:A){alpha[a] ~ dnorm(0, 0.0001)}
-
-  epsilon[1] <- 0 #area baseline
-  for (a in 2:A){epsilon[a] ~ dnorm(0, 0.0001)}
   
   tau ~ dgamma(0.001, 0.001) # prior for mixed effect precision
   sd <- sqrt(1/tau)
 
   for(y in 1:Y){ # loop around years
-    count[y,1:A] ~ dmulti(q[y,1:A], M[y])
+    count[y,1,1:A] ~ dmulti(q[y,1:A], M[y,1])
     for(a in 1:A){
       re[y,a] ~ dnorm(0, tau)
       q[y,a] <- phi[y,a]/sum(phi[y,])
-      log(phi[y,a]) <- alpha[a] + epsilon[a]*yearc[y] + re[y,a]
+      log(phi[y,a]) <- alpha[a] + re[y,a]
     }
+  }
+  pred_count[1, 1:A] ~ dmulti(q_pred[1:A], pred_M[1])
+  for(a in 1:A){
+    re_pred[a] ~ dnorm(0, tau)
+    q_pred[a] <- phi_pred[a]/sum(phi_pred[])
+    log(phi_pred[a]) <- alpha[a] + re_pred[a]
   }
 }
 
