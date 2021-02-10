@@ -9,32 +9,24 @@ TITLE ' ';
 ods html close; ods html; run;
 
 * First narrow the data to include only records with stat areas and lingcod effort;
-DATA int0317;
+DATA int0319;
 	SET sasdata.int9204 sasdata.int05 sasdata.int06 sasdata.int07 sasdata.int08
 		sasdata.int09 sasdata.int10 sasdata.int11 sasdata.int12 sasdata.int13
-		sasdata.int14 sasdata.int15 sasdata.int16 sasdata.int17;
+		sasdata.int14 sasdata.int15 sasdata.int16 sasdata.int17 sasdata.int18 sasdata.int19;
 	if port ne 'CCI';
-	if month ge 7;   *exclude data prior to July because fishery closed - can't be effort for lingcod;
 	if ADFGStat = . THEN DELETE;
 	if User = 'Unknown' or User = '        ' THEN DELETE;
+run;
+data int; 
+	set int0319 (keep =  year month angldays port hakept pelkept npkept lckept yekept user target ADFGstat);
+run;
 	*use one or the other of the following lines;
 	*if Target = 'L' OR Target = 'B' OR Target = 'B+S';
 	*if Target = 'L'; *alternative;
 
-PROC SORT DATA = int0317;
+PROC SORT DATA = int;
 	BY PORT YEAR USER ADFGSTAT Target;
 
-*Now get total angl-days by stat area and divide to get proportions;
-PROC MEANS SUM DATA=LCEFFORT0317 NOPRINT;
-  BY PORT YEAR USER ADFGSTAT Target;
-  OUTPUT OUT=ADBYSTAT SUM(ANGLDAYS LCKEPT)=ADAYS LCKEPT;
-run;
-
-PROC PRINT DATA=ADBYSTAT;
-  TITLE 'Proportions of lingcod effort (angl-days) by ADFG stat area';
-	FORMAT P 5.3 SEP 5.3;
-RUN;
-
-proc export data = int outfile = 'H:\My Documents\Southcentral halibut and groundfish\Lingcod report_03-17\dat_int.xls'
+proc export data = int outfile = 'H:\My Documents\Southcentral halibut and groundfish\Data\dat_int.xls'
 dbms = xls replace;
 run;

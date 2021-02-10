@@ -1,0 +1,482 @@
+---
+title: "Rockfish H and E composition"
+author: "Adam Reimer"
+date: "2/8/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE)
+library(magrittr)
+library(ggplot2)
+int_boat <- readRDS("..\\Data\\int_boat.rds")
+source("..\\functions.R")
+source("..\\models.R")
+
+int_p <- 
+  int_boat %>%
+  dplyr::group_by(port, year, fleet, area) %>%
+  dplyr::summarise(H = sum(pH), E = sum(E)) %>%
+  dplyr::ungroup()
+ports <- unique(int_p$port)
+jags_datH <- lapply(ports, make_jagsdat, dat = int_p, stat = "H")
+postHp_Homer <- readRDS(".\\Interview post\\postH_HomerCharter.rds")
+postHp_Kodiak <- readRDS(".\\Interview post\\postH_Kodiak.rds")
+postHp_Seward <- readRDS(".\\Interview post\\postH_Seward.rds")
+postHp_Valdez <- readRDS(".\\Interview post\\postH_Valdez.rds")
+postHp_Whittier <- readRDS(".\\Interview post\\postH_Whittier.rds")
+
+ll_Hp <- readRDS(".\\Interview post\\ll_Hp.rds")
+
+int_np <- 
+  int_boat %>%
+  dplyr::group_by(port, year, fleet, area) %>%
+  dplyr::summarise(H = sum(npyH), E = sum(E)) %>%
+  dplyr::ungroup()
+jags_datHnp <- lapply(ports, make_jagsdat, dat = int_np, stat = "H")
+postHnp_Homer <- readRDS(".\\Interview post\\postHnp_HomerCharter.rds")
+postHnp_Kodiak <- readRDS(".\\Interview post\\postHnp_Kodiak.rds")
+postHnp_Seward <- readRDS(".\\Interview post\\postHnp_Seward.rds")
+postHnp_Valdez <- readRDS(".\\Interview post\\postHnp_Valdez.rds")
+postHnp_Whittier <- readRDS(".\\Interview post\\postHnp_Whittier.rds")
+
+ll_Hnpy <- readRDS(".\\Interview post\\ll_Hnpy.rds")
+
+int_E <- 
+  int_boat %>%
+  dplyr::group_by(port, year, fleet, area) %>%
+  dplyr::summarise(H = sum(npyH), E = sum(E)) %>%
+  dplyr::ungroup() %>%
+  dplyr::filter(year >= 2000)
+jags_datE <- lapply(ports, make_jagsdat, dat = int_E, stat = "E")
+postE_Homer <- readRDS(".\\Interview post\\postE_Homer.rds")
+postE_Kodiak <- readRDS(".\\Interview post\\postE_Kodiak.rds")
+postE_Seward <- readRDS(".\\Interview post\\postE_Seward.rds")
+postE_Valdez <- readRDS(".\\Interview post\\postE_Valdez.rds")
+postE_Whittier <- readRDS(".\\Interview post\\postE_Whittier.rds")
+
+ll_E <- readRDS(".\\Interview post\\ll_E.rds")
+```
+
+## Methods
+
+Biologists have an interest in the spatial distribution of rockfish sport harvest and effort from 5 Southcentral Alaska ports (Homer, Kodiak, Seward, Valdez and Whittier). All anglers from a random sample of returning boats are interviewed about fleet membership (charter or private), the target species, the number of fish caught by species, the number of anglers fishing and the area that was fished. Thus, we sample clusters of anglers from single geographic areas during each interview. We seek inference at the scale of the entire port so interview data is pooled  within each port annually for spatial distribution analysis using mutinomial logistic regression. Separate analyses are conducted for each port and species group (pelagic and non-pelagic).   
+
+Annual harvest data $H_{yfa}$ for year $y$ and fleet $f$ in area $a$ was modeled as:
+
+\begin{equation}
+H_{yfa}~\sim~\textrm{Multinomial}(p_{yfa}, M_{yf})
+\end{equation}
+
+where $M_{yf}~=~\sum_{a}H_{yfa}$ is the total number of fish harvested by interviewed anglers and 
+
+\begin{align*}
+p_{yfa} & ~=~\frac{\phi_{yfa}}{\sum_{a}\phi_{yfa}}\\
+\log(\phi_{yfa}) & ~=~\alpha_a + \beta_{fa} + \epsilon_{a}*y + \gamma_{fa}*y + re_{yfa}
+\end{align*}
+
+subject to the constrain that $\alpha_1 + \beta_{f1} + \epsilon_{1} + \gamma_{f1}~=~\alpha_a + \beta_{1a} + \epsilon_{a} + \gamma_{1a}~=~1$. We expect considerable overdispersion and the term $re_{yfa} [\sim~\textrm{Normal}(0, \sigma)]$ is an observation level random effect allowing us to model variability that occurs outside of the categorical sampling process. This model was fit using Jags to run 3 chains for 10K iterations each using a 3K iteration burn-in while retaining every 20th iteration. Convergence was assessed using convergence plots and Gelman's $R^2$.  
+
+To detect differences in spatial distribution by fleet and through time we used cross validation to identify the best performing model from among four candidate models.  
+  
+* $\alpha$: Distribution differs by area.  
+* $\alpha + \beta$: Distribution differs by area and fleet.  
+* $\alpha + \beta + \epsilon$: Distribution differs by area and fleet with a shared temporal trend (If only one fleet is modeled the $\beta$ term is dropped.)
+* $\alpha + \beta + \epsilon + \gamma$: Distribution differs by area and fleet with different temporal trends for each fleet.
+  
+During cross validation data from year $i$ ($H_{ifa}$) was withheld while each model was fit to data for all other years. Model performance was evaluated by calculating the log pointwise predictive density of the withheld data relative to the predicted multinomial probability from the model fit to all years $\ne i$ ($p_{ifa}^{(-is)}$) where s indices the number of simulations from the posterior density.
+
+\begin{equation}
+lppd~=~\sum\limits_{y}^{Y_(y \neq i)}\left[\frac{1}{S}\sum\limits_{s}^{S}\sum\limits_{f}^{2}\frac{M_{yf}!}{\prod_a H_{yfa}!}\prod_a p_{yfa}^{(-is)}\right]
+\end{equation}
+
+## Harvest Compostion
+### Homer
+#### Pelagic Rockfish
+
+Spatial distribution of pelagic rockfish harvested by private anglers in Homer is highly erratic, so much so that I could not get the model to converge. As a result I fit the model to Charter data only. Model selection criteria for pelagic rockfish harvested by Charter anglers near Homer indicate the $\alpha$ model should be preferred, i.e one with no temporal trend.
+  
+```{r}
+aggregate(value ~ name, data = ll_Hp[[1]], FUN = median) %>%
+  dplyr::mutate(sigma = sapply(postHp_Homer, function(x) x$mean$sd)) %>%
+  knitr::kable(, col.names = c("Model", "lppd", "sigma"),
+               caption = "Model selection criteria for spatial distribution of pelagic rockfish harvested out of Homer, 1996-2019")
+```
+
+```{r, fig.height=6, fig.width=10}
+plot_post0 <- function(post, dat, stat, plotport, inc_pred = "mean", bystock = TRUE){
+  stopifnot(inc_pred %in% c("none", "mean", "re"))
+  data <- dat[dat$port == plotport, c("year", "fleet", "area", stat)] %>%
+    dplyr::arrange(area, fleet, year) %>%
+    dplyr::mutate(yearc = year - median(year))
+  data_full <- expand.grid(list(yearc = unique(data$yearc), 
+                                fleet = unique(data$fleet), 
+                                area = unique(data$area),
+                                value = 0)) %>%
+    dplyr::left_join(data, by = c("yearc", "fleet", "area")) %>%
+    dplyr::mutate(value = ifelse(is.na(!!dplyr::sym(stat)), value, !!dplyr::sym(stat)),
+                  area = factor(area, levels = unique(data$area)))
+  
+  x <- 
+    data.frame(
+      area = 1,
+      charter = rep(1:0, each = length(min(data_full$yearc):max(data_full$yearc))),
+      private = rep(0:1, each = length(min(data_full$yearc):max(data_full$yearc))),
+      yearc = rep(min(data_full$yearc):max(data_full$yearc), times = 2),
+      yearccharter = c(min(data_full$yearc):max(data_full$yearc), rep(0, length(min(data_full$yearc):max(data_full$yearc)))),
+      yearcprivate = c(rep(0, length(min(data_full$yearc):max(data_full$yearc))), min(data_full$yearc):max(data_full$yearc))) %>%
+    dplyr::arrange(area, private, yearc) %>%
+    as.matrix()
+  
+  out <- data_full %>%
+    ggplot(aes(x = yearc, weight = value, fill = area)) +
+    geom_area(stat = "count", position = "fill", color = "white", alpha = 0.25) +
+    scale_y_continuous(name = "Percent") +
+    scale_x_continuous(name = "Year", breaks = seq(min(data$yearc), max(data$yearc), 3), labels = seq(min(data$year), max(data$year), 3)) +
+    theme_bw(base_size = 16) +
+    theme(legend.position = "bottom")
+  if(bystock == TRUE){out <- out + facet_grid(. ~ fleet)}
+  
+  if(inc_pred %in% c("mean", "re")){
+    b <- 
+      data.frame(
+        intercept = post$mean$alpha,
+        fleet = if(!is.null(post$mean$beta)){t(post$mean$beta)} else matrix(0, nrow = length(post$mean$alpha), ncol = 2),
+        year = if(!is.null(post$mean$epsilon)){post$mean$epsilon} else rep(0, length(post$mean$alpha)),
+        year = if(!is.null(post$mean$gamma)){t(post$mean$gamma)} else matrix(0, nrow = length(post$mean$alpha), ncol = 2)) %>%
+      as.matrix() %>%
+      t()
+    
+    p <- as.data.frame(exp(x%*%b)/apply(exp(x%*%b), 1, sum)) %>% setNames(unique(data$area));
+    p$fleet <- rep(c("Charter", "Private"), each = length(unique(data_full$yearc)))
+    p$yearc <- rep(min(data_full$yearc):max(data_full$yearc), times = 2)
+    
+    p <- 
+      tidyr::pivot_longer(p, -c(fleet, yearc), names_to = "area") %>%
+      dplyr::mutate(area = factor(area, levels = rev(unique(data$area)))) %>%
+      dplyr::arrange(fleet, yearc, area) %>% 
+      dplyr::group_by(fleet, yearc) %>% 
+      dplyr::mutate(pct = ifelse(fleet == "Charter", cumsum(value), 0)) #SOle difference from plot_post
+    p$area <- factor(p$area, levels = unique(data$area))
+  }
+  if(inc_pred == "re"){    
+    re <- function(post_re){
+      re_mat <- matrix(NA, nrow = prod(dim(post_re[,,1])), ncol = dim(post_re)[3])
+      for(i in 1:dim(post_re)[3]){re_mat[,i] <- c(post_re[,1,i], post_re[,2,i])}
+      re_mat
+    }
+    
+    p2 <- as.data.frame(exp(x%*%b + re(post$q50$re))/apply(exp(x%*%b + re(post$q50$re)), 1, sum)) %>% setNames(unique(data$area));
+    p2$fleet <- rep(c("Charter", "Private"), each = length(unique(data_full$yearc)))
+    p2$yearc <- rep(min(data_full$yearc):max(data_full$yearc), times = 2)
+    
+    p2 <-
+      tidyr::pivot_longer(p2, -c(fleet, yearc), names_to = "area") %>%
+      dplyr::mutate(area = factor(area, levels = rev(unique(data$area)))) %>%
+      dplyr::arrange(fleet, yearc, area) %>%
+      dplyr::group_by(fleet, yearc) %>%
+      dplyr::mutate(pct = cumsum(value))
+    p2$area <- factor(p2$area, levels = unique(data$area))
+  }
+  if(inc_pred == "none"){return(out)}
+  else{if(inc_pred == "mean"){return(out + geom_line(data = p, aes(x = yearc, y = pct, color = area), inherit.aes = FALSE, size = 1.1))}
+    else{return(out + 
+                  geom_line(data = p, aes(x = yearc, y = pct, color = area), inherit.aes = FALSE, size = 1.1) + 
+                  geom_line(data = p2, aes(x = yearc, y = pct, color = area), inherit.aes = FALSE, linetype = 1))}}
+}
+
+plot_post0(postHp_Homer[[1]], int_p, "H", ports[1], inc_pred = "mean")
+```
+  
+```{r}
+postHp_Homer[[1]]$summary[!grepl("re", rownames(postHp_Homer[[1]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
+  knitr::kable()
+```
+  
+#### Non-Pelagic Rockfish
+
+We did not collect enough data on the spatial distribution of non-pelagic rockfish harvested by private anglers in Homer. As a result I fit the model to Charter data only. Model selection criteria for non-pelagic rockfish harvested by Charter anglers near Homer indicate the $\alpha$ model should be preferred, i.e one with no temporal trend.
+  
+```{r}
+aggregate(value ~ name, data = ll_Hnpy[[1]], FUN = median) %>%
+  dplyr::mutate(sigma = sapply(postHnp_Homer, function(x) x$mean$sd)) %>%
+  knitr::kable(, col.names = c("Model", "lppd", "sigma"),
+               caption = "Model selection criteria for spatial distribution of non-pelagic rockfish harvested out of Homer, 1996-2019")
+```
+  
+```{r, fig.height=6, fig.width=10}
+plot_post0(postHnp_Homer[[1]], int_np, "H", ports[1], inc_pred = "mean")
+```
+
+```{r}
+postHnp_Homer[[1]]$summary[!grepl("re", rownames(postHnp_Homer[[1]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
+  knitr::kable()
+```
+  
+### Kodiak
+#### Pelagic Rockfish
+
+Model selection criteria for pelagic rockfish harvested near Kodiak indicate the $\beta$ model should be preferred, i.e one with different composition estimates for each fleet but no temporal trend.
+  
+```{r}
+aggregate(value ~ name, data = ll_Hp[[2]], FUN = median) %>%
+  dplyr::mutate(sigma = sapply(postHp_Kodiak, function(x) x$mean$sd)) %>%
+  knitr::kable(, col.names = c("Model", "lppd", "sigma"),
+               caption = "Model selection criteria for spatial distribution of pelagic rockfish harvested out of Kodiak, 1996-2019")
+```
+
+```{r, fig.height=6, fig.width=10}
+plot_post(postHp_Kodiak[[2]], int_p, "H", ports[2], inc_pred = "re")
+```
+  
+```{r}
+postHp_Kodiak[[2]]$summary[!grepl("re", rownames(postHp_Kodiak[[2]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
+  knitr::kable()
+```
+  
+#### Non-Pelagic Rockfish
+
+Model selection criteria for non-pelagic rockfish harvested near Kodiak indicate the $\alpha$ model should be preferred, i.e one with the same composition estimates for each fleet and no temporal trend.
+  
+```{r}
+aggregate(value ~ name, data = ll_Hnpy[[2]], FUN = median) %>%
+  dplyr::mutate(sigma = sapply(postHnp_Kodiak, function(x) x$mean$sd)) %>%
+  knitr::kable(, col.names = c("Model", "lppd", "sigma"),
+               caption = "Model selection criteria for spatial distribution of non-pelagic rockfish harvested out of Kodiak, 1996-2019")
+```
+  
+```{r, fig.height=6, fig.width=10}
+plot_post(postHnp_Kodiak[[1]], int_np, "H", ports[2], inc_pred = "re")
+```
+
+```{r}
+postHnp_Kodiak[[1]]$summary[!grepl("re", rownames(postHnp_Kodiak[[1]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
+  knitr::kable()
+```
+  
+### Seward
+#### Pelagic Rockfish
+
+Model selection criteria for pelagic rockfish harvested near Seward indicate the $\epsilon$ model should be preferred, i.e one with different composition estimates for each fleet and a shared temporal trend.
+  
+```{r}
+aggregate(value ~ name, data = ll_Hp[[3]], FUN = median) %>%
+  dplyr::mutate(sigma = sapply(postHp_Seward, function(x) x$mean$sd)) %>%
+  knitr::kable(, col.names = c("Model", "lppd", "sigma"),
+               caption = "Model selection criteria for spatial distribution of pelagic rockfish harvested out of Seward, 1996-2019")
+```
+
+```{r, fig.height=6, fig.width=10}
+plot_post(postHp_Seward[[3]], int_p, "H", ports[3], inc_pred = "re")
+```
+  
+```{r}
+postHp_Seward[[3]]$summary[!grepl("re", rownames(postHp_Seward[[3]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
+  knitr::kable()
+```
+  
+#### Non-Pelagic Rockfish
+
+Model selection criteria for non-pelagic rockfish harvested near Seward indicate the $\epsilon$ model should be preferred, i.e one with different composition estimates for each fleet and a shared temporal trend.
+  
+```{r}
+aggregate(value ~ name, data = ll_Hnpy[[3]], FUN = median) %>%
+  dplyr::mutate(sigma = sapply(postHnp_Seward, function(x) x$mean$sd)) %>%
+  knitr::kable(, col.names = c("Model", "lppd", "sigma"),
+               caption = "Model selection criteria for spatial distribution of non-pelagic rockfish harvested out of Seward, 1996-2019")
+```
+  
+```{r, fig.height=6, fig.width=10}
+plot_post(postHnp_Seward[[3]], int_np, "H", ports[3], inc_pred = "re")
+```
+
+```{r}
+postHnp_Seward[[3]]$summary[!grepl("re", rownames(postHnp_Seward[[3]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
+  knitr::kable()
+```
+  
+### Valdez
+#### Pelagic Rockfish
+
+Model selection criteria for pelagic rockfish harvested near Valdez indicate the $\epsilon$ model should be preferred, i.e one with different composition estimates for each fleet and a shared temporal trend.
+  
+```{r}
+aggregate(value ~ name, data = ll_Hp[[4]], FUN = median) %>%
+  dplyr::mutate(sigma = sapply(postHp_Valdez, function(x) x$mean$sd)) %>%
+  knitr::kable(, col.names = c("Model", "lppd", "sigma"),
+               caption = "Model selection criteria for spatial distribution of pelagic rockfish harvested out of Valdez, 1998-2019")
+```
+
+```{r, fig.height=6, fig.width=10}
+plot_post(postHp_Valdez[[3]], int_p, "H", ports[4], inc_pred = "re")
+```
+  
+```{r}
+postHp_Valdez[[3]]$summary[!grepl("re", rownames(postHp_Valdez[[3]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
+  knitr::kable()
+```
+  
+#### Non-Pelagic Rockfish
+
+Model selection criteria for non-pelagic rockfish harvested near Valdez indicate the $\gamma$ model should be preferred, i.e one with different composition estimates for each fleet and a unique temporal trend.
+  
+```{r}
+aggregate(value ~ name, data = ll_Hnpy[[4]], FUN = median) %>%
+  dplyr::mutate(sigma = sapply(postHnp_Valdez, function(x) x$mean$sd)) %>%
+  knitr::kable(, col.names = c("Model", "lppd", "sigma"),
+               caption = "Model selection criteria for spatial distribution of non-pelagic rockfish harvested out of Valdez, 1998-2019")
+```
+  
+```{r, fig.height=6, fig.width=10}
+plot_post(postHnp_Valdez[[4]], int_np, "H", ports[4], inc_pred = "re")
+```
+
+```{r}
+postHnp_Valdez[[4]]$summary[!grepl("re", rownames(postHnp_Valdez[[4]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
+  knitr::kable()
+```
+  
+### Whittier
+#### Pelagic Rockfish
+
+Model selection criteria for pelagic rockfish harvested near Whittier indicate the $\gamma$ model should be preferred, i.e one with different composition estimates for each fleet and a unique temporal trend.
+  
+```{r}
+aggregate(value ~ name, data = ll_Hp[[5]], FUN = median) %>%
+  dplyr::mutate(sigma = sapply(postHp_Whittier, function(x) x$mean$sd)) %>%
+  knitr::kable(, col.names = c("Model", "lppd", "sigma"),
+               caption = "Model selection criteria for spatial distribution of pelagic rockfish harvested out of Whittier, 1998-2019")
+```
+
+```{r, fig.height=6, fig.width=10}
+plot_post(postHp_Whittier[[4]], int_p, "H", ports[5], inc_pred = "re")
+```
+  
+```{r}
+postHp_Whittier[[4]]$summary[!grepl("re", rownames(postHp_Whittier[[4]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
+  knitr::kable()
+```
+  
+#### Non-Pelagic Rockfish
+
+Model selection criteria for non-pelagic rockfish harvested near Whittier indicate the $\beta$ model should be preferred, i.e one with different composition estimates for each fleet but no temporal trend.
+  
+```{r}
+aggregate(value ~ name, data = ll_Hnpy[[5]], FUN = median) %>%
+  dplyr::mutate(sigma = sapply(postHnp_Whittier, function(x) x$mean$sd)) %>%
+  knitr::kable(, col.names = c("Model", "lppd", "sigma"),
+               caption = "Model selection criteria for spatial distribution of non-pelagic rockfish harvested out of Whittier, 1998-2019")
+```
+  
+```{r, fig.height=6, fig.width=10}
+plot_post(postHnp_Whittier[[2]], int_np, "H", ports[5], inc_pred = "re")
+```
+
+```{r}
+postHnp_Whittier[[2]]$summary[!grepl("re", rownames(postHnp_Whittier[[2]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
+  knitr::kable()
+```
+  
+## Effort
+### Homer
+
+Model selection criteria for bottomfish effort near Homer indicate the $\epsilon$ model should be preferred, i.e one with different composition estimates for each fleet and a shared temporal trend.
+  
+```{r}
+aggregate(value ~ name, data = ll_E[[1]], FUN = median) %>%
+  dplyr::mutate(sigma = sapply(postE_Homer, function(x) x$mean$sd)) %>%
+  knitr::kable(, col.names = c("Model", "lppd", "sigma"),
+               caption = "Model selection criteria for spatial distribution of bottomfish effort out of Homer, 2000-2019")
+```
+
+```{r, fig.height=6, fig.width=10}
+plot_post(postE_Homer[[3]], int_E, "E", ports[1], inc_pred = "re")
+```
+  
+Note this model have convergence problems for the beta parameters.
+  
+```{r}
+postE_Homer[[3]]$summary[!grepl("re", rownames(postE_Homer[[3]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
+  knitr::kable()
+```
+  
+### Kodiak
+
+Model selection criteria for bottomfish effort near Kodiak indicate the $\beta$ model should be preferred, i.e one with different composition estimates for each fleet but no temporal trend.
+  
+```{r}
+aggregate(value ~ name, data = ll_E[[2]], FUN = median) %>%
+  dplyr::mutate(sigma = sapply(postE_Kodiak, function(x) x$mean$sd)) %>%
+  knitr::kable(, col.names = c("Model", "lppd", "sigma"),
+               caption = "Model selection criteria for spatial distribution of bottomfish effort out of Kodiak, 2000-2019")
+```
+
+```{r, fig.height=6, fig.width=10}
+plot_post(postE_Kodiak[[2]], int_E, "E", ports[2], inc_pred = "re")
+```
+  
+```{r}
+postE_Kodiak[[2]]$summary[!grepl("re", rownames(postE_Kodiak[[2]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
+  knitr::kable()
+```
+  
+### Seward
+
+Model selection criteria for bottomfish effort near Seward indicate the $\beta$ model should be preferred, i.e one with different composition estimates for each fleet but no temporal trend.
+  
+```{r}
+aggregate(value ~ name, data = ll_E[[3]], FUN = median) %>%
+  dplyr::mutate(sigma = sapply(postE_Seward, function(x) x$mean$sd)) %>%
+  knitr::kable(, col.names = c("Model", "lppd", "sigma"),
+               caption = "Model selection criteria for spatial distribution of bottomfish effort out of Seward, 2000-2019")
+```
+
+```{r, fig.height=6, fig.width=10}
+plot_post(postE_Seward[[2]], int_E, "E", ports[3], inc_pred = "re")
+```
+  
+```{r}
+postE_Seward[[2]]$summary[!grepl("re", rownames(postE_Seward[[2]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
+  knitr::kable()
+```
+  
+### Valdez
+
+Model selection criteria for bottomfish effort near Valdez indicate the $\epsilon$ model should be preferred, i.e one with different composition estimates for each fleet and a shared temporal trend.
+  
+```{r}
+aggregate(value ~ name, data = ll_E[[4]], FUN = median) %>%
+  dplyr::mutate(sigma = sapply(postE_Valdez, function(x) x$mean$sd)) %>%
+  knitr::kable(, col.names = c("Model", "lppd", "sigma"),
+               caption = "Model selection criteria for spatial distribution of bottomfish effort out of Valdez, 2000-2019")
+```
+
+```{r, fig.height=6, fig.width=10}
+plot_post(postE_Valdez[[3]], int_E, "E", ports[4], inc_pred = "re")
+```
+  
+```{r}
+postHp_Valdez[[3]]$summary[!grepl("re", rownames(postHp_Valdez[[3]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
+  knitr::kable()
+```
+  
+### Whittier
+
+Model selection criteria for bottomfish effort near Whittier indicate the $\alpha$ model should be preferred, i.e one with the same composition estimates for each fleet and no temporal trend.
+  
+```{r}
+aggregate(value ~ name, data = ll_E[[5]], FUN = median) %>%
+  dplyr::mutate(sigma = sapply(postE_Whittier, function(x) x$mean$sd)) %>%
+  knitr::kable(, col.names = c("Model", "lppd", "sigma"),
+               caption = "Model selection criteria for spatial distribution of bottomfish effort out of Whittier, 2000-2019")
+```
+
+```{r, fig.height=6, fig.width=10}
+plot_post(postE_Whittier[[1]], int_E, "E", ports[5], inc_pred = "re")
+```
+  
+```{r}
+postE_Whittier[[1]]$summary[!grepl("re", rownames(postE_Whittier[[1]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
+  knitr::kable()
+```
+  

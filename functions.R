@@ -120,7 +120,8 @@ plot_post <- function(post, dat, stat, plotport, inc_pred = "mean", bystock = TR
       dplyr::group_by(fleet, yearc) %>% 
       dplyr::mutate(pct = cumsum(value))
     p$area <- factor(p$area, levels = unique(data$area))
-    
+  }
+  if(inc_pred == "re"){    
     re <- function(post_re){
       re_mat <- matrix(NA, nrow = prod(dim(post_re[,,1])), ncol = dim(post_re)[3])
       for(i in 1:dim(post_re)[3]){re_mat[,i] <- c(post_re[,1,i], post_re[,2,i])}

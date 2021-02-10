@@ -53,8 +53,8 @@ model{
   alpha[1] <- 0 #area baseline
   for (a in 2:A){alpha[a] ~ dnorm(0, 0.0001)}
   
-  for (a in 1:A){beta[1,a] <- 0 } #area baseline
-  beta[2, 1] <- 0 ; #fleet baseline
+  for (a in 1:A){beta[1,a] <- 0 } #fleet baseline
+  beta[2, 1] <- 0 ; #area baseline
   for (a in 2:A){ beta[2,a] ~ dnorm(0, 0.0001)}
   
   tau ~ dgamma(0.001, 0.001) # prior for mixed effect precision
@@ -108,8 +108,8 @@ model{
   alpha[1] <- 0 #area baseline
   for (a in 2:A){alpha[a] ~ dnorm(0, 0.0001)}
   
-  for (a in 1:A){beta[1,a] <- 0 } #area baseline
-  beta[2, 1] <- 0 ; #fleet baseline
+  for (a in 1:A){beta[1,a] <- 0 } #fleet baseline
+  beta[2, 1] <- 0 ; #area baseline
   for (a in 2:A){ beta[2,a] ~ dnorm(0, 0.0001)}
 
   epsilon[1] <- 0 #area baseline
@@ -139,8 +139,8 @@ model{
   alpha[1] <- 0 #area baseline
   for (a in 2:A){alpha[a] ~ dnorm(0, 0.0001)}
   
-  for (a in 1:A){beta[1,a] <- 0 } #area baseline
-  beta[2, 1] <- 0 ; #fleet baseline
+  for (a in 1:A){beta[1,a] <- 0 } #fleet baseline
+  beta[2, 1] <- 0 ; #area baseline
   for (a in 2:A){ beta[2,a] ~ dnorm(0, 0.0001)}
 
   # gamma[1] <- 0 #area baseline
@@ -149,8 +149,8 @@ model{
   epsilon[1] <- 0 #area baseline
   for (a in 2:A){epsilon[a] ~ dnorm(0, 0.0001)}
   
-  for (a in 1:A){gamma[1,a] <- 0 } #area baseline
-  gamma[2,1] <- 0 ; #fleet baseline
+  for (a in 1:A){gamma[1,a] <- 0 } #fleet baseline
+  gamma[2,1] <- 0 ; #area baseline
   for (a in 2:A){ gamma[2,a] ~ dnorm(0, 0.0001)}
   
   tau ~ dgamma(0.001, 0.001) # prior for mixed effect precision
