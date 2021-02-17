@@ -14,8 +14,15 @@ int_pr <-
   dplyr::summarise(H = sum(pH), E = sum(E)) %>%
   dplyr::ungroup()
 ports <- unique(int_pr$port)
+areas <- lapply(ports, function(x) sort(unique(int_pr$area[int_pr$port == x])))
 aggregate(E ~ year + port, int_pr, sum)
 jags_datH <- lapply(ports, make_jagsdat, dat = int_pr, stat = "H")
+
+#data for appendix
+years_pr <- lapply(ports, function(x) range(int_pr$year[int_pr$port == x]))
+tab_pr <- lapply(1:5, function(x) tab_data(years_pr[[x]][1]:years_pr[[x]][2], jags_datH[[x]], areas[[x]]))
+names(tab_pr) <- ports
+WriteXLS::WriteXLS(tab_pr, ".\\Rockfish report_96-19\\tab_Hpr.xlsx")
 
 #jags w overdisersion on each observation
 ni <- 1E5; nb <- ni/3; nc <- 3; nt <- 200
@@ -212,6 +219,12 @@ int_npr <-
   dplyr::summarise(H = sum(npyH), E = sum(E)) %>%
   dplyr::ungroup()
 jags_datHnp <- lapply(ports, make_jagsdat, dat = int_npr, stat = "H")
+
+#data for appendix
+years_npr <- lapply(ports, function(x) range(int_npr$year[int_npr$port == x]))
+tab_npr <- lapply(1:5, function(x) tab_data(years_npr[[x]][1]:years_npr[[x]][2], jags_datHnp[[x]], areas[[x]]))
+names(tab_npr) <- ports
+WriteXLS::WriteXLS(tab_npr, ".\\Rockfish report_96-19\\tab_Hnpr.xlsx")
 
 
 # * Homer Harvest -----------------------------------------------------------
@@ -544,6 +557,11 @@ int_E <-
   dplyr::filter(year >= 2000)
 jags_datE <- lapply(ports, make_jagsdat, dat = int_E, stat = "E")
 
+#data for appendix
+years_E <- lapply(ports, function(x) range(int_E$year[int_E$port == x]))
+tab_E <- lapply(1:5, function(x) tab_data(years_E[[x]][1]:years_E[[x]][2], jags_datE[[x]], areas[[x]]))
+names(tab_E) <- ports
+WriteXLS::WriteXLS(tab_E, ".\\Rockfish report_96-19\\tab_Ebottomfish.xlsx")
 
 # * Homer Harvest -----------------------------------------------------------
 #None of the models are great.
