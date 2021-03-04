@@ -1,0 +1,165 @@
+---
+title: "Bottomfish Effort Spatial Distribution"
+author: "Adam Reimer"
+date: "2/8/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE)
+library(magrittr)
+library(ggplot2)
+int_boat <- readRDS("..\\Data\\int_boat.rds")
+source("..\\functions.R")
+source("..\\models.R")
+
+int_E <- 
+  int_boat %>%
+  dplyr::group_by(port, year, fleet, area) %>%
+  dplyr::summarise(H = sum(npyH), E = sum(E, na.rm = TRUE)) %>%
+  dplyr::ungroup() %>%
+  dplyr::filter(year >= 2000)
+ports <- unique(int_E$port)
+jags_datE <- lapply(ports, make_jagsdat, dat = int_E, stat = "E")
+postE_Homer <- readRDS(".\\Interview post\\postE_Homer.rds")
+postE_Kodiak <- readRDS(".\\Interview post\\postE_Kodiak.rds")
+postE_Seward <- readRDS(".\\Interview post\\postE_Seward.rds")
+postE_Valdez <- readRDS(".\\Interview post\\postE_Valdez.rds")
+postE_Whittier <- readRDS(".\\Interview post\\postE_Whittier.rds")
+
+ll_E <- readRDS(".\\Interview post\\ll_E.rds")
+```
+
+## Methods
+
+Biologists have an interest in the spatial distribution of rockfish sport harvest and effort from 5 Southcentral Alaska ports (Homer, Kodiak, Seward, Valdez and Whittier). All anglers from a random sample of returning boats are interviewed about fleet membership (charter or private), the target species, the number of fish caught by species, the number of anglers fishing and the area that was fished. Thus, we sample clusters of anglers from single geographic areas during each interview. We seek inference at the scale of the entire port so interview data is pooled  within each port annually for spatial distribution analysis using mutinomial logistic regression. Separate analyses are conducted for each port and species group (pelagic and non-pelagic).   
+
+Annual harvest data $H_{yfa}$ for year $y$ and fleet $f$ in area $a$ was modeled as:
+
+\begin{equation}
+H_{yfa}~\sim~\textrm{Multinomial}(p_{yfa}, M_{yf})
+\end{equation}
+
+where $M_{yf}~=~\sum_{a}H_{yfa}$ is the total number of fish harvested by interviewed anglers and 
+
+\begin{align*}
+p_{yfa} & ~=~\frac{\phi_{yfa}}{\sum_{a}\phi_{yfa}}\\
+\log(\phi_{yfa}) & ~=~\alpha_a + \beta_{fa} + \epsilon_{a}*y + \gamma_{fa}*y + re_{yfa}
+\end{align*}
+
+subject to the constrain that $\alpha_1 + \beta_{f1} + \epsilon_{1} + \gamma_{f1}~=~\alpha_a + \beta_{1a} + \epsilon_{a} + \gamma_{1a}~=~1$. We expect considerable overdispersion and the term $re_{yfa} [\sim~\textrm{Normal}(0, \sigma)]$ is an observation level random effect allowing us to model variability that occurs outside of the categorical sampling process. This model was fit using Jags to run 3 chains for 10K iterations each using a 3K iteration burn-in while retaining every 20th iteration. Convergence was assessed using convergence plots and Gelman's $R^2$.  
+
+To detect differences in spatial distribution by fleet and through time we used cross validation to identify the best performing model from among four candidate models.  
+  
+* $\alpha$: Distribution differs by area.  
+* $\alpha + \beta$: Distribution differs by area and fleet.  
+* $\alpha + \beta + \epsilon$: Distribution differs by area and fleet with a shared temporal trend (If only one fleet is modeled the $\beta$ term is dropped.)
+* $\alpha + \beta + \epsilon + \gamma$: Distribution differs by area and fleet with different temporal trends for each fleet.
+  
+During cross validation data from year $i$ ($H_{ifa}$) was withheld while each model was fit to data for all other years. Model performance was evaluated by calculating the log pointwise predictive density of the withheld data relative to the predicted multinomial probability from the model fit to all years $\ne i$ ($p_{ifa}^{(-is)}$) where s indices the number of simulations from the posterior density.
+
+\begin{equation}
+lppd~=~\sum\limits_{y}^{Y_(y \neq i)}\left[\frac{1}{S}\sum\limits_{s}^{S}\sum\limits_{f}^{2}\frac{M_{yf}!}{\prod_a H_{yfa}!}\prod_a p_{yfa}^{(-is)}\right]
+\end{equation}
+
+## Effort
+### Homer
+
+Model selection criteria for bottomfish effort near Homer indicate the $\gamma$ model should be preferred, i.e one with different composition estimates for each fleet and unique temporal trends.
+  
+```{r}
+aggregate(value ~ name, data = ll_E[[1]], FUN = median) %>%
+  dplyr::mutate(sigma = sapply(postE_Homer, function(x) x$mean$sd)) %>%
+  knitr::kable(, col.names = c("Model", "lppd", "sigma"),
+               caption = "Model selection criteria for spatial distribution of bottomfish effort out of Homer, 2000-2019")
+```
+
+```{r, fig.height=6, fig.width=10}
+plot_post(postE_Homer[[4]], int_E, "E", ports[1], inc_pred = "re")
+```
+  
+```{r}
+postE_Homer[[4]]$summary[!grepl("re", rownames(postE_Homer[[4]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
+  knitr::kable()
+```
+  
+### Kodiak
+
+Model selection criteria for bottomfish effort near Kodiak indicate the $\beta$ model should be preferred, i.e one with different composition estimates for each fleet but no temporal trend.
+  
+```{r}
+aggregate(value ~ name, data = ll_E[[2]], FUN = median) %>%
+  dplyr::mutate(sigma = sapply(postE_Kodiak, function(x) x$mean$sd)) %>%
+  knitr::kable(, col.names = c("Model", "lppd", "sigma"),
+               caption = "Model selection criteria for spatial distribution of bottomfish effort out of Kodiak, 2000-2019")
+```
+
+```{r, fig.height=6, fig.width=10}
+plot_post(postE_Kodiak[[2]], int_E, "E", ports[2], inc_pred = "re")
+```
+  
+```{r}
+postE_Kodiak[[2]]$summary[!grepl("re", rownames(postE_Kodiak[[2]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
+  knitr::kable()
+```
+  
+### Seward
+
+Model selection criteria for bottomfish effort near Seward indicate the $\beta$ model should be preferred, i.e one with different composition estimates for each fleet but no temporal trend.
+  
+```{r}
+aggregate(value ~ name, data = ll_E[[3]], FUN = median) %>%
+  dplyr::mutate(sigma = sapply(postE_Seward, function(x) x$mean$sd)) %>%
+  knitr::kable(, col.names = c("Model", "lppd", "sigma"),
+               caption = "Model selection criteria for spatial distribution of bottomfish effort out of Seward, 2000-2019")
+```
+
+```{r, fig.height=6, fig.width=10}
+plot_post(postE_Seward[[2]], int_E, "E", ports[3], inc_pred = "re")
+```
+  
+```{r}
+postE_Seward[[2]]$summary[!grepl("re", rownames(postE_Seward[[2]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
+  knitr::kable()
+```
+  
+### Valdez
+
+Model selection criteria for bottomfish effort near Valdez indicate the $\gamma$ model should be preferred, i.e one with different composition estimates for each fleet and unique temporal trends.
+  
+```{r}
+aggregate(value ~ name, data = ll_E[[4]], FUN = median) %>%
+  dplyr::mutate(sigma = sapply(postE_Valdez, function(x) x$mean$sd)) %>%
+  knitr::kable(, col.names = c("Model", "lppd", "sigma"),
+               caption = "Model selection criteria for spatial distribution of bottomfish effort out of Valdez, 2000-2019")
+```
+
+```{r, fig.height=6, fig.width=10}
+plot_post(postE_Valdez[[4]], int_E, "E", ports[4], inc_pred = "re")
+```
+  
+```{r}
+postE_Valdez[[4]]$summary[!grepl("re", rownames(postE_Valdez[[4]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
+  knitr::kable()
+```
+  
+### Whittier
+
+Model selection criteria for bottomfish effort near Whittier indicate the $\alpha$ model should be preferred, i.e one with different composition estimates for each fleet and unique temporal trends.
+  
+```{r}
+aggregate(value ~ name, data = ll_E[[5]], FUN = median) %>%
+  dplyr::mutate(sigma = sapply(postE_Whittier, function(x) x$mean$sd)) %>%
+  knitr::kable(, col.names = c("Model", "lppd", "sigma"),
+               caption = "Model selection criteria for spatial distribution of bottomfish effort out of Whittier, 2000-2019")
+```
+
+```{r, fig.height=6, fig.width=10}
+plot_post(postE_Whittier[[4]], int_E, "E", ports[5], inc_pred = "re")
+```
+  
+```{r}
+postE_Whittier[[4]]$summary[!grepl("re", rownames(postE_Whittier[[4]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
+  knitr::kable()
+```
+  

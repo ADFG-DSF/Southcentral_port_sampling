@@ -9,7 +9,7 @@ library(ggplot2)
 int_area <- 
   int_boat %>%
   dplyr::group_by(port, year, fleet, area) %>%
-  dplyr::summarize(H = sum(pH), E = sum(E)) %>%
+  dplyr::summarize(H = sum(pH), E = sum(E, na.rm = TRUE)) %>%
   dplyr::ungroup()
 dat_Homer <- lapply(1996:2019, function(x) make_jagsdatpred(int_area, "Homer", "H", x))
 dat_Kodiak <- lapply(1996:2019, function(x) make_jagsdatpred(int_area, "Kodiak", "H", x))
@@ -597,7 +597,7 @@ ggplot(data = ll_Whittier, aes(x = value)) +
 int_area_npy <- 
   int_boat %>%
   dplyr::group_by(port, year, fleet, area) %>%
-  dplyr::summarize(H = sum(npyH), E = sum(E)) %>%
+  dplyr::summarize(H = sum(npyH), E = sum(E, na.rm = TRUE)) %>%
   dplyr::ungroup()
 dat_Homer_npy<- lapply(1996:2019, function(x) make_jagsdatpred(int_area_npy, "Homer", "H", x))
 dat_Kodiak_npy<- lapply(1996:2019, function(x) make_jagsdatpred(int_area_npy, "Kodiak", "H", x))
@@ -957,7 +957,7 @@ ggplot(data = ll_Whittier_npy, aes(x = value)) +
 int_area_E <- 
   int_boat %>%
   dplyr::group_by(port, year, fleet, area) %>%
-  dplyr::summarize(H = sum(npyH), E = sum(E)) %>%
+  dplyr::summarize(H = sum(npyH), E = sum(E, na.rm = TRUE)) %>%
   dplyr::ungroup() %>%
   dplyr::filter(year >= 2000)
 dat_Homer_E<- lapply(2000:2019, function(x) make_jagsdatpred(int_area_E, "Homer", "E", x))

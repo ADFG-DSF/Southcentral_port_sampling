@@ -11,7 +11,7 @@ source(".\\models.R")
 int_pr <- 
   int_boat %>%
   dplyr::group_by(port, year, fleet, area) %>%
-  dplyr::summarise(H = sum(pH), E = sum(E)) %>%
+  dplyr::summarise(H = sum(pH, na.rm = TRUE), E = sum(E, na.rm = TRUE)) %>%
   dplyr::ungroup()
 ports <- unique(int_pr$port)
 areas <- lapply(ports, function(x) sort(unique(int_pr$area[int_pr$port == x])))
@@ -216,7 +216,7 @@ plot_post(postH_Whittier[[4]], int_pr, "H", ports[5])
 int_npr <- 
   int_boat %>%
   dplyr::group_by(port, year, fleet, area) %>%
-  dplyr::summarise(H = sum(npyH), E = sum(E)) %>%
+  dplyr::summarise(H = sum(npyH, na.rm = TRUE), E = sum(E, na.rm = TRUE)) %>%
   dplyr::ungroup()
 jags_datHnp <- lapply(ports, make_jagsdat, dat = int_npr, stat = "H")
 
@@ -552,7 +552,7 @@ ggplot(H_comp[H_comp$target %in% c("Rockfish", "Bottomfish", "Bottomfish & Salmo
 int_E <- 
   int_boat %>%
   dplyr::group_by(port, year, fleet, area) %>%
-  dplyr::summarise(H = sum(npyH), E = sum(E)) %>%
+  dplyr::summarise(H = sum(npyH, na.rm = TRUE), E = sum(E, na.rm = TRUE)) %>%
   dplyr::ungroup() %>%
   dplyr::filter(year >= 2000)
 jags_datE <- lapply(ports, make_jagsdat, dat = int_E, stat = "E")
@@ -563,12 +563,13 @@ tab_E <- lapply(1:5, function(x) tab_data(years_E[[x]][1]:years_E[[x]][2], jags_
 names(tab_E) <- ports
 WriteXLS::WriteXLS(tab_E, ".\\Rockfish report_96-19\\tab_Ebottomfish.xlsx")
 
+ni <- 5E5; nb <- ni/3; nc <- 3; nt <- 1000
 # * Homer Harvest -----------------------------------------------------------
 #None of the models are great.
 #Need to omit Private data... too sparse.
 postE_Homer <- mapply(jagsUI::jags,
                         parameters.to.save = params, model.file = models,
-                        MoreArgs = list(data = jags_datE[[1]], n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb),
+                        MoreArgs = list(data = jags_datE[[1]], n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, parallel = TRUE),
                         SIMPLIFY = FALSE)
 lapply(postE_Homer, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
 #saveRDS(postE_Homer, ".\\Rockfish report_96-19\\Interview post\\postE_Homer.rds")
@@ -588,6 +589,7 @@ plot_post(postE_Homer[[4]], int_E, "E", ports[1])
 jags_datE[[1]]$M
 
 
+ni <- 1E5; nb <- ni/3; nc <- 3; nt <- 200
 # * Kodiak Harvest --------------------------------------------------------
 #
 #

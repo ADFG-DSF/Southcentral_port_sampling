@@ -8,9 +8,9 @@ stat_areas <-
 #Interview data by boat
 int_boat <- 
   readxl::read_excel(".\\Data\\dat_int.xls", 
-                     range = "dat_int!A2:L60551",
-                     col_names = c("year", "month", "port", "hH", "pH", "npH", "lH", "fleet", "target", "stat_area", "E", "yH"), 
-                     col_types = c(rep("numeric", 2), "text", rep("numeric", 4), rep("text", 2), rep("numeric", 3))) %>%
+                     range = "dat_int!A2:N60551",
+                     col_names = c("year", "month", "multi", "angl", "port", "hH", "pH", "npH", "lH", "fleet", "target", "stat_area", "E", "yH"), 
+                     col_types = c(rep("numeric", 2), rep("skip", 2), "text", rep("numeric", 4), rep("text", 2), rep("numeric", 3))) %>%
   dplyr::left_join(stat_areas, by = "stat_area") %>%
   dplyr::mutate(year = as.numeric(year))
 

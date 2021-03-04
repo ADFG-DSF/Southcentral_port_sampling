@@ -45,7 +45,7 @@ ll_Hnpy <- readRDS(".\\Interview post\\ll_Hnpy.rds")
 int_E <- 
   int_boat %>%
   dplyr::group_by(port, year, fleet, area) %>%
-  dplyr::summarise(H = sum(npyH), E = sum(E)) %>%
+  dplyr::summarise(H = sum(npyH), E = sum(E, na.rm = TRUE)) %>%
   dplyr::ungroup() %>%
   dplyr::filter(year >= 2000)
 jags_datE <- lapply(ports, make_jagsdat, dat = int_E, stat = "E")
@@ -456,7 +456,7 @@ plot_post(postE_Valdez[[3]], int_E, "E", ports[4], inc_pred = "re")
 ```
   
 ```{r}
-postHp_Valdez[[3]]$summary[!grepl("re", rownames(postHp_Valdez[[3]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
+postE_Valdez[[3]]$summary[!grepl("re", rownames(postE_Valdez[[3]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
   knitr::kable()
 ```
   
