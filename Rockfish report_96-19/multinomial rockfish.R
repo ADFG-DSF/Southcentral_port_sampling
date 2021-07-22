@@ -78,7 +78,8 @@ postH_HomerCharter <- mapply(jagsUI::jags,
                              MoreArgs = list(data = jags_datH_Homer, n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb),
                              SIMPLIFY = FALSE)
 lapply(postH_HomerCharter, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
-saveRDS(postH_HomerCharter, ".\\ROckfish report_96-19\\Interview post\\postH_HomerCharter.rds")
+#saveRDS(postH_HomerCharter, ".\\Rockfish report_96-19\\Interview post\\postH_HomerCharter.rds")
+postH_HomerCharter <- readRDS( ".\\ROckfish report_96-19\\Interview post\\postH_HomerCharter.rds")
 ni <- 1E5; nb <- ni/3; nc <- 3; nt <- 20
 postH_HomerCharter[[1]]
 postH_HomerCharter[[2]]
@@ -86,7 +87,14 @@ data.frame(Deviance = sapply(postH_HomerCharter, function(x) x$mean$deviance),
            pD = sapply(postH_HomerCharter, function(x) x$pD), 
            DIC = sapply(postH_HomerCharter, function(x) x$DIC),
            sd = sapply(postH_HomerCharter, function(x) x$mean$sd))
-plot_post(postH_HomerCharter[[1]], int_pr[int_pr$fleet == "Charter", ], "H", ports[1], inc_pred = "mean")
+(plot_HomerHp <- 
+  plot_post(postH_HomerCharter[[1]], 
+            int_pr, 
+            "H", 
+            ports[1], 
+            inc_pred = "mean", 
+            charteronly = TRUE,
+            title = "Homer: Pelagic Rockfish"))
 plot_post(postH_HomerCharter[[2]], int_pr[int_pr$fleet == "Charter", ], "H", ports[1], inc_pred = "mean")
 
 
@@ -99,6 +107,7 @@ postH_Kodiak <- mapply(jagsUI::jags,
                        SIMPLIFY = FALSE)
 lapply(postH_Kodiak, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
 #saveRDS(postH_Kodiak, ".\\Rockfish report_96-19\\Interview post\\postH_Kodiak.rds")
+postH_Kodiak <- readRDS(".\\Rockfish report_96-19\\Interview post\\postH_Kodiak.rds")
 postH_Kodiak[[1]]
 postH_Kodiak[[2]]
 postH_Kodiak[[3]]
@@ -108,7 +117,7 @@ data.frame(Deviance = sapply(postH_Kodiak, function(x) x$mean$deviance),
            DIC = sapply(postH_Kodiak, function(x) x$DIC),
            sd = sapply(postH_Kodiak, function(x) x$mean$sd))
 plot_post(postH_Kodiak[[1]], int_pr, "H", ports[2])
-plot_post(postH_Kodiak[[2]], int_pr, "H", ports[2])
+(plot_KodiakHp <- plot_post(postH_Kodiak[[2]], int_pr, "H", ports[2], title= "Kodiak: Pelagic Rockfish"))
 plot_post(postH_Kodiak[[3]], int_pr, "H", ports[2])
 plot_post(postH_Kodiak[[4]], int_pr, "H", ports[2])
 jags_datH[[2]]$M
@@ -125,6 +134,7 @@ postH_Seward <- mapply(jagsUI::jags,
                        SIMPLIFY = FALSE)
 lapply(postH_Seward, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
 #saveRDS(postH_Seward, ".\\Rockfish report_96-19\\Interview post\\postH_Seward.rds")
+postH_Seward <- readRDS(".\\Rockfish report_96-19\\Interview post\\postH_Seward.rds")
 postH_Seward[[1]]
 postH_Seward[[2]]
 postH_Seward[[3]]
@@ -135,7 +145,7 @@ data.frame(Deviance = sapply(postH_Seward, function(x) x$mean$deviance),
            sd = sapply(postH_Seward, function(x) x$mean$sd))
 plot_post(postH_Seward[[1]], int_pr, "H", ports[3])
 plot_post(postH_Seward[[2]], int_pr, "H", ports[3])
-plot_post(postH_Seward[[3]], int_pr, "H", ports[3])
+(plot_SewardHp <- plot_post(postH_Seward[[3]], int_pr, "H", ports[3], title = "Seward: Pelagic Rockfish"))
 plot_post(postH_Seward[[4]], int_pr, "H", ports[3])
 
 
@@ -153,6 +163,7 @@ postH_Valdez <- mapply(jagsUI::jags,
                        SIMPLIFY = FALSE)
 lapply(postH_Valdez, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
 #saveRDS(postH_Valdez, ".\\Rockfish report_96-19\\Interview post\\postH_Valdez.rds")
+postH_Valdez <- readRDS(".\\Rockfish report_96-19\\Interview post\\postH_Valdez.rds")
 postH_Valdez[[1]]
 postH_Valdez[[2]]
 postH_Valdez[[3]]
@@ -171,7 +182,7 @@ lapply(postH_Valdez, function(x) x$sims.list$sd) %>%
   facet_grid(name ~ .)
 plot_post(postH_Valdez[[1]], int_pr, "H", ports[4])
 plot_post(postH_Valdez[[2]], int_pr, "H", ports[4])
-plot_post(postH_Valdez[[3]], int_pr, "H", ports[4])
+(plot_ValdezHp <- plot_post(postH_Valdez[[3]], int_pr, "H", ports[4], title = "Valdez: Pelagic Rockfish"))
 plot_post(postH_Valdez[[4]], int_pr, "H", ports[4])
 
 
@@ -188,6 +199,7 @@ postH_Whittier <- mapply(jagsUI::jags,
                          SIMPLIFY = FALSE)
 lapply(postH_Whittier, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
 #saveRDS(postH_Whittier, ".\\Rockfish report_96-19\\Interview post\\postH_Whittier.rds")
+postH_Whittier <- readRDS(".\\Rockfish report_96-19\\Interview post\\postH_Whittier.rds")
 postH_Whittier[[1]]
 postH_Whittier[[2]]
 postH_Whittier[[3]]
@@ -205,11 +217,18 @@ lapply(postH_Whittier, function(x) x$sims.list$sd) %>%
   geom_histogram() + 
   facet_grid(name ~ .)
 plot_post(postH_Whittier[[1]], int_pr, "H", ports[5])
-plot_post(postH_Whittier[[2]], int_pr, "H", ports[5])
+(plot_WhittierHp <- plot_post(postH_Whittier[[2]], int_pr, "H", ports[5], title = "Whittier: Pelagic Rockfish"))
 plot_post(postH_Whittier[[3]], int_pr, "H", ports[5])
 plot_post(postH_Whittier[[4]], int_pr, "H", ports[5])
 
-
+# *  Model mean proportions ------------------------------------------------------
+tab_pmodHp <- list(
+  Homer = p_post(postH_HomerCharter[[1]], int_pr, "H", ports[1]) %>% dplyr::filter(fleet == "Charter"),
+  Kodiak = p_post(postH_Kodiak[[2]], int_pr, "H", ports[2]),
+  Seward = p_post(postH_Seward[[3]], int_pr, "H", ports[3]),
+  Valdez = p_post(postH_Valdez[[3]], int_pr, "H", ports[4]),
+  Whittier = p_post(postH_Whittier[[2]], int_pr, "H", ports[5]))
+WriteXLS::WriteXLS(tab_pmodHp, ".\\Rockfish report_96-19\\tab_Hp_mod.xlsx")
 
 
 # Non-Pelagic Harvest Composition -----------------------------------------------------
@@ -262,7 +281,8 @@ postHnp_HomerCharter <- mapply(jagsUI::jags,
                              MoreArgs = list(data = jags_datHnp_Homer, n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb),
                              SIMPLIFY = FALSE)
 lapply(postHnp_HomerCharter, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
-saveRDS(postHnp_HomerCharter, ".\\ROckfish report_96-19\\Interview post\\postHnp_HomerCharter.rds")
+#saveRDS(postHnp_HomerCharter, ".\\ROckfish report_96-19\\Interview post\\postHnp_HomerCharter.rds")
+postHnp_HomerCharter <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHnp_HomerCharter.rds")
 ni <- 1E5; nb <- ni/3; nc <- 3; nt <- 20
 postHnp_HomerCharter[[1]]
 postHnp_HomerCharter[[2]]
@@ -270,8 +290,14 @@ data.frame(Deviance = sapply(postHnp_HomerCharter, function(x) x$mean$deviance),
            pD = sapply(postHnp_HomerCharter, function(x) x$pD), 
            DIC = sapply(postHnp_HomerCharter, function(x) x$DIC),
            sd = sapply(postHnp_HomerCharter, function(x) x$mean$sd))
-plot_post(postHnp_HomerCharter[[1]], int_np[int_pr$fleet == "Charter", ], "H", ports[1], inc_pred = "mean")
-plot_post(postHnp_HomerCharter[[2]], int_np[int_pr$fleet == "Charter", ], "H", ports[1], inc_pred = "mean")
+(plot_HomerHnp <-
+  plot_post(postHnp_HomerCharter[[1]], 
+            int_npr, 
+            "H", 
+            ports[1], 
+            charteronly = TRUE,
+            inc_pred = "mean", title = "Homer: Non-Pelagic Rockfish"))
+plot_post(postHnp_HomerCharter[[2]], int_npr[int_npr$fleet == "Charter", ], "H", ports[1], inc_pred = "mean")
 
 
 # * Kodiak Harvest --------------------------------------------------------
@@ -292,7 +318,7 @@ data.frame(Deviance = sapply(postHnp_Kodiak, function(x) x$mean$deviance),
            pD = sapply(postHnp_Kodiak, function(x) x$pD), 
            DIC = sapply(postHnp_Kodiak, function(x) x$DIC),
            sd = sapply(postHnp_Kodiak, function(x) x$mean$sd))
-plot_post(postHnp_Kodiak[[1]], int_npr, "H", ports[2])
+(plot_KodiakHnp <- plot_post(postHnp_Kodiak[[1]], int_npr, "H", ports[2], title = "Kodiak: Non-Pelagic Rockfish"))
 plot_post(postHnp_Kodiak[[2]], int_npr, "H", ports[2])
 plot_post(postHnp_Kodiak[[3]], int_npr, "H", ports[2])
 plot_post(postHnp_Kodiak[[4]], int_npr, "H", ports[2])
@@ -321,7 +347,7 @@ data.frame(Deviance = sapply(postHnp_Seward, function(x) x$mean$deviance),
            sd = sapply(postHnp_Seward, function(x) x$mean$sd))
 plot_post(postHnp_Seward[[1]], int_npr, "H", ports[3])
 plot_post(postHnp_Seward[[2]], int_npr, "H", ports[3])
-plot_post(postHnp_Seward[[3]], int_npr, "H", ports[3])
+(plot_SewardHnp <- plot_post(postHnp_Seward[[3]], int_npr, "H", ports[3], title = "Seward:Non-Pelagic Rockfish"))
 plot_post(postHnp_Seward[[4]], int_npr, "H", ports[3])
 
 
@@ -359,7 +385,7 @@ lapply(postHnp_Valdez, function(x) x$sims.list$sd) %>%
 plot_post(postHnp_Valdez[[1]], int_npr, "H", ports[4])
 plot_post(postHnp_Valdez[[2]], int_npr, "H", ports[4])
 plot_post(postHnp_Valdez[[3]], int_npr, "H", ports[4])
-plot_post(postHnp_Valdez[[4]], int_npr, "H", ports[4])
+(plot_ValdezHnp <- plot_post(postHnp_Valdez[[4]], int_npr, "H", ports[4], title = "Valdez: Non-Pelagic Rockfish"))
 
 
 
@@ -393,9 +419,20 @@ lapply(postHnp_Whittier, function(x) x$sims.list$sd) %>%
   geom_histogram() + 
   facet_grid(name ~ .)
 plot_post(postHnp_Whittier[[1]], int_npr, "H", ports[5])
-plot_post(postHnp_Whittier[[2]], int_npr, "H", ports[5])
+(plot_WhittierHnp <- plot_post(postHnp_Whittier[[2]], int_npr, "H", ports[5], title = "Whittier: Non-Pelagic ROckfish"))
 plot_post(postHnp_Whittier[[3]], int_npr, "H", ports[5])
 plot_post(postHnp_Whittier[[4]], int_npr, "H", ports[5])
+
+
+# *  Model mean proportions ------------------------------------------------------
+tab_pmodHnp <- list(
+  Homer = p_post(postHnp_HomerCharter[[1]], int_npr, "H", ports[1]) %>% dplyr::filter(fleet == "Charter"),
+  Kodiak = p_post(postHnp_Kodiak[[1]], int_npr, "H", ports[2]),
+  Seward = p_post(postHnp_Seward[[3]], int_npr, "H", ports[3]),
+  Valdez = p_post(postHnp_Valdez[[4]], int_npr, "H", ports[4]),
+  Whittier = p_post(postHnp_Whittier[[2]], int_npr, "H", ports[5]))
+WriteXLS::WriteXLS(tab_pmodHnp, ".\\Rockfish report_96-19\\tab_Hnp_mod.xlsx")
+
 
 
 
@@ -549,8 +586,8 @@ ggplot(H_comp[H_comp$target %in% c("Rockfish", "Bottomfish", "Bottomfish & Salmo
 
 
 # Effort Composition -----------------------------------------------------
-int_E <- 
-  int_boat %>%
+int_E <-
+  int_boat[int_boat$target %in% c("Rockfish", "Bottomfish", "Bottomfish & Salmon", "Lingcod"), ] %>%
   dplyr::group_by(port, year, fleet, area) %>%
   dplyr::summarise(H = sum(npyH, na.rm = TRUE), E = sum(E, na.rm = TRUE)) %>%
   dplyr::ungroup() %>%
@@ -573,7 +610,7 @@ postE_Homer <- mapply(jagsUI::jags,
                         SIMPLIFY = FALSE)
 lapply(postE_Homer, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
 #saveRDS(postE_Homer, ".\\Rockfish report_96-19\\Interview post\\postE_Homer.rds")
-#postE_Homer  <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Homer.rds")
+postE_Homer  <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Homer.rds")
 postE_Homer[[1]]
 postE_Homer[[2]]
 postE_Homer[[3]]
@@ -583,11 +620,10 @@ data.frame(Deviance = sapply(postE_Homer, function(x) x$mean$deviance),
            DIC = sapply(postE_Homer, function(x) x$DIC),
            sd = sapply(postE_Homer, function(x) x$mean$sd))
 plot_post(postE_Homer[[1]], int_E, "E", ports[1])
-plot_post(postE_Homer[[2]], int_E, "E", ports[1])
+(plot_HomerE <- plot_post(postE_Homer[[2]], int_E, "E", ports[1], title = "Homer: Effort"))
 plot_post(postE_Homer[[3]], int_E, "E", ports[1])
 plot_post(postE_Homer[[4]], int_E, "E", ports[1])
 jags_datE[[1]]$M
-
 
 ni <- 1E5; nb <- ni/3; nc <- 3; nt <- 200
 # * Kodiak Harvest --------------------------------------------------------
@@ -599,7 +635,7 @@ postE_Kodiak <- mapply(jagsUI::jags,
                          SIMPLIFY = FALSE)
 lapply(postE_Kodiak, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
 #saveRDS(postE_Kodiak, ".\\Rockfish report_96-19\\Interview post\\postE_Kodiak.rds")
-#postE_Kodiak  <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Kodiak.rds")
+postE_Kodiak  <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Kodiak.rds")
 postE_Kodiak[[1]]
 postE_Kodiak[[2]]
 postE_Kodiak[[3]]
@@ -609,10 +645,11 @@ data.frame(Deviance = sapply(postE_Kodiak, function(x) x$mean$deviance),
            DIC = sapply(postE_Kodiak, function(x) x$DIC),
            sd = sapply(postE_Kodiak, function(x) x$mean$sd))
 plot_post(postE_Kodiak[[1]], int_E, "E", ports[2])
-plot_post(postE_Kodiak[[2]], int_E, "E", ports[2])
+(plot_KodiakE <- plot_post(postE_Kodiak[[2]], int_E, "E", ports[2], title = "Kodiak: Effort"))
 plot_post(postE_Kodiak[[3]], int_E, "E", ports[2])
 plot_post(postE_Kodiak[[4]], int_E, "E", ports[2])
 jags_datE[[2]]$M
+p_post(postE_Kodiak[[2]], int_E, "E", ports[2])
 
 
 
@@ -626,7 +663,7 @@ postE_Seward <- mapply(jagsUI::jags,
                          SIMPLIFY = FALSE)
 lapply(postE_Seward, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
 #saveRDS(postE_Seward, ".\\Rockfish report_96-19\\Interview post\\postE_Seward.rds")
-#postE_Seward <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Seward.rds")
+postE_Seward <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Seward.rds")
 postE_Seward[[1]]
 postE_Seward[[2]]
 postE_Seward[[3]]
@@ -637,7 +674,7 @@ data.frame(Deviance = sapply(postE_Seward, function(x) x$mean$deviance),
            sd = sapply(postE_Seward, function(x) x$mean$sd))
 plot_post(postE_Seward[[1]], int_E, "E", ports[3])
 plot_post(postE_Seward[[2]], int_E, "E", ports[3])
-plot_post(postE_Seward[[3]], int_E, "E", ports[3])
+(plot_SewardE <- plot_post(postE_Seward[[3]], int_E, "E", ports[3], title = "Seward: Effort"))
 plot_post(postE_Seward[[4]], int_E, "E", ports[3])
 
 
@@ -655,7 +692,7 @@ postE_Valdez <- mapply(jagsUI::jags,
                          SIMPLIFY = FALSE)
 lapply(postE_Valdez, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
 #saveRDS(postE_Valdez, ".\\Rockfish report_96-19\\Interview post\\postE_Valdez.rds")
-#postE_Valdez <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Valdez.rds")
+postE_Valdez <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Valdez.rds")
 postE_Valdez[[1]]
 postE_Valdez[[2]]
 postE_Valdez[[3]]
@@ -675,7 +712,7 @@ lapply(postE_Valdez, function(x) x$sims.list$sd) %>%
 plot_post(postE_Valdez[[1]], int_E, "E", ports[4])
 plot_post(postE_Valdez[[2]], int_E, "E", ports[4])
 plot_post(postE_Valdez[[3]], int_E, "E", ports[4])
-plot_post(postE_Valdez[[4]], int_E, "E", ports[4])
+(plot_ValdezE <- plot_post(postE_Valdez[[4]], int_E, "E", ports[4], title = "Valdez: Effort"))
 jags_datE[[4]]$M
 
 
@@ -692,7 +729,7 @@ postE_Whittier <- mapply(jagsUI::jags,
                            SIMPLIFY = FALSE)
 lapply(postE_Whittier, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
 #saveRDS(postE_Whittier, ".\\Rockfish report_96-19\\Interview post\\postE_Whittier.rds")
-#postE_Whittier  <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Whittier.rds")
+postE_Whittier  <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Whittier.rds")
 postE_Whittier[[1]]
 postE_Whittier[[2]]
 postE_Whittier[[3]]
@@ -710,6 +747,34 @@ lapply(postE_Whittier, function(x) x$sims.list$sd) %>%
   geom_histogram() + 
   facet_grid(name ~ .)
 plot_post(postE_Whittier[[1]], int_E, "E", ports[5])
-plot_post(postE_Whittier[[2]], int_E, "E", ports[5])
+(plot_WhittierE <- plot_post(postE_Whittier[[2]], int_E, "E", ports[5], title = "Whittier: Effort"))
 plot_post(postE_Whittier[[3]], int_E, "E", ports[5])
 plot_post(postE_Whittier[[4]], int_E, "E", ports[5])
+
+# *  Model mean proportions ------------------------------------------------------
+tab_pmodE <- list(
+  Homer = p_post(postE_Homer[[2]], int_E, "E", ports[1]),
+  Kodiak = p_post(postE_Kodiak[[2]], int_E, "E", ports[2]),
+  Seward = p_post(postE_Seward[[3]], int_E, "E", ports[3]),
+  Valdez = p_post(postE_Valdez[[4]], int_E, "E", ports[4]),
+  Whittier = p_post(postE_Whittier[[2]], int_E, "E", ports[5]))
+WriteXLS::WriteXLS(unlist(tab_pmodE,recursive = FALSE), ".\\Rockfish report_96-19\\tab_Ebottomfish_mod.xlsx")
+
+comp_plots <- 
+  list(plot_HomerHp,
+       plot_KodiakHp,
+       plot_SewardHp, 
+       plot_ValdezHp,
+       plot_WhittierHp,
+       plot_HomerHnp,
+       plot_KodiakHnp,
+       plot_SewardHnp,
+       plot_ValdezHnp,
+       plot_WhittierHnp,
+       plot_HomerE,
+       plot_KodiakE,
+       plot_SewardE,
+       plot_ValdezE,
+       plot_WhittierE)
+saveRDS(comp_plots, ".\\Rockfish report_96-19\\comp_plots.rds")
+

@@ -1,7 +1,7 @@
 ---
 title: "Bottomfish Effort Spatial Distribution"
 author: "Adam Reimer"
-date: "2/8/2021"
+date: "6/24/2021"
 output: html_document
 ---
 
@@ -14,7 +14,7 @@ source("..\\functions.R")
 source("..\\models.R")
 
 int_E <- 
-  int_boat %>%
+  int_boat[int_boat$target %in% c("Rockfish", "Bottomfish", "Bottomfish & Salmon", "Lingcod"), ] %>%
   dplyr::group_by(port, year, fleet, area) %>%
   dplyr::summarise(H = sum(npyH), E = sum(E, na.rm = TRUE)) %>%
   dplyr::ungroup() %>%
@@ -59,27 +59,27 @@ To detect differences in spatial distribution by fleet and through time we used 
 During cross validation data from year $i$ ($H_{ifa}$) was withheld while each model was fit to data for all other years. Model performance was evaluated by calculating the log pointwise predictive density of the withheld data relative to the predicted multinomial probability from the model fit to all years $\ne i$ ($p_{ifa}^{(-is)}$) where s indices the number of simulations from the posterior density.
 
 \begin{equation}
-lppd~=~\sum\limits_{y}^{Y_(y \neq i)}\left[\frac{1}{S}\sum\limits_{s}^{S}\sum\limits_{f}^{2}\frac{M_{yf}!}{\prod_a H_{yfa}!}\prod_a p_{yfa}^{(-is)}\right]
+$lppd~=~\sum\limits_{fjm}^{2}\sum\limits_{y}^{Y_(y \neq i)}log\left(\frac{1}{S}\sum\limits_{s}^{S}\frac{M_{yf}!}{\prod_a H_{yfa}!}\prod_a p_{yfa}^{(-is)}\right)$
 \end{equation}
 
 ## Effort
 ### Homer
 
-Model selection criteria for bottomfish effort near Homer indicate the $\gamma$ model should be preferred, i.e one with different composition estimates for each fleet and unique temporal trends.
+Model selection criteria for bottomfish effort near Homer indicate the $\epsilon$ model should be preferred, i.e one with different composition estimates for each fleet but a shared temporal trend.
   
 ```{r}
-aggregate(value ~ name, data = ll_E[[1]], FUN = median) %>%
+ll_E$Homer %>%
   dplyr::mutate(sigma = sapply(postE_Homer, function(x) x$mean$sd)) %>%
   knitr::kable(, col.names = c("Model", "lppd", "sigma"),
                caption = "Model selection criteria for spatial distribution of bottomfish effort out of Homer, 2000-2019")
 ```
 
 ```{r, fig.height=6, fig.width=10}
-plot_post(postE_Homer[[4]], int_E, "E", ports[1], inc_pred = "re")
+plot_post(postE_Homer[[3]], int_E, "E", ports[1], inc_pred = "re")
 ```
   
 ```{r}
-postE_Homer[[4]]$summary[!grepl("re", rownames(postE_Homer[[4]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
+postE_Homer[[3]]$summary[!grepl("re", rownames(postE_Homer[[3]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
   knitr::kable()
 ```
   
@@ -88,7 +88,7 @@ postE_Homer[[4]]$summary[!grepl("re", rownames(postE_Homer[[4]]$summary)), c("me
 Model selection criteria for bottomfish effort near Kodiak indicate the $\beta$ model should be preferred, i.e one with different composition estimates for each fleet but no temporal trend.
   
 ```{r}
-aggregate(value ~ name, data = ll_E[[2]], FUN = median) %>%
+ll_E$Kodiak %>%
   dplyr::mutate(sigma = sapply(postE_Kodiak, function(x) x$mean$sd)) %>%
   knitr::kable(, col.names = c("Model", "lppd", "sigma"),
                caption = "Model selection criteria for spatial distribution of bottomfish effort out of Kodiak, 2000-2019")
@@ -105,21 +105,21 @@ postE_Kodiak[[2]]$summary[!grepl("re", rownames(postE_Kodiak[[2]]$summary)), c("
   
 ### Seward
 
-Model selection criteria for bottomfish effort near Seward indicate the $\beta$ model should be preferred, i.e one with different composition estimates for each fleet but no temporal trend.
+Model selection criteria for bottomfish effort near Seward indicate the $\epsilon$ model should be preferred, i.e one with different composition estimates for each fleet and a shared temporal trend.
   
 ```{r}
-aggregate(value ~ name, data = ll_E[[3]], FUN = median) %>%
+ll_E$Seward %>%
   dplyr::mutate(sigma = sapply(postE_Seward, function(x) x$mean$sd)) %>%
   knitr::kable(, col.names = c("Model", "lppd", "sigma"),
                caption = "Model selection criteria for spatial distribution of bottomfish effort out of Seward, 2000-2019")
 ```
 
 ```{r, fig.height=6, fig.width=10}
-plot_post(postE_Seward[[2]], int_E, "E", ports[3], inc_pred = "re")
+plot_post(postE_Seward[[3]], int_E, "E", ports[3], inc_pred = "re")
 ```
   
 ```{r}
-postE_Seward[[2]]$summary[!grepl("re", rownames(postE_Seward[[2]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
+postE_Seward[[3]]$summary[!grepl("re", rownames(postE_Seward[[3]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
   knitr::kable()
 ```
   
@@ -128,7 +128,7 @@ postE_Seward[[2]]$summary[!grepl("re", rownames(postE_Seward[[2]]$summary)), c("
 Model selection criteria for bottomfish effort near Valdez indicate the $\gamma$ model should be preferred, i.e one with different composition estimates for each fleet and unique temporal trends.
   
 ```{r}
-aggregate(value ~ name, data = ll_E[[4]], FUN = median) %>%
+ll_E$Valdez %>%
   dplyr::mutate(sigma = sapply(postE_Valdez, function(x) x$mean$sd)) %>%
   knitr::kable(, col.names = c("Model", "lppd", "sigma"),
                caption = "Model selection criteria for spatial distribution of bottomfish effort out of Valdez, 2000-2019")
@@ -145,21 +145,21 @@ postE_Valdez[[4]]$summary[!grepl("re", rownames(postE_Valdez[[4]]$summary)), c("
   
 ### Whittier
 
-Model selection criteria for bottomfish effort near Whittier indicate the $\alpha$ model should be preferred, i.e one with different composition estimates for each fleet and unique temporal trends.
+Model selection criteria for bottomfish effort near Whittier indicate the $\epsilon$ model should be preferred, i.e one with different composition estimates for each fleet and shared temporal trend.
   
 ```{r}
-aggregate(value ~ name, data = ll_E[[5]], FUN = median) %>%
+ll_E$whittier %>%
   dplyr::mutate(sigma = sapply(postE_Whittier, function(x) x$mean$sd)) %>%
   knitr::kable(, col.names = c("Model", "lppd", "sigma"),
                caption = "Model selection criteria for spatial distribution of bottomfish effort out of Whittier, 2000-2019")
 ```
 
 ```{r, fig.height=6, fig.width=10}
-plot_post(postE_Whittier[[4]], int_E, "E", ports[5], inc_pred = "re")
+plot_post(postE_Whittier[[3]], int_E, "E", ports[5], inc_pred = "re")
 ```
   
 ```{r}
-postE_Whittier[[4]]$summary[!grepl("re", rownames(postE_Whittier[[4]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
+postE_Whittier[[3]]$summary[!grepl("re", rownames(postE_Whittier[[3]]$summary)), c("mean", "sd", "2.5%", "97.5%", "Rhat", "n.eff")] %>%
   knitr::kable()
 ```
   

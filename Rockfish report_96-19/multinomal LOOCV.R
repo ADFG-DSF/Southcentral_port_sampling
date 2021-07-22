@@ -63,7 +63,7 @@ ni <- 1E5; nb <- ni/2; nc <- 3; nt <- 200
 #                                                  model.file = modfile_alpha_pred, 
 #                                                  n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
 #                                                  parallel = TRUE)})
-# saveRDS(post_alpha_pred_Homer, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Homer.rds")
+# #saveRDS(post_alpha_pred_Homer, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Homer.rds")
 # post_alpha_pred_Kodiak <- 
 #   lapply(dat_Kodiak, 
 #          function(x){x2 <- x[names(x) != "pred_area"]
@@ -72,7 +72,7 @@ ni <- 1E5; nb <- ni/2; nc <- 3; nt <- 200
 #                                      model.file = modfile_alpha_pred, 
 #                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
 #                                      parallel = TRUE)})
-# saveRDS(post_alpha_pred_Kodiak, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Kodiak.rds")
+# #saveRDS(post_alpha_pred_Kodiak, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Kodiak.rds")
 # 
 # post_alpha_pred_Seward <- 
 #   lapply(dat_Seward, 
@@ -82,7 +82,7 @@ ni <- 1E5; nb <- ni/2; nc <- 3; nt <- 200
 #                                      model.file = modfile_alpha_pred, 
 #                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
 #                                      parallel = TRUE)})
-# saveRDS(post_alpha_pred_Seward, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Seward.rds")
+# #saveRDS(post_alpha_pred_Seward, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Seward.rds")
 # 
 # post_alpha_pred_Valdez <- 
 #   lapply(dat_Valdez, 
@@ -92,7 +92,7 @@ ni <- 1E5; nb <- ni/2; nc <- 3; nt <- 200
 #                                      model.file = modfile_alpha_pred, 
 #                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
 #                                      parallel = TRUE)})
-# saveRDS(post_alpha_pred_Valdez, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Valdez.rds")
+# #saveRDS(post_alpha_pred_Valdez, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Valdez.rds")
 # 
 # post_alpha_pred_Whittier <- 
 #   lapply(dat_Whittier, 
@@ -102,7 +102,7 @@ ni <- 1E5; nb <- ni/2; nc <- 3; nt <- 200
 #                                      model.file = modfile_alpha_pred, 
 #                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
 #                                      parallel = TRUE)})
-# saveRDS(post_alpha_pred_Whittier, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Whittier.rds")
+# #saveRDS(post_alpha_pred_Whittier, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Whittier.rds")
 
 
 
@@ -152,7 +152,7 @@ parameters_beta_pred <- c("alpha", "beta", "sd", "q_pred", "pred")
 #                                      model.file = modfile_beta_pred, 
 #                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
 #                                      parallel = TRUE)})
-# saveRDS(post_beta_pred_Homer, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Homer.rds")
+# #saveRDS(post_beta_pred_Homer, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Homer.rds")
 # 
 # post_beta_pred_Kodiak <- 
 #   lapply(dat_Kodiak, 
@@ -162,7 +162,7 @@ parameters_beta_pred <- c("alpha", "beta", "sd", "q_pred", "pred")
 #                                      model.file = modfile_beta_pred, 
 #                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
 #                                      parallel = TRUE)})
-# saveRDS(post_beta_pred_Kodiak, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Kodiak.rds")
+# #saveRDS(post_beta_pred_Kodiak, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Kodiak.rds")
 # 
 # post_beta_pred_Seward <- 
 #   lapply(dat_Seward, 
@@ -172,7 +172,7 @@ parameters_beta_pred <- c("alpha", "beta", "sd", "q_pred", "pred")
 #                                      model.file = modfile_beta_pred, 
 #                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
 #                                      parallel = TRUE)})
-# saveRDS(post_beta_pred_Seward, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Seward.rds")
+# #saveRDS(post_beta_pred_Seward, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Seward.rds")
 # 
 # post_beta_pred_Valdez <- 
 #   lapply(dat_Valdez, 
@@ -182,7 +182,7 @@ parameters_beta_pred <- c("alpha", "beta", "sd", "q_pred", "pred")
 #                                      model.file = modfile_beta_pred, 
 #                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
 #                                      parallel = TRUE)})
-# saveRDS(post_beta_pred_Valdez, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Valdez.rds")
+# #saveRDS(post_beta_pred_Valdez, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Valdez.rds")
 # 
 # post_beta_pred_Whittier <- 
 #   lapply(dat_Whittier, 
@@ -192,7 +192,7 @@ parameters_beta_pred <- c("alpha", "beta", "sd", "q_pred", "pred")
 #                                      model.file = modfile_beta_pred, 
 #                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
 #                                      parallel = TRUE)})
-# saveRDS(post_beta_pred_Whittier, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Whittier.rds")
+# #saveRDS(post_beta_pred_Whittier, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Whittier.rds")
 
 
 
@@ -247,7 +247,7 @@ parameters_epsilon_pred <- c("alpha", "beta", "epsilon", "sd", "q_pred", "pred")
 #                                      model.file = modfile_epsilon_pred, 
 #                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
 #                                      parallel = TRUE)})
-# saveRDS(post_epsilon_pred_Homer, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Homer.rds")
+# #saveRDS(post_epsilon_pred_Homer, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Homer.rds")
 # 
 # post_epsilon_pred_Kodiak <- 
 #   lapply(dat_Kodiak, 
@@ -257,7 +257,7 @@ parameters_epsilon_pred <- c("alpha", "beta", "epsilon", "sd", "q_pred", "pred")
 #                                      model.file = modfile_epsilon_pred, 
 #                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
 #                                      parallel = TRUE)})
-# saveRDS(post_epsilon_pred_Kodiak, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Kodiak.rds")
+# #saveRDS(post_epsilon_pred_Kodiak, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Kodiak.rds")
 # 
 # post_epsilon_pred_Seward <- 
 #   lapply(dat_Seward, 
@@ -267,7 +267,7 @@ parameters_epsilon_pred <- c("alpha", "beta", "epsilon", "sd", "q_pred", "pred")
 #                                      model.file = modfile_epsilon_pred, 
 #                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
 #                                      parallel = TRUE)})
-# saveRDS(post_epsilon_pred_Seward, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Seward.rds")
+# #saveRDS(post_epsilon_pred_Seward, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Seward.rds")
 # 
 # post_epsilon_pred_Valdez <- 
 #   lapply(dat_Valdez, 
@@ -277,7 +277,7 @@ parameters_epsilon_pred <- c("alpha", "beta", "epsilon", "sd", "q_pred", "pred")
 #                                      model.file = modfile_epsilon_pred, 
 #                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
 #                                      parallel = TRUE)})
-# saveRDS(post_epsilon_pred_Valdez, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Valdez.rds")
+# #saveRDS(post_epsilon_pred_Valdez, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Valdez.rds")
 # 
 # post_epsilon_pred_Whittier <- 
 #   lapply(dat_Whittier, 
@@ -287,7 +287,7 @@ parameters_epsilon_pred <- c("alpha", "beta", "epsilon", "sd", "q_pred", "pred")
 #                                      model.file = modfile_epsilon_pred, 
 #                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
 #                                      parallel = TRUE)})
-# saveRDS(post_epsilon_pred_Whittier, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Whittier.rds")
+# #saveRDS(post_epsilon_pred_Whittier, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Whittier.rds")
 
 
 
@@ -346,7 +346,7 @@ parameters_gamma_pred <- c("alpha", "beta", "epsilon", "gamma", "sd", "q_pred", 
 #                                      model.file = modfile_gamma_pred, 
 #                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
 #                                      parallel = TRUE)})
-# saveRDS(post_gamma_pred_Homer, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Homer.rds")
+# #saveRDS(post_gamma_pred_Homer, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Homer.rds")
 # 
 # post_gamma_pred_Kodiak <- 
 #   lapply(dat_Kodiak, 
@@ -356,7 +356,7 @@ parameters_gamma_pred <- c("alpha", "beta", "epsilon", "gamma", "sd", "q_pred", 
 #                                      model.file = modfile_gamma_pred, 
 #                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
 #                                      parallel = TRUE)})
-# saveRDS(post_gamma_pred_Kodiak, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Kodiak.rds")
+# #saveRDS(post_gamma_pred_Kodiak, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Kodiak.rds")
 # 
 # post_gamma_pred_Seward <- 
 #   lapply(dat_Seward, 
@@ -366,7 +366,7 @@ parameters_gamma_pred <- c("alpha", "beta", "epsilon", "gamma", "sd", "q_pred", 
 #                                      model.file = modfile_gamma_pred, 
 #                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
 #                                      parallel = TRUE)})
-# saveRDS(post_gamma_pred_Seward, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Seward.rds")
+# #saveRDS(post_gamma_pred_Seward, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Seward.rds")
 # 
 # post_gamma_pred_Valdez <- 
 #   lapply(dat_Valdez, 
@@ -376,7 +376,7 @@ parameters_gamma_pred <- c("alpha", "beta", "epsilon", "gamma", "sd", "q_pred", 
 #                                      model.file = modfile_gamma_pred, 
 #                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
 #                                      parallel = TRUE)})
-# saveRDS(post_gamma_pred_Valdez, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Valdez.rds")
+# #saveRDS(post_gamma_pred_Valdez, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Valdez.rds")
 # 
 # post_gamma_pred_Whittier <- 
 #   lapply(dat_Whittier, 
@@ -386,7 +386,7 @@ parameters_gamma_pred <- c("alpha", "beta", "epsilon", "gamma", "sd", "q_pred", 
 #                                      model.file = modfile_gamma_pred, 
 #                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
 #                                      parallel = TRUE)})
-# saveRDS(post_gamma_pred_Whittier, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Whittier.rds")
+# #saveRDS(post_gamma_pred_Whittier, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Whittier.rds")
 
 #  * Homer Charter Only  ----------------------------------------------------------
 #jags w overdisersion on each observation
@@ -426,7 +426,7 @@ post_alpha0_pred_Homer <-
                                      model.file = modfile_alpha0_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_alpha0_pred_Homer, ".\\Rockfish report_96-19\\Interview post\\post_alpha0_pred_Homer.rds")
+#saveRDS(post_alpha0_pred_Homer, ".\\Rockfish report_96-19\\Interview post\\post_alpha0_pred_Homer.rds")
 
 
 #Homer Charter only
@@ -468,7 +468,7 @@ post_epsilon0_pred_Homer <-
                                      model.file = modfile_epsilon0_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_epsilon0_pred_Homer, ".\\Rockfish report_96-19\\Interview post\\post_epsilon0_pred_Homer.rds")
+#saveRDS(post_epsilon0_pred_Homer, ".\\Rockfish report_96-19\\Interview post\\post_epsilon0_pred_Homer.rds")
 
 # post_alpha_pred_Homer <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Homer.rds")
 # post_alpha_pred_Kodiak <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Kodiak.rds")
@@ -490,101 +490,102 @@ saveRDS(post_epsilon0_pred_Homer, ".\\Rockfish report_96-19\\Interview post\\pos
 # post_gamma_pred_Seward <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Seward.rds")
 # post_gamma_pred_Valdez <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Valdez.rds")
 # post_gamma_pred_Whittier <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Whittier.rds")
+# post_alpha0_pred_Homer <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_alpha0_pred_Homer.rds")
+# post_epsilon0_pred_Homer <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_epsilon0_pred_Homer.rds")
+
 
 #  * ll calcs -------------------------------------------------------------
 #Not sure how to evaluate cross-validated predictions
 #Maybe the most direct route is just to calcualte the log-liklihood for the left our observations given the modeled probabilities
 #Seems like the best choice
 ll_Homer <- 
-  data.frame(alpha = Map(get_llpred, pred = post_alpha_pred_Homer, obs = dat_Homer) %>% Reduce('+', .),
-             beta = Map(get_llpred, pred = post_beta_pred_Homer, obs = dat_Homer) %>% Reduce('+', .),
-             epsilon = Map(get_llpred, pred = post_epsilon_pred_Homer, obs = dat_Homer) %>% Reduce('+', .),
-             gamma = Map(get_llpred, pred = post_gamma_pred_Homer, obs = dat_Homer) %>% Reduce('+', .)) %>%
-  tidyr::pivot_longer(cols = alpha:gamma)
-aggregate(value ~ name, data = ll_Homer, FUN = median)
-ggplot(data = ll_Homer, aes(x = value)) + 
-  geom_histogram() +
-  geom_vline(data = aggregate(value ~ name, data = ll_Homer, FUN = median), aes(xintercept = value), col='red', size=2) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Homer, FUN = quantile, probs = c(0.1)), aes(xintercept = value), col='green', size=1) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Homer, FUN = quantile, probs = c(0.8)), aes(xintercept = value), col='green', size=1) +
-  facet_grid(name ~ .)
+  list(alpha = mapply(get_llpred, pred = post_alpha_pred_Homer, obs = dat_Homer),
+       beta = mapply(get_llpred, pred = post_beta_pred_Homer, obs = dat_Homer),
+       epsilon = mapply(get_llpred, pred = post_epsilon_pred_Homer, obs = dat_Homer),
+       gamma = mapply(get_llpred, pred = post_gamma_pred_Homer, obs = dat_Homer))
+ll_Homer
+sapply(ll_Homer, sum)
+ll_Homer_diff <- list(alpha = list(), beta = list(), epsilon = list())
+for(i in 1:3){ll_Homer_diff$alpha[[i]] <- ll_Homer[[1]] - ll_Homer[[i+1]]}
+for(i in 1:2){ll_Homer_diff$beta[[i]] <- ll_Homer[[2]] - ll_Homer[[i+2]]}
+ll_Homer_diff$epsilon[[1]] <- ll_Homer[[3]] - ll_Homer[[4]]
+lapply(ll_Homer_diff, function(x) sapply(x, sum))
+lapply(ll_Homer_diff, function(x) sapply(x, function(y) sqrt(prod(dim(y))*var(as.vector(y)))))
 
 get_llpred0 <- function(pred, obs){
   ll <- vector("numeric", length = dim(pred$sims.list$q_pred)[1])
   for(i in 1:dim(pred$sims.list$q_pred)[1]){
-    ll[i] <- dmultinom(obs$lo_count[1, ], prob = pred$sims.list$q_pred[i, ], log = TRUE)
+    ll[i] <- dmultinom(obs$lo_count[1, ], prob = pred$sims.list$q_pred[i, ])
   }
-  ll
+  log(mean(ll))
 }
 ll_Homer0 <- 
-  data.frame(alpha = Map(get_llpred0, pred = post_alpha0_pred_Homer, obs = dat_Homer) %>% Reduce('+', .),
-             epsilon = Map(get_llpred0, pred = post_epsilon0_pred_Homer, obs = dat_Homer) %>% Reduce('+', .)) %>%
-  tidyr::pivot_longer(cols = alpha:epsilon)
-aggregate(value ~ name, data = ll_Homer0, FUN = median)
-ggplot(data = ll_Homer0, aes(x = value)) + 
-  geom_histogram() +
-  geom_vline(data = aggregate(value ~ name, data = ll_Homer0, FUN = median), aes(xintercept = value), col='red', size=2) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Homer0, FUN = quantile, probs = c(0.1)), aes(xintercept = value), col='green', size=1) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Homer0, FUN = quantile, probs = c(0.8)), aes(xintercept = value), col='green', size=1) +
-  facet_grid(name ~ .)
+  list(alpha = mapply(get_llpred0, pred = post_alpha0_pred_Homer, obs = dat_Homer),
+       epsilon = mapply(get_llpred0, pred = post_epsilon0_pred_Homer, obs = dat_Homer))
+ll_Homer0
+sapply(ll_Homer0, sum)
+ll_Homer0_diff <- list(alpha = list())
+ll_Homer0_diff$alpha[[1]] <- ll_Homer0[[2]] - ll_Homer0[[1]]
+lapply(ll_Homer0_diff, function(x) sapply(x, sum))
+lapply(ll_Homer0_diff, function(x) sapply(x, function(y) sqrt(prod(dim(y))*var(as.vector(y)))))
 
 
 ll_Kodiak <- 
-  data.frame(alpha = Map(get_llpred, pred = post_alpha_pred_Kodiak, obs = dat_Kodiak) %>% Reduce('+', .),
-             beta = Map(get_llpred, pred = post_beta_pred_Kodiak, obs = dat_Kodiak) %>% Reduce('+', .),
-             epsilon = Map(get_llpred, pred = post_epsilon_pred_Kodiak, obs = dat_Kodiak) %>% Reduce('+', .),
-             gamma = Map(get_llpred, pred = post_gamma_pred_Kodiak, obs = dat_Kodiak) %>% Reduce('+', .)) %>%
-  tidyr::pivot_longer(cols = alpha:gamma)
-aggregate(value ~ name, data = ll_Kodiak, FUN = median)
-ggplot(data = ll_Kodiak, aes(x = value)) + 
-  geom_histogram() +
-  geom_vline(data = aggregate(value ~ name, data = ll_Kodiak, FUN = median), aes(xintercept = value), col='red', size=2) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Kodiak, FUN = quantile, probs = c(0.1)), aes(xintercept = value), col='green', size=1) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Kodiak, FUN = quantile, probs = c(0.8)), aes(xintercept = value), col='green', size=1) +
-  facet_grid(name ~ .)
+  list(alpha = mapply(get_llpred, pred = post_alpha_pred_Kodiak, obs = dat_Kodiak),
+       beta = mapply(get_llpred, pred = post_beta_pred_Kodiak, obs = dat_Kodiak),
+       epsilon = mapply(get_llpred, pred = post_epsilon_pred_Kodiak, obs = dat_Kodiak),
+       gamma = mapply(get_llpred, pred = post_gamma_pred_Kodiak, obs = dat_Kodiak))
+ll_Kodiak
+sapply(ll_Kodiak, sum)
+ll_Kodiak_diff <- list(alpha = list(), beta = list(), epsilon = list())
+for(i in 1:3){ll_Kodiak_diff$alpha[[i]] <- ll_Kodiak[[1]] - ll_Kodiak[[i+1]]}
+for(i in 1:2){ll_Kodiak_diff$beta[[i]] <- ll_Kodiak[[2]] - ll_Kodiak[[i+2]]}
+ll_Kodiak_diff$epsilon[[1]] <- ll_Kodiak[[3]] - ll_Kodiak[[4]]
+lapply(ll_Kodiak_diff, function(x) sapply(x, sum))
+lapply(ll_Kodiak_diff, function(x) sapply(x, function(y) sqrt(prod(dim(y))*var(as.vector(y)))))
 
 ll_Seward <- 
-  data.frame(alpha = Map(get_llpred, pred = post_alpha_pred_Seward, obs = dat_Seward) %>% Reduce('+', .),
-             beta = Map(get_llpred, pred = post_beta_pred_Seward, obs = dat_Seward) %>% Reduce('+', .),
-             epsilon = Map(get_llpred, pred = post_epsilon_pred_Seward, obs = dat_Seward) %>% Reduce('+', .),
-             gamma = Map(get_llpred, pred = post_gamma_pred_Seward, obs = dat_Seward) %>% Reduce('+', .)) %>%
-  tidyr::pivot_longer(cols = alpha:gamma)
-aggregate(value ~ name, data = ll_Seward, FUN = median)
-ggplot(data = ll_Seward, aes(x = value)) + 
-  geom_histogram() +
-  geom_vline(data = aggregate(value ~ name, data = ll_Seward, FUN = median), aes(xintercept = value), col='red', size=2) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Seward, FUN = quantile, probs = c(0.1)), aes(xintercept = value), col='green', size=1) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Seward, FUN = quantile, probs = c(0.8)), aes(xintercept = value), col='green', size=1) +
-  facet_grid(name ~ .)
+  list(alpha = mapply(get_llpred, pred = post_alpha_pred_Seward, obs = dat_Seward),
+       beta = mapply(get_llpred, pred = post_beta_pred_Seward, obs = dat_Seward),
+       epsilon = mapply(get_llpred, pred = post_epsilon_pred_Seward, obs = dat_Seward),
+       gamma = mapply(get_llpred, pred = post_gamma_pred_Seward, obs = dat_Seward))
+ll_Seward
+sapply(ll_Seward, sum)
+ll_Seward_diff <- list(alpha = list(), beta = list(), epsilon = list())
+for(i in 1:3){ll_Seward_diff$alpha[[i]] <- ll_Seward[[1]] - ll_Seward[[i+1]]}
+for(i in 1:2){ll_Seward_diff$beta[[i]] <- ll_Seward[[2]] - ll_Seward[[i+2]]}
+ll_Seward_diff$epsilon[[1]] <- ll_Seward[[3]] - ll_Seward[[4]]
+lapply(ll_Seward_diff, function(x) sapply(x, sum))
+lapply(ll_Seward_diff, function(x) sapply(x, function(y) sqrt(prod(dim(y))*var(as.vector(y)))))
 
 ll_Valdez <- 
-  data.frame(alpha = Map(get_llpred, pred = post_alpha_pred_Valdez, obs = dat_Valdez) %>% Reduce('+', .),
-             beta = Map(get_llpred, pred = post_beta_pred_Valdez, obs = dat_Valdez) %>% Reduce('+', .),
-             epsilon = Map(get_llpred, pred = post_epsilon_pred_Valdez, obs = dat_Valdez) %>% Reduce('+', .),
-             gamma = Map(get_llpred, pred = post_gamma_pred_Valdez, obs = dat_Valdez) %>% Reduce('+', .)) %>%
-  tidyr::pivot_longer(cols = alpha:gamma)
-aggregate(value ~ name, data = ll_Valdez, FUN = median)
-ggplot(data = ll_Valdez, aes(x = value)) + 
-  geom_histogram() +
-  geom_vline(data = aggregate(value ~ name, data = ll_Valdez, FUN = median), aes(xintercept = value), col='red', size=2) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Valdez, FUN = quantile, probs = c(0.1)), aes(xintercept = value), col='green', size=1) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Valdez, FUN = quantile, probs = c(0.8)), aes(xintercept = value), col='green', size=1) +
-  facet_grid(name ~ .)
+  list(alpha = mapply(get_llpred, pred = post_alpha_pred_Valdez, obs = dat_Valdez),
+       beta = mapply(get_llpred, pred = post_beta_pred_Valdez, obs = dat_Valdez),
+       epsilon = mapply(get_llpred, pred = post_epsilon_pred_Valdez, obs = dat_Valdez),
+       gamma = mapply(get_llpred, pred = post_gamma_pred_Valdez, obs = dat_Valdez))
+ll_Valdez
+sapply(ll_Valdez, sum)
+ll_Valdez_diff <- list(alpha = list(), beta = list(), epsilon = list())
+for(i in 1:3){ll_Valdez_diff$alpha[[i]] <- ll_Valdez[[1]] - ll_Valdez[[i+1]]}
+for(i in 1:2){ll_Valdez_diff$beta[[i]] <- ll_Valdez[[2]] - ll_Valdez[[i+2]]}
+ll_Valdez_diff$epsilon[[1]] <- ll_Valdez[[3]] - ll_Valdez[[4]]
+lapply(ll_Valdez_diff, function(x) sapply(x, sum))
+lapply(ll_Valdez_diff, function(x) sapply(x, function(y) sqrt(prod(dim(y))*var(as.vector(y)))))
 
 
 ll_Whittier <- 
-  data.frame(alpha = Map(get_llpred, pred = post_alpha_pred_Whittier, obs = dat_Whittier) %>% Reduce('+', .),
-             beta = Map(get_llpred, pred = post_beta_pred_Whittier, obs = dat_Whittier) %>% Reduce('+', .),
-             epsilon = Map(get_llpred, pred = post_epsilon_pred_Whittier, obs = dat_Whittier) %>% Reduce('+', .),
-             gamma = Map(get_llpred, pred = post_gamma_pred_Whittier, obs = dat_Whittier) %>% Reduce('+', .)) %>%
-  tidyr::pivot_longer(cols = alpha:gamma)
-aggregate(value ~ name, data = ll_Whittier, FUN = median)
-ggplot(data = ll_Whittier, aes(x = value)) + 
-  geom_histogram() +
-  geom_vline(data = aggregate(value ~ name, data = ll_Whittier, FUN = median), aes(xintercept = value), col='red', size=2) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Whittier, FUN = quantile, probs = c(0.1)), aes(xintercept = value), col='green', size=1) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Whittier, FUN = quantile, probs = c(0.8)), aes(xintercept = value), col='green', size=1) +
-  facet_grid(name ~ .)
+  list(alpha = mapply(get_llpred, pred = post_alpha_pred_Whittier, obs = dat_Whittier),
+       beta = mapply(get_llpred, pred = post_beta_pred_Whittier, obs = dat_Whittier),
+       epsilon = mapply(get_llpred, pred = post_epsilon_pred_Whittier, obs = dat_Whittier),
+       gamma = mapply(get_llpred, pred = post_gamma_pred_Whittier, obs = dat_Whittier))
+ll_Whittier
+sapply(ll_Whittier, sum)
+ll_Whittier_diff <- list(alpha = list(), beta = list(), epsilon = list())
+for(i in 1:3){ll_Whittier_diff$alpha[[i]] <- ll_Whittier[[1]] - ll_Whittier[[i+1]]}
+for(i in 1:2){ll_Whittier_diff$beta[[i]] <- ll_Whittier[[2]] - ll_Whittier[[i+2]]}
+ll_Whittier_diff$epsilon[[1]] <- ll_Whittier[[3]] - ll_Whittier[[4]]
+lapply(ll_Whittier_diff, function(x) sapply(x, sum))
+lapply(ll_Whittier_diff, function(x) sapply(x, function(y) sqrt(prod(dim(y))*var(as.vector(y)))))
 
 
 
@@ -615,7 +616,8 @@ post_alpha_pred_Homer_npy<-
                                      model.file = modfile_alpha_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_alpha_pred_Homer_npy, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Homer_npy.rds")
+#saveRDS(post_alpha_pred_Homer_npy, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Homer_npy.rds")
+
 post_alpha_pred_Kodiak_npy<- 
   lapply(dat_Kodiak_npy, 
          function(x){x2 <- x[names(x) != "pred_area"]
@@ -624,7 +626,7 @@ post_alpha_pred_Kodiak_npy<-
                                      model.file = modfile_alpha_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_alpha_pred_Kodiak_npy, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Kodiak_npy.rds")
+#saveRDS(post_alpha_pred_Kodiak_npy, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Kodiak_npy.rds")
 
 post_alpha_pred_Seward_npy<- 
   lapply(dat_Seward_npy, 
@@ -634,7 +636,8 @@ post_alpha_pred_Seward_npy<-
                                      model.file = modfile_alpha_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_alpha_pred_Seward_npy, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Seward_npy.rds")
+#saveRDS(post_alpha_pred_Seward_npy, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Seward_npy.rds")
+
 
 post_alpha_pred_Valdez_npy<- 
   lapply(dat_Valdez_npy, 
@@ -644,7 +647,8 @@ post_alpha_pred_Valdez_npy<-
                                      model.file = modfile_alpha_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_alpha_pred_Valdez_npy, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Valdez_npy.rds")
+#saveRDS(post_alpha_pred_Valdez_npy, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Valdez_npy.rds")
+
 
 post_alpha_pred_Whittier_npy<- 
   lapply(dat_Whittier_npy, 
@@ -654,8 +658,7 @@ post_alpha_pred_Whittier_npy<-
                                      model.file = modfile_alpha_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_alpha_pred_Whittier_npy, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Whittier_npy.rds")
-
+#saveRDS(post_alpha_pred_Whittier_npy, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Whittier_npy.rds")
 
 
 #  * Beta model -----------------------------------------------------------
@@ -667,7 +670,7 @@ post_beta_pred_Homer_npy<-
                                      model.file = modfile_beta_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_beta_pred_Homer_npy, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Homer_npy.rds")
+#saveRDS(post_beta_pred_Homer_npy, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Homer_npy.rds")
 
 post_beta_pred_Kodiak_npy<- 
   lapply(dat_Kodiak_npy, 
@@ -677,7 +680,7 @@ post_beta_pred_Kodiak_npy<-
                                      model.file = modfile_beta_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_beta_pred_Kodiak_npy, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Kodiak_npy.rds")
+#saveRDS(post_beta_pred_Kodiak_npy, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Kodiak_npy.rds")
 
 post_beta_pred_Seward_npy<- 
   lapply(dat_Seward_npy, 
@@ -687,7 +690,7 @@ post_beta_pred_Seward_npy<-
                                      model.file = modfile_beta_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_beta_pred_Seward_npy, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Seward_npy.rds")
+#saveRDS(post_beta_pred_Seward_npy, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Seward_npy.rds")
 
 post_beta_pred_Valdez_npy<- 
   lapply(dat_Valdez_npy, 
@@ -697,7 +700,7 @@ post_beta_pred_Valdez_npy<-
                                      model.file = modfile_beta_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_beta_pred_Valdez_npy, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Valdez_npy.rds")
+#saveRDS(post_beta_pred_Valdez_npy, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Valdez_npy.rds")
 
 post_beta_pred_Whittier_npy<- 
   lapply(dat_Whittier_npy, 
@@ -707,8 +710,7 @@ post_beta_pred_Whittier_npy<-
                                      model.file = modfile_beta_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_beta_pred_Whittier_npy, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Whittier_npy.rds")
-
+#saveRDS(post_beta_pred_Whittier_npy, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Whittier_npy.rds")
 
 
 
@@ -721,7 +723,7 @@ post_epsilon_pred_Homer_npy<-
                                      model.file = modfile_epsilon_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_epsilon_pred_Homer_npy, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Homer_npy.rds")
+#saveRDS(post_epsilon_pred_Homer_npy, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Homer_npy.rds")
 
 post_epsilon_pred_Kodiak_npy<- 
   lapply(dat_Kodiak_npy, 
@@ -731,7 +733,7 @@ post_epsilon_pred_Kodiak_npy<-
                                      model.file = modfile_epsilon_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_epsilon_pred_Kodiak_npy, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Kodiak_npy.rds")
+#saveRDS(post_epsilon_pred_Kodiak_npy, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Kodiak_npy.rds")
 
 post_epsilon_pred_Seward_npy<- 
   lapply(dat_Seward_npy, 
@@ -741,7 +743,7 @@ post_epsilon_pred_Seward_npy<-
                                      model.file = modfile_epsilon_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_epsilon_pred_Seward_npy, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Seward_npy.rds")
+#saveRDS(post_epsilon_pred_Seward_npy, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Seward_npy.rds")
 
 post_epsilon_pred_Valdez_npy<- 
   lapply(dat_Valdez_npy, 
@@ -751,7 +753,7 @@ post_epsilon_pred_Valdez_npy<-
                                      model.file = modfile_epsilon_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_epsilon_pred_Valdez_npy, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Valdez_npy.rds")
+#saveRDS(post_epsilon_pred_Valdez_npy, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Valdez_npy.rds")
 
 post_epsilon_pred_Whittier_npy<- 
   lapply(dat_Whittier_npy, 
@@ -761,8 +763,7 @@ post_epsilon_pred_Whittier_npy<-
                                      model.file = modfile_epsilon_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_epsilon_pred_Whittier_npy, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Whittier_npy.rds")
-
+#saveRDS(post_epsilon_pred_Whittier_npy, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Whittier_npy.rds")
 
 
 
@@ -775,7 +776,7 @@ post_gamma_pred_Homer_npy<-
                                      model.file = modfile_gamma_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_gamma_pred_Homer_npy, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Homer_npy.rds")
+#saveRDS(post_gamma_pred_Homer_npy, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Homer_npy.rds")
 
 post_gamma_pred_Kodiak_npy<- 
   lapply(dat_Kodiak_npy, 
@@ -785,7 +786,7 @@ post_gamma_pred_Kodiak_npy<-
                                      model.file = modfile_gamma_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_gamma_pred_Kodiak_npy, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Kodiak_npy.rds")
+#saveRDS(post_gamma_pred_Kodiak_npy, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Kodiak_npy.rds")
 
 post_gamma_pred_Seward_npy<- 
   lapply(dat_Seward_npy, 
@@ -795,7 +796,7 @@ post_gamma_pred_Seward_npy<-
                                      model.file = modfile_gamma_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_gamma_pred_Seward_npy, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Seward_npy.rds")
+#saveRDS(post_gamma_pred_Seward_npy, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Seward_npy.rds")
 
 post_gamma_pred_Valdez_npy<- 
   lapply(dat_Valdez_npy, 
@@ -805,7 +806,7 @@ post_gamma_pred_Valdez_npy<-
                                      model.file = modfile_gamma_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_gamma_pred_Valdez_npy, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Valdez_npy.rds")
+#saveRDS(post_gamma_pred_Valdez_npy, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Valdez_npy.rds")
 
 post_gamma_pred_Whittier_npy<- 
   lapply(dat_Whittier_npy, 
@@ -815,7 +816,8 @@ post_gamma_pred_Whittier_npy<-
                                      model.file = modfile_gamma_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_gamma_pred_Whittier_npy, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Whittier_npy.rds")
+#saveRDS(post_gamma_pred_Whittier_npy, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Whittier_npy.rds")
+
 
 #  * Homer Charter Only  ----------------------------------------------------------
 ni <- 5E5; nb <- ni/2; nc <- 3; nt <- 100
@@ -827,7 +829,7 @@ post_alpha0_pred_Homer_npy <-
                                      model.file = modfile_alpha0_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_alpha0_pred_Homer_npy, ".\\Rockfish report_96-19\\Interview post\\post_alpha0_pred_Homer_npy.rds")
+#saveRDS(post_alpha0_pred_Homer_npy, ".\\Rockfish report_96-19\\Interview post\\post_alpha0_pred_Homer_npy.rds")
 
 post_epsilon0_pred_Homer_npy <- 
   lapply(dat_Homer_npy, 
@@ -837,8 +839,7 @@ post_epsilon0_pred_Homer_npy <-
                                      model.file = modfile_epsilon0_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_epsilon0_pred_Homer_npy, ".\\Rockfish report_96-19\\Interview post\\post_epsilon0_pred_Homer_npy.rds")
-
+#saveRDS(post_epsilon0_pred_Homer_npy, ".\\Rockfish report_96-19\\Interview post\\post_epsilon0_pred_Homer_npy.rds")
 
 # post_alpha_pred_Homer_npy <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Homer_npy.rds")
 # post_alpha_pred_Kodiak_npy <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Kodiak_npy.rds")
@@ -860,102 +861,102 @@ saveRDS(post_epsilon0_pred_Homer_npy, ".\\Rockfish report_96-19\\Interview post\
 # post_gamma_pred_Seward_npy <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Seward_npy.rds")
 # post_gamma_pred_Valdez_npy <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Valdez_npy.rds")
 # post_gamma_pred_Whittier_npy <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Whittier_npy.rds")
+# post_alpha0_pred_Homer_npy <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_alpha0_pred_Homer_npy.rds")
+# post_epsilon0_pred_Homer_npy <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_epsilon0_pred_Homer_npy.rds")
 
 # *  ll calcs ---------------------------------------------------------------
 #Not sure how to evaluate cross-validated predictions
 #Maybe the most direct route is just to calcualte the log-liklihood for the left our observations given the modeled probabilities
 #Seems like the best choice
-ll_Homer_npy<- 
-  data.frame(alpha = Map(get_llpred, pred = post_alpha_pred_Homer_npy, obs = dat_Homer_npy) %>% Reduce('+', .),
-             beta = Map(get_llpred, pred = post_beta_pred_Homer_npy, obs = dat_Homer_npy) %>% Reduce('+', .),
-             epsilon = Map(get_llpred, pred = post_epsilon_pred_Homer_npy, obs = dat_Homer_npy) %>% Reduce('+', .),
-             gamma = Map(get_llpred, pred = post_gamma_pred_Homer_npy, obs = dat_Homer_npy) %>% Reduce('+', .)) %>%
-  tidyr::pivot_longer(cols = alpha:gamma)
-aggregate(value ~ name, data = ll_Homer_npy, FUN = median)
-ggplot(data = ll_Homer_npy, aes(x = value)) + 
-  geom_histogram() +
-  geom_vline(data = aggregate(value ~ name, data = ll_Homer_npy, FUN = median), aes(xintercept = value), col='red', size=2) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Homer_npy, FUN = quantile, probs = c(0.1)), aes(xintercept = value), col='green', size=1) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Homer_npy, FUN = quantile, probs = c(0.8)), aes(xintercept = value), col='green', size=1) +
-  facet_grid(name ~ .)
+ll_Homer_npy <- 
+  list(alpha = mapply(get_llpred, pred = post_alpha_pred_Homer_npy, obs = dat_Homer_npy),
+       beta = mapply(get_llpred, pred = post_beta_pred_Homer_npy, obs = dat_Homer_npy),
+       epsilon = mapply(get_llpred, pred = post_epsilon_pred_Homer_npy, obs = dat_Homer_npy),
+       gamma = mapply(get_llpred, pred = post_gamma_pred_Homer_npy, obs = dat_Homer_npy))
+ll_Homer_npy
+sapply(ll_Homer_npy, sum)
+ll_Homer_npy_diff <- list(alpha = list(), beta = list(), epsilon = list())
+for(i in 1:3){ll_Homer_npy_diff$alpha[[i]] <- ll_Homer_npy[[1]] - ll_Homer_npy[[i+1]]}
+for(i in 1:2){ll_Homer_npy_diff$beta[[i]] <- ll_Homer_npy[[2]] - ll_Homer_npy[[i+2]]}
+ll_Homer_npy_diff$epsilon[[1]] <- ll_Homer_npy[[3]] - ll_Homer_npy[[4]]
+lapply(ll_Homer_npy_diff, function(x) sapply(x, sum))
+lapply(ll_Homer_npy_diff, function(x) sapply(x, function(y) sqrt(prod(dim(y))*var(as.vector(y)))))
 
 
 ll_Homer0_npy <- 
-  data.frame(alpha = Map(get_llpred0, pred = post_alpha0_pred_Homer_npy, obs = dat_Homer_npy) %>% Reduce('+', .),
-             epsilon = Map(get_llpred0, pred = post_epsilon0_pred_Homer_npy, obs = dat_Homer_npy) %>% Reduce('+', .)) %>%
-  tidyr::pivot_longer(cols = alpha:epsilon)
-aggregate(value ~ name, data = ll_Homer0_npy, FUN = median)
-ggplot(data = ll_Homer0_npy, aes(x = value)) + 
-  geom_histogram() +
-  geom_vline(data = aggregate(value ~ name, data = ll_Homer0_npy, FUN = median), aes(xintercept = value), col='red', size=2) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Homer0_npy, FUN = quantile, probs = c(0.1)), aes(xintercept = value), col='green', size=1) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Homer0_npy, FUN = quantile, probs = c(0.8)), aes(xintercept = value), col='green', size=1) +
-  facet_grid(name ~ .)
+  list(alpha = mapply(get_llpred0, pred = post_alpha0_pred_Homer_npy, obs = dat_Homer_npy),
+       epsilon = mapply(get_llpred0, pred = post_epsilon0_pred_Homer_npy, obs = dat_Homer_npy))
+ll_Homer0_npy
+sapply(ll_Homer0_npy, sum)
+ll_Homer0_npy_diff <- list(alpha = list())
+ll_Homer0_npy_diff$alpha[[1]] <- ll_Homer0_npy[[2]] - ll_Homer0_npy[[1]]
+lapply(ll_Homer0_npy_diff, function(x) sapply(x, sum))
+lapply(ll_Homer0_npy_diff, function(x) sapply(x, function(y) sqrt(prod(dim(y))*var(as.vector(y)))))
 
 
-ll_Kodiak_npy<- 
-  data.frame(alpha = Map(get_llpred, pred = post_alpha_pred_Kodiak_npy, obs = dat_Kodiak_npy) %>% Reduce('+', .),
-             beta = Map(get_llpred, pred = post_beta_pred_Kodiak_npy, obs = dat_Kodiak_npy) %>% Reduce('+', .),
-             epsilon = Map(get_llpred, pred = post_epsilon_pred_Kodiak_npy, obs = dat_Kodiak_npy) %>% Reduce('+', .),
-             gamma = Map(get_llpred, pred = post_gamma_pred_Kodiak_npy, obs = dat_Kodiak_npy) %>% Reduce('+', .)) %>%
-  tidyr::pivot_longer(cols = alpha:gamma)
-aggregate(value ~ name, data = ll_Kodiak_npy, FUN = median)
-ggplot(data = ll_Kodiak_npy, aes(x = value)) + 
-  geom_histogram() +
-  geom_vline(data = aggregate(value ~ name, data = ll_Kodiak_npy, FUN = median), aes(xintercept = value), col='red', size=2) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Kodiak_npy, FUN = quantile, probs = c(0.1)), aes(xintercept = value), col='green', size=1) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Kodiak_npy, FUN = quantile, probs = c(0.8)), aes(xintercept = value), col='green', size=1) +
-  facet_grid(name ~ .)
+ll_Kodiak_npy <- 
+  list(alpha = mapply(get_llpred, pred = post_alpha_pred_Kodiak_npy, obs = dat_Kodiak_npy),
+       beta = mapply(get_llpred, pred = post_beta_pred_Kodiak_npy, obs = dat_Kodiak_npy),
+       epsilon = mapply(get_llpred, pred = post_epsilon_pred_Kodiak_npy, obs = dat_Kodiak_npy),
+       gamma = mapply(get_llpred, pred = post_gamma_pred_Kodiak_npy, obs = dat_Kodiak_npy))
+ll_Kodiak_npy
+sapply(ll_Kodiak_npy, sum)
+ll_Kodiak_npy_diff <- list(alpha = list(), beta = list(), epsilon = list())
+for(i in 1:3){ll_Kodiak_npy_diff$alpha[[i]] <- ll_Kodiak_npy[[1]] - ll_Kodiak_npy[[i+1]]}
+for(i in 1:2){ll_Kodiak_npy_diff$beta[[i]] <- ll_Kodiak_npy[[2]] - ll_Kodiak_npy[[i+2]]}
+ll_Kodiak_npy_diff$epsilon[[1]] <- ll_Kodiak_npy[[3]] - ll_Kodiak_npy[[4]]
+lapply(ll_Kodiak_npy_diff, function(x) sapply(x, sum))
+lapply(ll_Kodiak_npy_diff, function(x) sapply(x, function(y) sqrt(prod(dim(y))*var(as.vector(y)))))
 
-ll_Seward_npy<- 
-  data.frame(alpha = Map(get_llpred, pred = post_alpha_pred_Seward_npy, obs = dat_Seward_npy) %>% Reduce('+', .),
-             beta = Map(get_llpred, pred = post_beta_pred_Seward_npy, obs = dat_Seward_npy) %>% Reduce('+', .),
-             epsilon = Map(get_llpred, pred = post_epsilon_pred_Seward_npy, obs = dat_Seward_npy) %>% Reduce('+', .),
-             gamma = Map(get_llpred, pred = post_gamma_pred_Seward_npy, obs = dat_Seward_npy) %>% Reduce('+', .)) %>%
-  tidyr::pivot_longer(cols = alpha:gamma)
-aggregate(value ~ name, data = ll_Seward_npy, FUN = median)
-ggplot(data = ll_Seward_npy, aes(x = value)) + 
-  geom_histogram() +
-  geom_vline(data = aggregate(value ~ name, data = ll_Seward_npy, FUN = median), aes(xintercept = value), col='red', size=2) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Seward_npy, FUN = quantile, probs = c(0.1)), aes(xintercept = value), col='green', size=1) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Seward_npy, FUN = quantile, probs = c(0.8)), aes(xintercept = value), col='green', size=1) +
-  facet_grid(name ~ .)
+ll_Seward_npy <- 
+  list(alpha = mapply(get_llpred, pred = post_alpha_pred_Seward_npy, obs = dat_Seward_npy),
+       beta = mapply(get_llpred, pred = post_beta_pred_Seward_npy, obs = dat_Seward_npy),
+       epsilon = mapply(get_llpred, pred = post_epsilon_pred_Seward_npy, obs = dat_Seward_npy),
+       gamma = mapply(get_llpred, pred = post_gamma_pred_Seward_npy, obs = dat_Seward_npy))
+ll_Seward_npy
+sapply(ll_Seward_npy, sum)
+ll_Seward_npy_diff <- list(alpha = list(), beta = list(), epsilon = list())
+for(i in 1:3){ll_Seward_npy_diff$alpha[[i]] <- ll_Seward_npy[[1]] - ll_Seward_npy[[i+1]]}
+for(i in 1:2){ll_Seward_npy_diff$beta[[i]] <- ll_Seward_npy[[2]] - ll_Seward_npy[[i+2]]}
+ll_Seward_npy_diff$epsilon[[1]] <- ll_Seward_npy[[3]] - ll_Seward_npy[[4]]
+lapply(ll_Seward_npy_diff, function(x) sapply(x, sum))
+lapply(ll_Seward_npy_diff, function(x) sapply(x, function(y) sqrt(prod(dim(y))*var(as.vector(y)))))
 
-ll_Valdez_npy<- 
-  data.frame(alpha = Map(get_llpred, pred = post_alpha_pred_Valdez_npy, obs = dat_Valdez_npy) %>% Reduce('+', .),
-             beta = Map(get_llpred, pred = post_beta_pred_Valdez_npy, obs = dat_Valdez_npy) %>% Reduce('+', .),
-             epsilon = Map(get_llpred, pred = post_epsilon_pred_Valdez_npy, obs = dat_Valdez_npy) %>% Reduce('+', .),
-             gamma = Map(get_llpred, pred = post_gamma_pred_Valdez_npy, obs = dat_Valdez_npy) %>% Reduce('+', .)) %>%
-  tidyr::pivot_longer(cols = alpha:gamma)
-aggregate(value ~ name, data = ll_Valdez_npy, FUN = median)
-ggplot(data = ll_Valdez_npy, aes(x = value)) + 
-  geom_histogram() +
-  geom_vline(data = aggregate(value ~ name, data = ll_Valdez_npy, FUN = median), aes(xintercept = value), col='red', size=2) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Valdez_npy, FUN = quantile, probs = c(0.1)), aes(xintercept = value), col='green', size=1) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Valdez_npy, FUN = quantile, probs = c(0.8)), aes(xintercept = value), col='green', size=1) +
-  facet_grid(name ~ .)
+ll_Valdez_npy <- 
+  list(alpha = mapply(get_llpred, pred = post_alpha_pred_Valdez_npy, obs = dat_Valdez_npy),
+       beta = mapply(get_llpred, pred = post_beta_pred_Valdez_npy, obs = dat_Valdez_npy),
+       epsilon = mapply(get_llpred, pred = post_epsilon_pred_Valdez_npy, obs = dat_Valdez_npy),
+       gamma = mapply(get_llpred, pred = post_gamma_pred_Valdez_npy, obs = dat_Valdez_npy))
+ll_Valdez_npy
+sapply(ll_Valdez_npy, sum)
+ll_Valdez_npy_diff <- list(alpha = list(), beta = list(), epsilon = list())
+for(i in 1:3){ll_Valdez_npy_diff$alpha[[i]] <- ll_Valdez_npy[[1]] - ll_Valdez_npy[[i+1]]}
+for(i in 1:2){ll_Valdez_npy_diff$beta[[i]] <- ll_Valdez_npy[[2]] - ll_Valdez_npy[[i+2]]}
+ll_Valdez_npy_diff$epsilon[[1]] <- ll_Valdez_npy[[3]] - ll_Valdez_npy[[4]]
+lapply(ll_Valdez_npy_diff, function(x) sapply(x, sum))
+lapply(ll_Valdez_npy_diff, function(x) sapply(x, function(y) sqrt(prod(dim(y))*var(as.vector(y)))))
 
 
-ll_Whittier_npy<- 
-  data.frame(alpha = Map(get_llpred, pred = post_alpha_pred_Whittier_npy, obs = dat_Whittier_npy) %>% Reduce('+', .),
-             beta = Map(get_llpred, pred = post_beta_pred_Whittier_npy, obs = dat_Whittier_npy) %>% Reduce('+', .),
-             epsilon = Map(get_llpred, pred = post_epsilon_pred_Whittier_npy, obs = dat_Whittier_npy) %>% Reduce('+', .),
-             gamma = Map(get_llpred, pred = post_gamma_pred_Whittier_npy, obs = dat_Whittier_npy) %>% Reduce('+', .)) %>%
-  tidyr::pivot_longer(cols = alpha:gamma)
-aggregate(value ~ name, data = ll_Whittier_npy, FUN = median)
-ggplot(data = ll_Whittier_npy, aes(x = value)) + 
-  geom_histogram() +
-  geom_vline(data = aggregate(value ~ name, data = ll_Whittier_npy, FUN = median), aes(xintercept = value), col='red', size=2) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Whittier_npy, FUN = quantile, probs = c(0.1)), aes(xintercept = value), col='green', size=1) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Whittier_npy, FUN = quantile, probs = c(0.8)), aes(xintercept = value), col='green', size=1) +
-  facet_grid(name ~ .)
+ll_Whittier_npy <- 
+  list(alpha = mapply(get_llpred, pred = post_alpha_pred_Whittier_npy, obs = dat_Whittier_npy),
+       beta = mapply(get_llpred, pred = post_beta_pred_Whittier_npy, obs = dat_Whittier_npy),
+       epsilon = mapply(get_llpred, pred = post_epsilon_pred_Whittier_npy, obs = dat_Whittier_npy),
+       gamma = mapply(get_llpred, pred = post_gamma_pred_Whittier_npy, obs = dat_Whittier_npy))
+ll_Whittier_npy
+sapply(ll_Whittier_npy, sum)
+ll_Whittier_npy_diff <- list(alpha = list(), beta = list(), epsilon = list())
+for(i in 1:3){ll_Whittier_npy_diff$alpha[[i]] <- ll_Whittier_npy[[1]] - ll_Whittier_npy[[i+1]]}
+for(i in 1:2){ll_Whittier_npy_diff$beta[[i]] <- ll_Whittier_npy[[2]] - ll_Whittier_npy[[i+2]]}
+ll_Whittier_npy_diff$epsilon[[1]] <- ll_Whittier_npy[[3]] - ll_Whittier_npy[[4]]
+lapply(ll_Whittier_npy_diff, function(x) sapply(x, sum))
+lapply(ll_Whittier_npy_diff, function(x) sapply(x, function(y) sqrt(prod(dim(y))*var(as.vector(y)))))
 
 
 
 
 # Effort ----------------------------------------------------
 int_area_E <- 
-  int_boat %>%
+  int_boat[int_boat$target %in% c("Rockfish", "Bottomfish", "Bottomfish & Salmon", "Lingcod"), ] %>%
   dplyr::group_by(port, year, fleet, area) %>%
   dplyr::summarize(H = sum(npyH), E = sum(E, na.rm = TRUE)) %>%
   dplyr::ungroup() %>%
@@ -976,7 +977,8 @@ post_alpha_pred_Homer_E<-
                                      model.file = modfile_alpha_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_alpha_pred_Homer_E, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Homer_E.rds")
+#saveRDS(post_alpha_pred_Homer_E, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Homer_E.rds")
+
 post_alpha_pred_Kodiak_E<- 
   lapply(dat_Kodiak_E, 
          function(x){x2 <- x[names(x) != "pred_area"]
@@ -985,7 +987,7 @@ post_alpha_pred_Kodiak_E<-
                                      model.file = modfile_alpha_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_alpha_pred_Kodiak_E, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Kodiak_E.rds")
+#saveRDS(post_alpha_pred_Kodiak_E, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Kodiak_E.rds")
 
 post_alpha_pred_Seward_E<- 
   lapply(dat_Seward_E, 
@@ -995,7 +997,7 @@ post_alpha_pred_Seward_E<-
                                      model.file = modfile_alpha_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_alpha_pred_Seward_E, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Seward_E.rds")
+#saveRDS(post_alpha_pred_Seward_E, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Seward_E.rds")
 
 post_alpha_pred_Valdez_E<- 
   lapply(dat_Valdez_E, 
@@ -1005,7 +1007,7 @@ post_alpha_pred_Valdez_E<-
                                      model.file = modfile_alpha_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_alpha_pred_Valdez_E, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Valdez_E.rds")
+#saveRDS(post_alpha_pred_Valdez_E, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Valdez_E.rds")
 
 post_alpha_pred_Whittier_E<- 
   lapply(dat_Whittier_E, 
@@ -1015,7 +1017,7 @@ post_alpha_pred_Whittier_E<-
                                      model.file = modfile_alpha_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_alpha_pred_Whittier_E, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Whittier_E.rds")
+#saveRDS(post_alpha_pred_Whittier_E, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Whittier_E.rds")
 
 
 
@@ -1028,7 +1030,7 @@ post_beta_pred_Homer_E<-
                                      model.file = modfile_beta_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_beta_pred_Homer_E, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Homer_E.rds")
+#saveRDS(post_beta_pred_Homer_E, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Homer_E.rds")
 
 post_beta_pred_Kodiak_E<- 
   lapply(dat_Kodiak_E, 
@@ -1038,7 +1040,7 @@ post_beta_pred_Kodiak_E<-
                                      model.file = modfile_beta_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_beta_pred_Kodiak_E, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Kodiak_E.rds")
+#saveRDS(post_beta_pred_Kodiak_E, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Kodiak_E.rds")
 
 post_beta_pred_Seward_E<- 
   lapply(dat_Seward_E, 
@@ -1048,7 +1050,7 @@ post_beta_pred_Seward_E<-
                                      model.file = modfile_beta_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_beta_pred_Seward_E, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Seward_E.rds")
+#saveRDS(post_beta_pred_Seward_E, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Seward_E.rds")
 
 post_beta_pred_Valdez_E<- 
   lapply(dat_Valdez_E, 
@@ -1058,7 +1060,7 @@ post_beta_pred_Valdez_E<-
                                      model.file = modfile_beta_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_beta_pred_Valdez_E, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Valdez_E.rds")
+#saveRDS(post_beta_pred_Valdez_E, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Valdez_E.rds")
 
 post_beta_pred_Whittier_E<- 
   lapply(dat_Whittier_E, 
@@ -1068,9 +1070,7 @@ post_beta_pred_Whittier_E<-
                                      model.file = modfile_beta_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_beta_pred_Whittier_E, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Whittier_E.rds")
-
-
+#saveRDS(post_beta_pred_Whittier_E, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Whittier_E.rds")
 
 
 # *  Epsilon model --------------------------------------------------------
@@ -1082,7 +1082,7 @@ post_epsilon_pred_Homer_E<-
                                      model.file = modfile_epsilon_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_epsilon_pred_Homer_E, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Homer_E.rds")
+#saveRDS(post_epsilon_pred_Homer_E, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Homer_E.rds")
 
 post_epsilon_pred_Kodiak_E<- 
   lapply(dat_Kodiak_E, 
@@ -1092,7 +1092,7 @@ post_epsilon_pred_Kodiak_E<-
                                      model.file = modfile_epsilon_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_epsilon_pred_Kodiak_E, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Kodiak_E.rds")
+#saveRDS(post_epsilon_pred_Kodiak_E, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Kodiak_E.rds")
 
 post_epsilon_pred_Seward_E<- 
   lapply(dat_Seward_E, 
@@ -1102,7 +1102,7 @@ post_epsilon_pred_Seward_E<-
                                      model.file = modfile_epsilon_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_epsilon_pred_Seward_E, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Seward_E.rds")
+#saveRDS(post_epsilon_pred_Seward_E, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Seward_E.rds")
 
 post_epsilon_pred_Valdez_E<- 
   lapply(dat_Valdez_E, 
@@ -1112,7 +1112,7 @@ post_epsilon_pred_Valdez_E<-
                                      model.file = modfile_epsilon_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_epsilon_pred_Valdez_E, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Valdez_E.rds")
+#saveRDS(post_epsilon_pred_Valdez_E, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Valdez_E.rds")
 
 post_epsilon_pred_Whittier_E<- 
   lapply(dat_Whittier_E, 
@@ -1122,9 +1122,7 @@ post_epsilon_pred_Whittier_E<-
                                      model.file = modfile_epsilon_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_epsilon_pred_Whittier_E, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Whittier_E.rds")
-
-
+#saveRDS(post_epsilon_pred_Whittier_E, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Whittier_E.rds")
 
 
 #  * Gamma model ----------------------------------------------------------
@@ -1136,7 +1134,7 @@ post_gamma_pred_Homer_E<-
                                      model.file = modfile_gamma_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_gamma_pred_Homer_E, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Homer_E.rds")
+#saveRDS(post_gamma_pred_Homer_E, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Homer_E.rds")
 
 post_gamma_pred_Kodiak_E<- 
   lapply(dat_Kodiak_E, 
@@ -1146,7 +1144,7 @@ post_gamma_pred_Kodiak_E<-
                                      model.file = modfile_gamma_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_gamma_pred_Kodiak_E, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Kodiak_E.rds")
+#saveRDS(post_gamma_pred_Kodiak_E, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Kodiak_E.rds")
 
 post_gamma_pred_Seward_E<- 
   lapply(dat_Seward_E, 
@@ -1156,7 +1154,7 @@ post_gamma_pred_Seward_E<-
                                      model.file = modfile_gamma_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_gamma_pred_Seward_E, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Seward_E.rds")
+#saveRDS(post_gamma_pred_Seward_E, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Seward_E.rds")
 
 post_gamma_pred_Valdez_E<- 
   lapply(dat_Valdez_E, 
@@ -1166,7 +1164,7 @@ post_gamma_pred_Valdez_E<-
                                      model.file = modfile_gamma_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_gamma_pred_Valdez_E, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Valdez_E.rds")
+#saveRDS(post_gamma_pred_Valdez_E, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Valdez_E.rds")
 
 post_gamma_pred_Whittier_E<- 
   lapply(dat_Whittier_E, 
@@ -1176,90 +1174,108 @@ post_gamma_pred_Whittier_E<-
                                      model.file = modfile_gamma_pred, 
                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
                                      parallel = TRUE)})
-saveRDS(post_gamma_pred_Whittier_E, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Whittier_E.rds")
+#saveRDS(post_gamma_pred_Whittier_E, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Whittier_E.rds")
 
+
+# post_alpha_pred_Homer_E <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Homer_E.rds")
+# post_alpha_pred_Kodiak_E <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Kodiak_E.rds")
+# post_alpha_pred_Seward_E <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Seward_E.rds")
+# post_alpha_pred_Valdez_E <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Valdez_E.rds")
+# post_alpha_pred_Whittier_E <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Whittier_E.rds")
+# post_beta_pred_Homer_E <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Homer_E.rds")
+# post_beta_pred_Kodiak_E <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Kodiak_E.rds")
+# post_beta_pred_Seward_E <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Seward_E.rds")
+# post_beta_pred_Valdez_E <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Valdez_E.rds")
+# post_beta_pred_Whittier_E  <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Whittier_E.rds")
+# post_epsilon_pred_Homer_E <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Homer_E.rds")
+# post_epsilon_pred_Kodiak_E <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Kodiak_E.rds")
+# post_epsilon_pred_Seward_E <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Seward_E.rds")
+# post_epsilon_pred_Valdez_E <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Valdez_E.rds")
+# post_epsilon_pred_Whittier_E <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Whittier_E.rds")
+# post_gamma_pred_Homer_E <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Homer_E.rds")
+# post_gamma_pred_Kodiak_E <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Kodiak_E.rds")
+# post_gamma_pred_Seward_E <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Seward_E.rds")
+# post_gamma_pred_Valdez_E <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Valdez_E.rds")
+# post_gamma_pred_Whittier_E <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Whittier_E.rds")
 
 # *  ll calcs ---------------------------------------------------------------
 #Not sure how to evaluate cross-validated predictions
 #Maybe the most direct route is just to calcualte the log-liklihood for the left our observations given the modeled probabilities
 #Seems like the best choice
-ll_Homer_E<- 
-  data.frame(alpha = Map(get_llpred, pred = post_alpha_pred_Homer_E, obs = dat_Homer_E) %>% Reduce('+', .),
-             beta = Map(get_llpred, pred = post_beta_pred_Homer_E, obs = dat_Homer_E) %>% Reduce('+', .),
-             epsilon = Map(get_llpred, pred = post_epsilon_pred_Homer_E, obs = dat_Homer_E) %>% Reduce('+', .),
-             gamma = Map(get_llpred, pred = post_gamma_pred_Homer_E, obs = dat_Homer_E) %>% Reduce('+', .)) %>%
-  tidyr::pivot_longer(cols = alpha:gamma)
-aggregate(value ~ name, data = ll_Homer_E, FUN = median)
-ggplot(data = ll_Homer_E, aes(x = value)) + 
-  geom_histogram() +
-  geom_vline(data = aggregate(value ~ name, data = ll_Homer_E, FUN = median), aes(xintercept = value), col='red', size=2) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Homer_E, FUN = quantile, probs = c(0.1)), aes(xintercept = value), col='green', size=1) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Homer_E, FUN = quantile, probs = c(0.8)), aes(xintercept = value), col='green', size=1) +
-  facet_grid(name ~ .)
+ll_Homer_E <- 
+  list(alpha = mapply(get_llpred, pred = post_alpha_pred_Homer_E, obs = dat_Homer_E),
+       beta = mapply(get_llpred, pred = post_beta_pred_Homer_E, obs = dat_Homer_E),
+       epsilon = mapply(get_llpred, pred = post_epsilon_pred_Homer_E, obs = dat_Homer_E),
+       gamma = mapply(get_llpred, pred = post_gamma_pred_Homer_E, obs = dat_Homer_E))
+ll_Homer_E
+sapply(ll_Homer_E, sum)
+ll_Homer_E_diff <- list(alpha = list(), beta = list(), epsilon = list())
+for(i in 1:3){ll_Homer_E_diff$alpha[[i]] <- ll_Homer_E[[1]] - ll_Homer_E[[i+1]]}
+for(i in 1:2){ll_Homer_E_diff$beta[[i]] <- ll_Homer_E[[2]] - ll_Homer_E[[i+2]]}
+ll_Homer_E_diff$epsilon[[1]] <- ll_Homer_E[[3]] - ll_Homer_E[[4]]
+lapply(ll_Homer_E_diff, function(x) sapply(x, sum))
+lapply(ll_Homer_E_diff, function(x) sapply(x, function(y) sqrt(prod(dim(y))*var(as.vector(y)))))
 
 
-ll_Kodiak_E<- 
-  data.frame(alpha = Map(get_llpred, pred = post_alpha_pred_Kodiak_E, obs = dat_Kodiak_E) %>% Reduce('+', .),
-             beta = Map(get_llpred, pred = post_beta_pred_Kodiak_E, obs = dat_Kodiak_E) %>% Reduce('+', .),
-             epsilon = Map(get_llpred, pred = post_epsilon_pred_Kodiak_E, obs = dat_Kodiak_E) %>% Reduce('+', .),
-             gamma = Map(get_llpred, pred = post_gamma_pred_Kodiak_E, obs = dat_Kodiak_E) %>% Reduce('+', .)) %>%
-  tidyr::pivot_longer(cols = alpha:gamma)
-aggregate(value ~ name, data = ll_Kodiak_E, FUN = median)
-ggplot(data = ll_Kodiak_E, aes(x = value)) + 
-  geom_histogram() +
-  geom_vline(data = aggregate(value ~ name, data = ll_Kodiak_E, FUN = median), aes(xintercept = value), col='red', size=2) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Kodiak_E, FUN = quantile, probs = c(0.1)), aes(xintercept = value), col='green', size=1) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Kodiak_E, FUN = quantile, probs = c(0.8)), aes(xintercept = value), col='green', size=1) +
-  facet_grid(name ~ .)
 
-ll_Seward_E<- 
-  data.frame(alpha = Map(get_llpred, pred = post_alpha_pred_Seward_E, obs = dat_Seward_E) %>% Reduce('+', .),
-             beta = Map(get_llpred, pred = post_beta_pred_Seward_E, obs = dat_Seward_E) %>% Reduce('+', .),
-             epsilon = Map(get_llpred, pred = post_epsilon_pred_Seward_E, obs = dat_Seward_E) %>% Reduce('+', .),
-             gamma = Map(get_llpred, pred = post_gamma_pred_Seward_E, obs = dat_Seward_E) %>% Reduce('+', .)) %>%
-  tidyr::pivot_longer(cols = alpha:gamma)
-aggregate(value ~ name, data = ll_Seward_E, FUN = median)
-ggplot(data = ll_Seward_E, aes(x = value)) + 
-  geom_histogram() +
-  geom_vline(data = aggregate(value ~ name, data = ll_Seward_E, FUN = median), aes(xintercept = value), col='red', size=2) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Seward_E, FUN = quantile, probs = c(0.1)), aes(xintercept = value), col='green', size=1) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Seward_E, FUN = quantile, probs = c(0.8)), aes(xintercept = value), col='green', size=1) +
-  facet_grid(name ~ .)
+ll_Kodiak_E <- 
+  list(alpha = mapply(get_llpred, pred = post_alpha_pred_Kodiak_E, obs = dat_Kodiak_E),
+       beta = mapply(get_llpred, pred = post_beta_pred_Kodiak_E, obs = dat_Kodiak_E),
+       epsilon = mapply(get_llpred, pred = post_epsilon_pred_Kodiak_E, obs = dat_Kodiak_E),
+       gamma = mapply(get_llpred, pred = post_gamma_pred_Kodiak_E, obs = dat_Kodiak_E))
+ll_Kodiak_E
+sapply(ll_Kodiak_E, sum)
+ll_Kodiak_E_diff <- list(alpha = list(), beta = list(), epsilon = list())
+for(i in 1:3){ll_Kodiak_E_diff$alpha[[i]] <- ll_Kodiak_E[[1]] - ll_Kodiak_E[[i+1]]}
+for(i in 1:2){ll_Kodiak_E_diff$beta[[i]] <- ll_Kodiak_E[[2]] - ll_Kodiak_E[[i+2]]}
+ll_Kodiak_E_diff$epsilon[[1]] <- ll_Kodiak_E[[3]] - ll_Kodiak_E[[4]]
+lapply(ll_Kodiak_E_diff, function(x) sapply(x, sum))
+lapply(ll_Kodiak_E_diff, function(x) sapply(x, function(y) sqrt(prod(dim(y))*var(as.vector(y)))))
 
-ll_Valdez_E<- 
-  data.frame(alpha = Map(get_llpred, pred = post_alpha_pred_Valdez_E, obs = dat_Valdez_E) %>% Reduce('+', .),
-             beta = Map(get_llpred, pred = post_beta_pred_Valdez_E, obs = dat_Valdez_E) %>% Reduce('+', .),
-             epsilon = Map(get_llpred, pred = post_epsilon_pred_Valdez_E, obs = dat_Valdez_E) %>% Reduce('+', .),
-             gamma = Map(get_llpred, pred = post_gamma_pred_Valdez_E, obs = dat_Valdez_E) %>% Reduce('+', .)) %>%
-  tidyr::pivot_longer(cols = alpha:gamma)
-aggregate(value ~ name, data = ll_Valdez_E, FUN = median)
-ggplot(data = ll_Valdez_E, aes(x = value)) + 
-  geom_histogram() +
-  geom_vline(data = aggregate(value ~ name, data = ll_Valdez_E, FUN = median), aes(xintercept = value), col='red', size=2) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Valdez_E, FUN = quantile, probs = c(0.1)), aes(xintercept = value), col='green', size=1) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Valdez_E, FUN = quantile, probs = c(0.8)), aes(xintercept = value), col='green', size=1) +
-  facet_grid(name ~ .)
+ll_Seward_E <- 
+  list(alpha = mapply(get_llpred, pred = post_alpha_pred_Seward_E, obs = dat_Seward_E),
+       beta = mapply(get_llpred, pred = post_beta_pred_Seward_E, obs = dat_Seward_E),
+       epsilon = mapply(get_llpred, pred = post_epsilon_pred_Seward_E, obs = dat_Seward_E),
+       gamma = mapply(get_llpred, pred = post_gamma_pred_Seward_E, obs = dat_Seward_E))
+ll_Seward_E
+sapply(ll_Seward_E, sum)
+ll_Seward_E_diff <- list(alpha = list(), beta = list(), epsilon = list())
+for(i in 1:3){ll_Seward_E_diff$alpha[[i]] <- ll_Seward_E[[1]] - ll_Seward_E[[i+1]]}
+for(i in 1:2){ll_Seward_E_diff$beta[[i]] <- ll_Seward_E[[2]] - ll_Seward_E[[i+2]]}
+ll_Seward_E_diff$epsilon[[1]] <- ll_Seward_E[[3]] - ll_Seward_E[[4]]
+lapply(ll_Seward_E_diff, function(x) sapply(x, sum))
+lapply(ll_Seward_E_diff, function(x) sapply(x, function(y) sqrt(prod(dim(y))*var(as.vector(y)))))
 
+ll_Valdez_E <- 
+  list(alpha = mapply(get_llpred, pred = post_alpha_pred_Valdez_E, obs = dat_Valdez_E),
+       beta = mapply(get_llpred, pred = post_beta_pred_Valdez_E, obs = dat_Valdez_E),
+       epsilon = mapply(get_llpred, pred = post_epsilon_pred_Valdez_E, obs = dat_Valdez_E),
+       gamma = mapply(get_llpred, pred = post_gamma_pred_Valdez_E, obs = dat_Valdez_E)) 
+ll_Valdez_E
+sapply(ll_Valdez_E, sum)
+ll_Valdez_E_diff <- list(alpha = list(), beta = list(), epsilon = list())
+for(i in 1:3){ll_Valdez_E_diff$alpha[[i]] <- ll_Valdez_E[[1]] - ll_Valdez_E[[i+1]]}
+for(i in 1:2){ll_Valdez_E_diff$beta[[i]] <- ll_Valdez_E[[2]] - ll_Valdez_E[[i+2]]}
+ll_Valdez_E_diff$epsilon[[1]] <- ll_Valdez_E[[3]] - ll_Valdez_E[[4]]
+lapply(ll_Valdez_E_diff, function(x) sapply(x, sum))
+lapply(ll_Valdez_E_diff, function(x) sapply(x, function(y) sqrt(prod(dim(y))*var(as.vector(y)))))
 
-ll_Whittier_E<- 
-  data.frame(alpha = Map(get_llpred, pred = post_alpha_pred_Whittier_E, obs = dat_Whittier_E) %>% Reduce('+', .),
-             beta = Map(get_llpred, pred = post_beta_pred_Whittier_E, obs = dat_Whittier_E) %>% Reduce('+', .),
-             epsilon = Map(get_llpred, pred = post_epsilon_pred_Whittier_E, obs = dat_Whittier_E) %>% Reduce('+', .),
-             gamma = Map(get_llpred, pred = post_gamma_pred_Whittier_E, obs = dat_Whittier_E) %>% Reduce('+', .)) %>%
-  tidyr::pivot_longer(cols = alpha:gamma)
-aggregate(value ~ name, data = ll_Whittier_E, FUN = median)
-ggplot(data = ll_Whittier_E, aes(x = value)) + 
-  geom_histogram() +
-  geom_vline(data = aggregate(value ~ name, data = ll_Whittier_E, FUN = median), aes(xintercept = value), col='red', size=2) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Whittier_E, FUN = quantile, probs = c(0.1)), aes(xintercept = value), col='green', size=1) +
-  geom_vline(data = aggregate(value ~ name, data = ll_Whittier_E, FUN = quantile, probs = c(0.8)), aes(xintercept = value), col='green', size=1) +
-  facet_grid(name ~ .)
-
-
-# Export ll objects for Markdown ------------------------------------------
-ll_Hp <- list(ll_Homer0, ll_Kodiak, ll_Seward, ll_Valdez, ll_Whittier)
-saveRDS(ll_Hp, ".\\Rockfish report_96-19\\Interview post\\ll_Hp.rds")
-ll_Hnpy <- list(ll_Homer0_npy, ll_Kodiak_npy, ll_Seward_npy, ll_Valdez_npy, ll_Whittier_npy)
-saveRDS(ll_Hnpy, ".\\Rockfish report_96-19\\Interview post\\ll_Hnpy.rds")
-ll_E <- list(ll_Homer_E, ll_Kodiak_E, ll_Seward_E, ll_Valdez_E, ll_Whittier_E)
-saveRDS(ll_E, ".\\Rockfish report_96-19\\Interview post\\ll_E.rds")
+ll_Whittier_E <- 
+  list(alpha = mapply(get_llpred, pred = post_alpha_pred_Whittier_E, obs = dat_Whittier_E),
+       beta = mapply(get_llpred, pred = post_beta_pred_Whittier_E, obs = dat_Whittier_E),
+       epsilon = mapply(get_llpred, pred = post_epsilon_pred_Whittier_E, obs = dat_Whittier_E),
+       gamma = mapply(get_llpred, pred = post_gamma_pred_Whittier_E, obs = dat_Whittier_E)) 
+ll_Whittier_E
+sapply(ll_Whittier_E, sum)
+ll_Whittier_E_diff <- list(alpha = list(), beta = list(), epsilon = list())
+for(i in 1:3){ll_Whittier_E_diff$alpha[[i]] <- ll_Whittier_E[[1]] - ll_Whittier_E[[i+1]]}
+for(i in 1:2){ll_Whittier_E_diff$beta[[i]] <- ll_Whittier_E[[2]] - ll_Whittier_E[[i+2]]}
+ll_Whittier_E_diff$epsilon[[1]] <- ll_Whittier_E[[3]] - ll_Whittier_E[[4]]
+lapply(ll_Whittier_E_diff, function(x) sapply(x, sum))
+lapply(ll_Whittier_E_diff, function(x) sapply(x, function(y) sqrt(prod(dim(y))*var(as.vector(y)))))
+#Bootstrap CI for mod epsilon vrs mod alpha
+boot_Whittier_epsilondiff <- 
+  replicate(2000, sum(sample(as.vector(ll_Whittier_E_diff$alpha[[2]]), length(as.vector(ll_Whittier_E_diff$alpha[[2]])), TRUE)))
+quantile(boot_Whittier_epsilondiff, c(0.025, 0.975))
+quantile(boot_Whittier_epsilondiff, c(0.05, 0.95))
+hist(as.vector(ll_Whittier_E_diff$alpha[[2]]))

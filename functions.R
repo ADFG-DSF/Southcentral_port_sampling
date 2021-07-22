@@ -66,7 +66,7 @@ make_jagsdatpred <- function(dat, port, stat, yr){
 
 ## Plot composition data and estimates
 ##
-plot_post <- function(post, dat, stat, plotport, inc_pred = "mean", bystock = TRUE){
+plot_post <- function(post, dat, stat, plotport, inc_pred = "mean", bystock = TRUE, charteronly = FALSE, title = NULL){
   stopifnot(inc_pred %in% c("none", "mean", "re"))
   data <- dat[dat$port == plotport, c("year", "fleet", "area", stat)] %>%
     dplyr::arrange(area, fleet, year) %>%
@@ -87,16 +87,18 @@ plot_post <- function(post, dat, stat, plotport, inc_pred = "mean", bystock = TR
       yearc = rep(min(data_full$yearc):max(data_full$yearc), times = 2),
       yearccharter = c(min(data_full$yearc):max(data_full$yearc), rep(0, length(min(data_full$yearc):max(data_full$yearc)))),
       yearcprivate = c(rep(0, length(min(data_full$yearc):max(data_full$yearc))), min(data_full$yearc):max(data_full$yearc))) %>%
-    dplyr::arrange(area, private, yearc) %>%
-    as.matrix()
+      dplyr::arrange(area, private, yearc) %>%
+      as.matrix()
   
   out <- data_full %>%
     ggplot(aes(x = yearc, weight = value, fill = area)) +
     geom_area(stat = "count", position = "fill", color = "white", alpha = 0.25) +
     scale_y_continuous(name = "Percent") +
-    scale_x_continuous(name = "Year", breaks = seq(min(data$yearc), max(data$yearc), 3), labels = seq(min(data$year), max(data$year), 3)) +
+    scale_x_continuous(name = "Year", breaks = seq(min(data$yearc), max(data$yearc), 4), labels = seq(min(data$year), max(data$year), 4)) +
     theme_bw(base_size = 16) +
-    theme(legend.position = "bottom")
+    theme(legend.position = "bottom") +
+    guides(fill = guide_legend(title = NULL, ncol = 3)) +
+    ggtitle(title)
   if(bystock == TRUE){out <- out + facet_grid(. ~ fleet)}
   
   if(inc_pred %in% c("mean", "re")){
@@ -120,6 +122,7 @@ plot_post <- function(post, dat, stat, plotport, inc_pred = "mean", bystock = TR
       dplyr::group_by(fleet, yearc) %>% 
       dplyr::mutate(pct = cumsum(value))
     p$area <- factor(p$area, levels = unique(data$area))
+    if(charteronly == TRUE){p <- p[p$fleet == "Charter", ]}
   }
   if(inc_pred == "re"){    
     re <- function(post_re){
@@ -139,17 +142,21 @@ plot_post <- function(post, dat, stat, plotport, inc_pred = "mean", bystock = TR
       dplyr::group_by(fleet, yearc) %>%
       dplyr::mutate(pct = cumsum(value))
     p2$area <- factor(p2$area, levels = unique(data$area))
+    if(charteronly == TRUE){p2 <- p2[p2$fleet == "Charter", ]}
   }
   if(inc_pred == "none"){return(out)}
-  else{if(inc_pred == "mean"){return(out + geom_line(data = p, aes(x = yearc, y = pct, color = area), inherit.aes = FALSE, size = 1.1))}
+  else{if(inc_pred == "mean"){return(out + 
+                                    geom_line(data = p, aes(x = yearc, y = pct, color = area), inherit.aes = FALSE, size = 1.1) +
+                                    guides(color = guide_legend(title = NULL, ncol = 3)))}
     else{return(out + 
                   geom_line(data = p, aes(x = yearc, y = pct, color = area), inherit.aes = FALSE, size = 1.1) + 
-                  geom_line(data = p2, aes(x = yearc, y = pct, color = area), inherit.aes = FALSE, linetype = 1))}}
+                  geom_line(data = p2, aes(x = yearc, y = pct, color = area), inherit.aes = FALSE, linetype = 1) +
+                  guides(color = guide_legend(title = NULL, ncol = 3)))}}
 }
 
 ## Multinomial probabilities from posterior
-p_post <- function(post, dat, plotport){
-  data <- dat[dat$port == plotport, c("year", "fleet", "area", "E")] %>%
+p_post <- function(post, dat, stat, plotport){
+  data <- dat[dat$port == plotport, c("year", "fleet", "area", stat)] %>%
     dplyr::arrange(area, fleet, year) %>%
     dplyr::mutate(yearc = year - median(year))
   data_full <- expand.grid(list(yearc = unique(data$yearc), 
@@ -157,7 +164,7 @@ p_post <- function(post, dat, plotport){
                                 area = unique(data$area),
                                 value = 0)) %>%
     dplyr::left_join(data, by = c("yearc", "fleet", "area")) %>%
-    dplyr::mutate(E = ifelse(is.na(E), value, E),
+    dplyr::mutate(value = ifelse(is.na(!!dplyr::sym(stat)), value, !!dplyr::sym(stat)),
                   area = factor(area, levels = unique(data$area)))
   
   x <- 
@@ -180,21 +187,11 @@ p_post <- function(post, dat, plotport){
     as.matrix() %>%
     t()
   
-  re <- function(post_re){
-    re_mat <- matrix(NA, nrow = prod(dim(post_re)[1:2]), ncol = dim(post_re)[3])
-    for(i in 1:dim(post_re)[3]){re_mat[,i] <- c(post_re[,1,i], post_re[,2,i])}
-    re_mat
-  }
-  
   p <- as.data.frame(exp(x%*%b)/apply(exp(x%*%b), 1, sum)) %>% setNames(unique(data$area));
-  # p$fleet <- rep(c("Charter", "Private"), each = length(unique(data_full$yearc)))
-  # p$yearc <- rep(min(data_full$yearc):max(data_full$yearc), times = 2)
+  p$fleet <- rep(c("Charter", "Private"), each = length(unique(data_full$yearc)))
+  p$yearc <- rep(min(data_full$yearc):max(data_full$yearc), times = 2) + median(dat[dat$port == plotport, c("year", "fleet", "area", stat)]$year)
   
-  p2 <- as.data.frame(exp(x%*%b + re(post$mean$re))/apply(exp(x%*%b + re(post$mean$re)), 1, sum)) %>% setNames(unique(data$area));
-  # p2$fleet <- rep(c("Charter", "Private"), each = length(unique(data_full$yearc)))
-  # p2$yearc <- rep(min(data_full$yearc):max(data_full$yearc), times = 2)
-  
-  list(p = p, p_re = p2)
+  p
 }
 
 ## Manaul calculation of deviance wo re
@@ -257,8 +254,60 @@ get_llpred <- function(pred, obs){
                ncol = dim(pred$sims.list$q_pred)[2])
   #  sum_ll <- vector(mode = "numeric", length = dim(pred$sims.list$q_pred)[1])
   for(i in 1:dim(pred$sims.list$q_pred)[1]){
+    ll[i, 1] <- dmultinom(obs$lo_count[1, ], prob = pred$sims.list$q_pred[i, 1, ])
+    ll[i, 2] <- dmultinom(obs$lo_count[2, ], prob = pred$sims.list$q_pred[i, 2, ])
+  }
+  sapply(apply(ll, 2, mean), log)
+}
+
+get_llpred2 <- function(pred, obs){
+  ll <- matrix(NA, 
+               nrow = dim(pred$sims.list$q_pred)[1],
+               ncol = dim(pred$sims.list$q_pred)[2])
+  #  sum_ll <- vector(mode = "numeric", length = dim(pred$sims.list$q_pred)[1])
+  for(i in 1:dim(pred$sims.list$q_pred)[1]){
     ll[i, 1] <- dmultinom(obs$lo_count[1, ], prob = pred$sims.list$q_pred[i, 1, ], log = TRUE)
     ll[i, 2] <- dmultinom(obs$lo_count[2, ], prob = pred$sims.list$q_pred[i, 2, ], log = TRUE)
   }
-  apply(ll, 1, sum)
+  apply(ll, 2, mean)
+}
+
+#make a table of model selection criteria
+tab_ll <- 
+  function(ll){
+    lg = length(ll)
+    sums <- -sapply(ll, sum)
+    mu_diffs <- sums - min(sums)
+    diffs <- vector(mode = "list", length = lg)
+    for(i in 1:lg){diffs[[i]] <- -ll[[i]] - -ll[[which(mu_diffs == 0)]]}
+    # se_diffs <- lapply(diffs, function(y) sqrt(prod(dim(y))*var(as.vector(y))))
+    # se_diffs
+    boot_diff <- lapply(diffs, function(x){replicate(2000, sum(sample(as.vector(x), length(as.vector(x)), TRUE)))})
+    prob_diff <- sapply(boot_diff, function(x) mean(x > 0))
+    data.frame(ll = format(round(sums), trim = TRUE, big.mark = ","),
+               diff = format(round(mu_diffs), trim = TRUE, big.mark = ","),
+               p_diff = prob_diff) %>%
+      dplyr::mutate(model = if(lg == 2){factor(c("constant mean", "trending mean"),
+                                               levels = c("constant mean", "trending mean", "shared mean", "unique mean", "unique mean, shared trend", "unique mean and trend"),
+                                               ordered = TRUE)} 
+                    else{factor(c("shared mean", "unique mean", "unique mean, shared trend", "unique mean and trend"),
+                                levels = c("constant mean", "trending mean", "shared mean", "unique mean", "unique mean, shared trend", "unique mean and trend"),
+                                ordered = TRUE)}) %>%
+      dplyr::select(model, ll, diff, p_diff)
+  }
+
+#get random effect standard deviation from model posteriors
+get_sd <- function(index, posts, obj_names){
+  sapply(posts[[index]], function(x) x$mean$sd) %>%
+    as.data.frame() %>%
+    setNames("sd") %>%
+    dplyr::mutate(model = if(length(posts[[index]]) == 2){factor(c("constant mean", "trending mean"),
+                                                                 levels = c("constant mean", "trending mean", "shared mean", "unique mean", "unique mean, shared trend", "unique mean and trend"),
+                                                                 ordered = TRUE)} 
+                  else{factor(c("shared mean", "unique mean", "unique mean, shared trend", "unique mean and trend"),
+                              levels = c("constant mean", "trending mean", "shared mean", "unique mean", "unique mean, shared trend", "unique mean and trend"),
+                              ordered = TRUE)},
+                  port = gsub(".*_(\\w+)", "\\1", obj_names[[index]]),
+                  composition = if(grepl("^postHp", obj_names[[index]])){"Harvest: Pelagic"}
+                  else{if(grepl("^postHnp", obj_names[[index]])){"Harvest: Non-Pelagic"}else{"Effort"}})
 }
