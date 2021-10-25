@@ -153,54 +153,91 @@ plot_post <- function(post, dat, stat, plotport, inc_pred = "mean", bystock = TR
                   geom_line(data = p2, aes(x = yearc, y = pct, color = area), inherit.aes = FALSE, linetype = 1) +
                   guides(color = guide_legend(title = NULL, ncol = 3)))}}
 }
+#I think this is obsolete but i'm not sure so I commented out for the time being.
+# ## Multinomial probabilities from posterior
+# p_post <- function(post, dat, stat, plotport){
+#   data <- dat[dat$port == plotport, c("year", "fleet", "area", stat)] %>%
+#     dplyr::arrange(area, fleet, year) %>%
+#     dplyr::mutate(yearc = year - median(year))
+#   data_full <- expand.grid(list(yearc = unique(data$yearc), 
+#                                 fleet = unique(data$fleet), 
+#                                 area = unique(data$area),
+#                                 value = 0)) %>%
+#     dplyr::left_join(data, by = c("yearc", "fleet", "area")) %>%
+#     dplyr::mutate(value = ifelse(is.na(!!dplyr::sym(stat)), value, !!dplyr::sym(stat)),
+#                   area = factor(area, levels = unique(data$area)))
+#   
+#   x <- 
+#     data.frame(
+#       area = 1,
+#       charter = rep(1:0, each = length(unique(data_full$yearc))),
+#       private = rep(0:1, each = length(unique(data_full$yearc))),
+#       yearc = rep(min(data_full$yearc):max(data_full$yearc), times = 2),
+#       yearccharter = c(min(data_full$yearc):max(data_full$yearc), rep(0, length(unique(data_full$yearc)))),
+#       yearcprivate = c(rep(0, length(unique(data_full$yearc))), min(data_full$yearc):max(data_full$yearc))) %>%
+#     dplyr::arrange(area, private, yearc) %>%
+#     as.matrix()
+#   
+#   b <- 
+#     data.frame(
+#       intercept = post$mean$alpha,
+#       fleet = if(!is.null(post$mean$beta)){t(post$mean$beta)} else matrix(0, nrow = length(post$mean$alpha), ncol = 2),
+#       year = if(!is.null(post$mean$epsilon)){post$mean$epsilon} else rep(0, length(post$mean$alpha)),
+#       year = if(!is.null(post$mean$gamma)){t(post$mean$gamma)} else matrix(0, nrow = length(post$mean$alpha), ncol = 2)) %>%
+#     as.matrix() %>%
+#     t()
+#   
+#   p <- as.data.frame(exp(x%*%b)/apply(exp(x%*%b), 1, sum)) %>% setNames(unique(data$area));
+#   p$fleet <- rep(c("Charter", "Private"), each = length(unique(data_full$yearc)))
+#   p$yearc <- rep(min(data_full$yearc):max(data_full$yearc), times = 2) + median(dat[dat$port == plotport, c("year", "fleet", "area", stat)]$year)
+#   
+#   p
+# }
 
 ## Multinomial probabilities from posterior
-p_post <- function(post, dat, stat, plotport){
-  data <- dat[dat$port == plotport, c("year", "fleet", "area", stat)] %>%
-    dplyr::arrange(area, fleet, year) %>%
-    dplyr::mutate(yearc = year - median(year))
-  data_full <- expand.grid(list(yearc = unique(data$yearc), 
-                                fleet = unique(data$fleet), 
-                                area = unique(data$area),
-                                value = 0)) %>%
-    dplyr::left_join(data, by = c("yearc", "fleet", "area")) %>%
-    dplyr::mutate(value = ifelse(is.na(!!dplyr::sym(stat)), value, !!dplyr::sym(stat)),
-                  area = factor(area, levels = unique(data$area)))
-  
-  x <- 
-    data.frame(
-      area = 1,
-      charter = rep(1:0, each = length(unique(data_full$yearc))),
-      private = rep(0:1, each = length(unique(data_full$yearc))),
-      yearc = rep(min(data_full$yearc):max(data_full$yearc), times = 2),
-      yearccharter = c(min(data_full$yearc):max(data_full$yearc), rep(0, length(unique(data_full$yearc)))),
-      yearcprivate = c(rep(0, length(unique(data_full$yearc))), min(data_full$yearc):max(data_full$yearc))) %>%
-    dplyr::arrange(area, private, yearc) %>%
+p_post <- function(post, fleets = c("charter", "private"), yrs, areas){
+  stopifnot(yrs %in% c(NULL, 0))
+  if(is.null(yrs)) yrsc = post$data$yearc else yrsc = yrs
+  #lookup to convert centered years back to calander years.
+  yr_median <- list("1" = NA, "20" = 2009.5, "22" = 2008.5, "24" = 2007.5)
+  x0 <- 
+    expand.grid(list(yrsc = yrsc, fleets = fleets)) %>%
+    dplyr:: mutate(area = 1,
+                   charter = ifelse(fleets == 'charter', 1, 0),
+                   private = ifelse(fleets == 'private', 1, 0),
+                   yearc = yrsc,
+                   yearccharter = ifelse(fleets == 'charter', yrsc, 0),
+                   yearcprivate = ifelse(fleets == 'private', yrsc, 0))
+  x <- x0 %>%
+    dplyr::select(-yrsc, -fleets) %>%
     as.matrix()
   
-  b <- 
-    data.frame(
-      intercept = post$mean$alpha,
-      fleet = if(!is.null(post$mean$beta)){t(post$mean$beta)} else matrix(0, nrow = length(post$mean$alpha), ncol = 2),
-      year = if(!is.null(post$mean$epsilon)){post$mean$epsilon} else rep(0, length(post$mean$alpha)),
-      year = if(!is.null(post$mean$gamma)){t(post$mean$gamma)} else matrix(0, nrow = length(post$mean$alpha), ncol = 2)) %>%
-    as.matrix() %>%
-    t()
-  
-  p <- as.data.frame(exp(x%*%b)/apply(exp(x%*%b), 1, sum)) %>% setNames(unique(data$area));
-  p$fleet <- rep(c("Charter", "Private"), each = length(unique(data_full$yearc)))
-  p$yearc <- rep(min(data_full$yearc):max(data_full$yearc), times = 2) + median(dat[dat$port == plotport, c("year", "fleet", "area", stat)]$year)
-  
-  p
-}
-
-## Manaul calculation of deviance wo re
-get_deviance <- function(dat, preds){
-  ll <- rep(NA, dim(preds[[1]])[1])
-  for(i in 1:dim(preds[[1]])[1]) {ll[i] <- dmultinom(dat[i, ], 
-                                                     prob = as.matrix(preds[[1]][i,]), 
-                                                     log = TRUE)}
-  -2*sum(ll)
+  b <- array(NA, dim= c(dim(post$sims.list$alpha)[1], 6, dim(post$mean$alpha)))
+  p <- array(NA, dim = c(dim(post$sims.list$alpha)[1], dim(x)[1], dim(post$mean$alpha)))
+  for(i in 1:dim(post$sims.list$alpha)[1]){
+    b[i, ,] <- 
+      data.frame(
+        intercept = post$sims.list$alpha[i,],
+        fleet = if(!is.null(post$sims.list$beta[i,,])){t(post$sims.list$beta[i,,])} else matrix(0, nrow = length(post$mean$alpha), ncol = 2),
+        year = if(!is.null(post$sims.list$epsilon[i,])){post$sims.list$epsilon[i,]} else rep(0, length(post$mean$alpha)),
+        year = if(!is.null(post$sims.list$gamma[i,,])){t(post$sims.list$gamma[i,,])} else matrix(0, nrow = length(post$mean$alpha), ncol = 2)) %>%
+      as.matrix() %>% 
+      t()
+    p[i, ,] <- exp(x%*%b[i, ,])/apply(exp(x%*%b[i, ,]), 1, sum)
+  }
+  out <- 
+    paste0(format(round(apply(p, c(2,3), mean), 2)),
+           " (",
+           format(round(apply(p, c(2,3), quantile, probs = 0.05), 2)),
+           "-",
+           format(round(apply(p, c(2,3), quantile, probs = 0.95), 2)),
+           ")" ) %>%
+    matrix(nrow = dim(x)[1], ncol = dim(post$mean$alpha), byrow = FALSE) %>%
+    as.data.frame() %>%
+    dplyr::mutate(fleet = ifelse(x0$charter == 1, "Charter", "Private"),
+                  year =  x0$yearc + yr_median[[as.character(length(yrsc))]])
+  names(out) <- c(areas, "fleet", "year")
+  out[, c("fleet", "year", areas)]
 }
 
 #Summarize Interview data
@@ -237,31 +274,21 @@ plot_int <- function(dat, Hvar){
 }
 
 tab_data <- function(yr_range, jag_dat, areas){
-  temp <- data.frame(year = rep(yr_range, times = 2),
-                     fleet = rep(c("Charter", "Private"), each = length(yr_range)),
-                     count = rbind(jag_dat$count[,1,], jag_dat$count[,2,]))
-  names(temp) <- c("year", "fleet", areas)
+  temp <- data.frame(fleet = rep(c("Charter", "Private"), each = length(yr_range)),
+                     year = as.character(rep(yr_range, times = 2)),
+                     count = rbind(jag_dat$count[,1,], jag_dat$count[,2,]),
+                     total = c(jag_dat$M[,1], jag_dat$M[,2]))
+  names(temp) <- c("Fleet", "Year", areas, "Total")
   temp
 }
 
-#Not sure how to evaluate cross-validated predictions
-#Maybe the most direct route is just to calcualte the log-liklihood for the left our observations given the modeled probabilities
-#Seems like the best choice
-
+#Evaluate cross-validated predictions using the log-likelihood for the left our observations given the modeled probabilities
+#sloppy because these models predict poorly
+#Use median prob to correct for highly skewed posterior predictions
+#Take log first to allow for very low probability events
+#since using median is same as taking log after (for odd numbers anyway)
 get_llpred <- function(pred, obs){
-  ll <- matrix(NA, 
-               nrow = dim(pred$sims.list$q_pred)[1],
-               ncol = dim(pred$sims.list$q_pred)[2])
-  #  sum_ll <- vector(mode = "numeric", length = dim(pred$sims.list$q_pred)[1])
-  for(i in 1:dim(pred$sims.list$q_pred)[1]){
-    ll[i, 1] <- dmultinom(obs$lo_count[1, ], prob = pred$sims.list$q_pred[i, 1, ])
-    ll[i, 2] <- dmultinom(obs$lo_count[2, ], prob = pred$sims.list$q_pred[i, 2, ])
-  }
-  sapply(apply(ll, 2, mean), log)
-}
-
-get_llpred2 <- function(pred, obs){
-  ll <- matrix(NA, 
+  ll <- matrix(NA,
                nrow = dim(pred$sims.list$q_pred)[1],
                ncol = dim(pred$sims.list$q_pred)[2])
   #  sum_ll <- vector(mode = "numeric", length = dim(pred$sims.list$q_pred)[1])
@@ -269,7 +296,15 @@ get_llpred2 <- function(pred, obs){
     ll[i, 1] <- dmultinom(obs$lo_count[1, ], prob = pred$sims.list$q_pred[i, 1, ], log = TRUE)
     ll[i, 2] <- dmultinom(obs$lo_count[2, ], prob = pred$sims.list$q_pred[i, 2, ], log = TRUE)
   }
-  apply(ll, 2, mean)
+  apply(ll, 2, median)
+}
+
+get_llpred_Charter <- function(pred, obs){
+  ll <- vector("numeric", length = dim(pred$sims.list$q_pred)[1])
+  for(i in 1:dim(pred$sims.list$q_pred)[1]){
+    ll[i] <- dmultinom(obs$lo_count[1, ], prob = pred$sims.list$q_pred[i, ], log = TRUE)
+  }
+  median(ll)
 }
 
 #make a table of model selection criteria
@@ -280,16 +315,18 @@ tab_ll <-
     mu_diffs <- sums - min(sums)
     diffs <- vector(mode = "list", length = lg)
     for(i in 1:lg){diffs[[i]] <- -ll[[i]] - -ll[[which(mu_diffs == 0)]]}
-    # se_diffs <- lapply(diffs, function(y) sqrt(prod(dim(y))*var(as.vector(y))))
-    # se_diffs
+    se_diffs <- sapply(diffs, function(y) sqrt(prod(dim(y))*var(as.vector(y))))
     boot_diff <- lapply(diffs, function(x){replicate(2000, sum(sample(as.vector(x), length(as.vector(x)), TRUE)))})
     prob_diff <- sapply(boot_diff, function(x) mean(x > 0))
     data.frame(ll = format(round(sums), trim = TRUE, big.mark = ","),
-               diff = format(round(mu_diffs), trim = TRUE, big.mark = ","),
-               p_diff = prob_diff) %>%
+               diff = paste0(format(round(mu_diffs), trim = TRUE, big.mark = ","),
+                             " (",
+                             format(round(se_diffs), trim = TRUE, big.mark = ","),
+                             ")"),
+               p_diff = format(round(prob_diff, 3), trim = TRUE)) %>%
       dplyr::mutate(model = if(lg == 2){factor(c("constant mean", "trending mean"),
                                                levels = c("constant mean", "trending mean", "shared mean", "unique mean", "unique mean, shared trend", "unique mean and trend"),
-                                               ordered = TRUE)} 
+                                               ordered = TRUE)}
                     else{factor(c("shared mean", "unique mean", "unique mean, shared trend", "unique mean and trend"),
                                 levels = c("constant mean", "trending mean", "shared mean", "unique mean", "unique mean, shared trend", "unique mean and trend"),
                                 ordered = TRUE)}) %>%
@@ -309,5 +346,6 @@ get_sd <- function(index, posts, obj_names){
                               ordered = TRUE)},
                   port = gsub(".*_(\\w+)", "\\1", obj_names[[index]]),
                   composition = if(grepl("^postHp", obj_names[[index]])){"Harvest: Pelagic"}
-                  else{if(grepl("^postHnp", obj_names[[index]])){"Harvest: Non-Pelagic"}else{"Effort"}})
+                  else{if(grepl("^postHnp", obj_names[[index]])){"Harvest: Non-Pelagic"}else{"Effort"}},
+                  sd = format(round(sd, 2), trim = TRUE))
 }

@@ -1,0 +1,87 @@
+---
+title: "Southcentral Alaska groundfish"
+author: "Adam Reimer"
+date: "July 21, 2021"
+output: 
+  bookdown::word_document2:
+#    pandoc_args: ["-Fpandoc-crossref"]
+    reference_docx: "..\\doc_styles\\word_styles_FDS.docx"
+---
+
+```{r setup, echo=FALSE, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, fig.cap = TRUE, fig.align = 'center')
+library(bookdown)
+comp_plots <- readRDS(".\\comp_plots.rds")
+```
+
+```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of sport fishing effort out of the port of Homer, 2000-2019."}
+comp_plots[[1]]
+```
+
+```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of the pelagic rockfish harvest out of the port of Homer, 1996-2019."}
+comp_plots[[2]]
+```
+  
+```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of the non-pelagic rockfish harvest out of the port of Homer, 1996-2019."}
+comp_plots[[3]]
+```
+  
+## Kodiak 
+
+```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of sport fishing effort out of the port of Kodiak, 2000-2019."}
+comp_plots[[4]]
+```  
+  
+```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of the pelagic rockfish harvest out of the port of Kodiak, 1996-2019."}
+comp_plots[[5]]
+```
+  
+```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of the non-pelagic rockfish harvest out of the port of Kodiak, 1996-2019."}
+comp_plots[[6]]
+```
+  
+
+  
+## Seward 
+  
+```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of sport fishing effort out of the port of Seward, 2000-2019."}
+comp_plots[[7]]
+```
+  
+```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of the pelagic rockfish harvest out of the port of Seward, 1996-2019."}
+comp_plots[[8]]
+```
+  
+```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of the non-pelagic rockfish harvest out of the port of Seward, 1996-2019."}
+comp_plots[[9]]
+```
+
+  
+## Valdez 
+  
+```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of sport fishing effort out of the port of Valdez, 2000-2019."}
+comp_plots[[10]]
+```
+
+```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of the pelagic rockfish harvest out of the port of Valdez, 1996-2019."}
+comp_plots[[11]]
+```
+  
+```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of the non-pelagic rockfish harvest out of the port of Valdez, 1996-2019."}
+comp_plots[[12]]
+```
+
+  
+## Whittier 
+  
+```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of sport fishing effort out of the port of Whittier, 2000-2019."}
+comp_plots[[13]]
+```
+  
+```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of the pelagic rockfish harvest out of the port of Whittier, 1996-2019."}
+comp_plots[[14]]
+```
+  
+```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of the non-pelagic rockfish harvest out of the port of Whittier, 1996-2019."}
+comp_plots[[15]]
+```
