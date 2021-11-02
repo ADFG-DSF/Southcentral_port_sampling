@@ -131,7 +131,7 @@ data spcomp_init;
 run;
 
 *{save starting file for species, age, length, sex comp to data folder for use with subsequent programs.};
-libname spcomp 'O:\DSF\GOAB\SASCODE\Species_comp';
+libname spcomp 'H:\My Documents\Southcentral halibut and groundfish\Rockfish report_96-19\spp comp';
 data spcomp.rfcompdata;  
 	set spcomp_init;
 run;
@@ -307,13 +307,13 @@ proc print data=comp4 uniform;
 run;
 
 *{Save harvest estimates by species for estimation of age/length/sex comp by species};
-libname harv 'O:\DSF\GOAB\SASCODE\Harvest\RF';
-data harv.HarvBySpecies_SFmgmt_pwsaport; *{save to o:\dsf\GOAB\RockfishReport_96-16\DataFiles\};
+
+data spcomp.HarvBySpecies_SFmgmt_pwsaport; *{save to o:\dsf\GOAB\RockfishReport_96-16\DataFiles\};
 	set comp4;
 	if year ge 1996;
 	keep SFmgmtarea year species n abbrev piC vpiC HiC SEHiC piP vpiP HiP SEHiP pi SEpi Hi SEHi;
-proc print data=harv.HarvBySpecies_SFmgmt_pwsaport uniform;
-	title 'harv.HarvBySpecies - point estimates and variances';
+proc print data=spcomp.HarvBySpecies_SFmgmt_pwsaport uniform;
+	title 'spcomp.HarvBySpecies - point estimates and variances';
 run;
 
 *{all estimates - reduced and formatted};
