@@ -12,13 +12,11 @@ int_area <-
   dplyr::group_by(port, year, fleet, area) %>%
   dplyr::summarize(H = sum(pH), E = sum(E, na.rm = TRUE)) %>%
   dplyr::ungroup()
-dat_Homer <- lapply(1996:2019, function(x) make_jagsdatpred(int_area, "Homer", "H", x))
+dat_Homer <- lapply(1996:2019, function(x) make_jagsdatpred(int_area, "CI", "H", x))
 dat_Kodiak <- lapply(1996:2019, function(x) make_jagsdatpred(int_area, "Kodiak", "H", x))
 dat_Seward <- lapply(1996:2019, function(x) make_jagsdatpred(int_area, "Seward", "H", x))
 dat_Valdez <- lapply(1996:2019, function(x) make_jagsdatpred(int_area, "Valdez", "H", x))
 dat_Whittier <- lapply(2000:2019, function(x) make_jagsdatpred(int_area, "Whittier", "H", x))
-
-
 
 # # * Alpha model -------------------------------------------------------------
 # #jags w overdisersion on each observation
@@ -418,16 +416,16 @@ dat_Whittier <- lapply(2000:2019, function(x) make_jagsdatpred(int_area, "Whitti
 # }
 # ", con="model_alpha0_pred.txt")
 # modfile_alpha0_pred <- 'model_alpha0_pred.txt'
-# ni <- 5E5; nb <- ni/2; nc <- 3; nt <- 100
-# post_alpha0_pred_Homer <- 
-#   lapply(dat_Homer, 
-#          function(x){x2 <- x[names(x) != "pred_area"]
-#          OLREjags_re <- jagsUI::jags(x2, 
-#                                      parameters.to.save = parameters_alpha_pred, 
-#                                      model.file = modfile_alpha0_pred, 
-#                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
-#                                      parallel = TRUE)})
-# #saveRDS(post_alpha0_pred_Homer, ".\\Rockfish report_96-19\\Interview post\\post_alpha0_pred_Homer.rds")
+ni <- 5E5; nb <- ni/2; nc <- 3; nt <- 100
+post_alpha0_pred_Homer <-
+  lapply(dat_Homer,
+         function(x){x2 <- x[names(x) != "pred_area"]
+         OLREjags_re <- jagsUI::jags(x2,
+                                     parameters.to.save = parameters_alpha_pred,
+                                     model.file = ".\\model_alpha0_pred.txt",
+                                     n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb,
+                                     parallel = TRUE)})
+saveRDS(post_alpha0_pred_Homer, ".\\Rockfish report_96-19\\Interview post\\post_alpha0_pred_Homer.rds")
 # 
 # 
 # #Homer Charter only
@@ -461,15 +459,15 @@ dat_Whittier <- lapply(2000:2019, function(x) make_jagsdatpred(int_area, "Whitti
 # }
 # ", con="model_epsilon0_pred.txt")
 # modfile_epsilon0_pred <- 'model_epsilon0_pred.txt'
-# post_epsilon0_pred_Homer <- 
-#   lapply(dat_Homer, 
-#          function(x){x2 <- x[names(x) != "pred_area"]
-#          OLREjags_re <- jagsUI::jags(x2, 
-#                                      parameters.to.save = parameters_epsilon_pred, 
-#                                      model.file = modfile_epsilon0_pred, 
-#                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
-#                                      parallel = TRUE)})
-# #saveRDS(post_epsilon0_pred_Homer, ".\\Rockfish report_96-19\\Interview post\\post_epsilon0_pred_Homer.rds")
+post_epsilon0_pred_Homer <-
+  lapply(dat_Homer,
+         function(x){x2 <- x[names(x) != "pred_area"]
+         OLREjags_re <- jagsUI::jags(x2,
+                                     parameters.to.save = parameters_epsilon_pred,
+                                     model.file = ".\\model_epsilon0_pred.txt",
+                                     n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb,
+                                     parallel = TRUE)})
+saveRDS(post_epsilon0_pred_Homer, ".\\Rockfish report_96-19\\Interview post\\post_epsilon0_pred_Homer.rds")
 
 post_alpha_pred_Homer <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Homer.rds")
 post_alpha_pred_Kodiak <- readRDS(".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Kodiak.rds")
@@ -580,7 +578,7 @@ int_area_npy <-
   dplyr::group_by(port, year, fleet, area) %>%
   dplyr::summarize(H = sum(npyH), E = sum(E, na.rm = TRUE)) %>%
   dplyr::ungroup()
-dat_Homer_npy<- lapply(1996:2019, function(x) make_jagsdatpred(int_area_npy, "Homer", "H", x))
+dat_Homer_npy<- lapply(1996:2019, function(x) make_jagsdatpred(int_area_npy, "CI", "H", x))
 dat_Kodiak_npy<- lapply(1996:2019, function(x) make_jagsdatpred(int_area_npy, "Kodiak", "H", x))
 dat_Seward_npy<- lapply(1996:2019, function(x) make_jagsdatpred(int_area_npy, "Seward", "H", x))
 dat_Valdez_npy<- lapply(1996:2019, function(x) make_jagsdatpred(int_area_npy, "Valdez", "H", x))
@@ -800,26 +798,26 @@ dat_Whittier_npy<- lapply(2000:2019, function(x) make_jagsdatpred(int_area_npy, 
 # 
 # 
 # #  * Homer Charter Only  ----------------------------------------------------------
-# ni <- 5E5; nb <- ni/2; nc <- 3; nt <- 100
-# post_alpha0_pred_Homer_npy <- 
-#   lapply(dat_Homer_npy, 
-#          function(x){x2 <- x[names(x) != "pred_area"]
-#          OLREjags_re <- jagsUI::jags(x2, 
-#                                      parameters.to.save = parameters_alpha_pred, 
-#                                      model.file = modfile_alpha0_pred, 
-#                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
-#                                      parallel = TRUE)})
-# #saveRDS(post_alpha0_pred_Homer_npy, ".\\Rockfish report_96-19\\Interview post\\post_alpha0_pred_Homer_npy.rds")
-# 
-# post_epsilon0_pred_Homer_npy <- 
-#   lapply(dat_Homer_npy, 
-#          function(x){x2 <- x[names(x) != "pred_area"]
-#          OLREjags_re <- jagsUI::jags(x2, 
-#                                      parameters.to.save = parameters_epsilon_pred, 
-#                                      model.file = modfile_epsilon0_pred, 
-#                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
-#                                      parallel = TRUE)})
-# #saveRDS(post_epsilon0_pred_Homer_npy, ".\\Rockfish report_96-19\\Interview post\\post_epsilon0_pred_Homer_npy.rds")
+ni <- 5E5; nb <- ni/2; nc <- 3; nt <- 100
+post_alpha0_pred_Homer_npy <-
+  lapply(dat_Homer_npy,
+         function(x){x2 <- x[names(x) != "pred_area"]
+         OLREjags_re <- jagsUI::jags(x2,
+                                     parameters.to.save = parameters_alpha_pred,
+                                     model.file = ".\\model_alpha0_pred.txt",
+                                     n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb,
+                                     parallel = TRUE)})
+saveRDS(post_alpha0_pred_Homer_npy, ".\\Rockfish report_96-19\\Interview post\\post_alpha0_pred_Homer_npy.rds")
+
+post_epsilon0_pred_Homer_npy <-
+  lapply(dat_Homer_npy,
+         function(x){x2 <- x[names(x) != "pred_area"]
+         OLREjags_re <- jagsUI::jags(x2,
+                                     parameters.to.save = parameters_epsilon_pred,
+                                     model.file = ".\\model_epsilon0_pred.txt",
+                                     n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb,
+                                     parallel = TRUE)})
+saveRDS(post_epsilon0_pred_Homer_npy, ".\\Rockfish report_96-19\\Interview post\\post_epsilon0_pred_Homer_npy.rds")
 # 
 # #  * Kodiak Charter Only  ----------------------------------------------------------
 # post_alpha0_pred_Kodiak_npy <- 
@@ -915,23 +913,23 @@ int_area_E <-
   dplyr::summarize(H = sum(npyH), E = sum(E, na.rm = TRUE)) %>%
   dplyr::ungroup() %>%
   dplyr::filter(year >= 2000)
-dat_Homer_E<- lapply(2000:2019, function(x) make_jagsdatpred(int_area_E, "Homer", "E", x))
+dat_Homer_E<- lapply(2000:2019, function(x) make_jagsdatpred(int_area_E, "CI", "E", x))
 dat_Kodiak_E<- lapply(2000:2019, function(x) make_jagsdatpred(int_area_E, "Kodiak", "E", x))
 dat_Seward_E<- lapply(2000:2019, function(x) make_jagsdatpred(int_area_E, "Seward", "E", x))
 dat_Valdez_E<- lapply(2000:2019, function(x) make_jagsdatpred(int_area_E, "Valdez", "E", x))
 dat_Whittier_E<- lapply(2000:2019, function(x) make_jagsdatpred(int_area_E, "Whittier", "E", x))
 
-# ni <- 1E5; nb <- ni/2; nc <- 3; nt <- 200
-# #  * Alpha model ----------------------------------------------------------
-# post_alpha_pred_Homer_E<- 
-#   lapply(dat_Homer_E, 
-#          function(x){x2 <- x[names(x) != "pred_area"]
-#          OLREjags_re <- jagsUI::jags(x2, 
-#                                      parameters.to.save = parameters_alpha_pred, 
-#                                      model.file = modfile_alpha_pred, 
-#                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
-#                                      parallel = TRUE)})
-# #saveRDS(post_alpha_pred_Homer_E, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Homer_E.rds")
+ni <- 5E6; nb <- ni/2; nc <- 3; nt <- 200
+#  * Alpha model ----------------------------------------------------------
+post_alpha_pred_Homer_E<-
+  lapply(dat_Homer_E,
+         function(x){x2 <- x[names(x) != "pred_area"]
+         OLREjags_re <- jagsUI::jags(x2,
+                                     parameters.to.save = parameters_alpha_pred,
+                                     model.file = ".\\model_alpha_pred.txt",
+                                     n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb,
+                                     parallel = TRUE)})
+saveRDS(post_alpha_pred_Homer_E, ".\\Rockfish report_96-19\\Interview post\\post_alpha_pred_Homer_E.rds")
 # 
 # post_alpha_pred_Kodiak_E<- 
 #   lapply(dat_Kodiak_E, 
@@ -976,15 +974,15 @@ dat_Whittier_E<- lapply(2000:2019, function(x) make_jagsdatpred(int_area_E, "Whi
 # 
 # 
 # #  * Beta model -----------------------------------------------------------
-# post_beta_pred_Homer_E<- 
-#   lapply(dat_Homer_E, 
-#          function(x){x2 <- x[names(x) != "pred_area"]
-#          OLREjags_re <- jagsUI::jags(x2, 
-#                                      parameters.to.save = parameters_beta_pred, 
-#                                      model.file = modfile_beta_pred, 
-#                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
-#                                      parallel = TRUE)})
-# #saveRDS(post_beta_pred_Homer_E, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Homer_E.rds")
+post_beta_pred_Homer_E<-
+  lapply(dat_Homer_E,
+         function(x){x2 <- x[names(x) != "pred_area"]
+         OLREjags_re <- jagsUI::jags(x2,
+                                     parameters.to.save = parameters_beta_pred,
+                                     model.file = modfile_beta_pred,
+                                     n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb,
+                                     parallel = TRUE)})
+saveRDS(post_beta_pred_Homer_E, ".\\Rockfish report_96-19\\Interview post\\post_beta_pred_Homer_E.rds")
 # 
 # post_beta_pred_Kodiak_E<- 
 #   lapply(dat_Kodiak_E, 
@@ -1028,15 +1026,15 @@ dat_Whittier_E<- lapply(2000:2019, function(x) make_jagsdatpred(int_area_E, "Whi
 # 
 # 
 # # *  Epsilon model --------------------------------------------------------
-# post_epsilon_pred_Homer_E<- 
-#   lapply(dat_Homer_E, 
-#          function(x){x2 <- x[names(x) != "pred_area"]
-#          OLREjags_re <- jagsUI::jags(x2, 
-#                                      parameters.to.save = parameters_epsilon_pred, 
-#                                      model.file = modfile_epsilon_pred, 
-#                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
-#                                      parallel = TRUE)})
-# #saveRDS(post_epsilon_pred_Homer_E, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Homer_E.rds")
+post_epsilon_pred_Homer_E<-
+  lapply(dat_Homer_E,
+         function(x){x2 <- x[names(x) != "pred_area"]
+         OLREjags_re <- jagsUI::jags(x2,
+                                     parameters.to.save = parameters_epsilon_pred,
+                                     model.file = modfile_epsilon_pred,
+                                     n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb,
+                                     parallel = TRUE)})
+saveRDS(post_epsilon_pred_Homer_E, ".\\Rockfish report_96-19\\Interview post\\post_epsilon_pred_Homer_E.rds")
 # 
 # post_epsilon_pred_Kodiak_E<- 
 #   lapply(dat_Kodiak_E, 
@@ -1080,15 +1078,15 @@ dat_Whittier_E<- lapply(2000:2019, function(x) make_jagsdatpred(int_area_E, "Whi
 # 
 # 
 # #  * Gamma model ----------------------------------------------------------
-# post_gamma_pred_Homer_E<- 
-#   lapply(dat_Homer_E, 
-#          function(x){x2 <- x[names(x) != "pred_area"]
-#          OLREjags_re <- jagsUI::jags(x2, 
-#                                      parameters.to.save = parameters_gamma_pred, 
-#                                      model.file = modfile_gamma_pred, 
-#                                      n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, 
-#                                      parallel = TRUE)})
-# #saveRDS(post_gamma_pred_Homer_E, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Homer_E.rds")
+post_gamma_pred_Homer_E<-
+  lapply(dat_Homer_E,
+         function(x){x2 <- x[names(x) != "pred_area"]
+         OLREjags_re <- jagsUI::jags(x2,
+                                     parameters.to.save = parameters_gamma_pred,
+                                     model.file = modfile_gamma_pred,
+                                     n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb,
+                                     parallel = TRUE)})
+saveRDS(post_gamma_pred_Homer_E, ".\\Rockfish report_96-19\\Interview post\\post_gamma_pred_Homer_E.rds")
 # 
 # post_gamma_pred_Kodiak_E<- 
 #   lapply(dat_Kodiak_E, 

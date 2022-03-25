@@ -6,28 +6,26 @@ stat_areas <-
   setNames(c("stat_area", "CFunit", "SFUnit", "area"))
 
 #Interview data by boat
-int_boat <- 
-  readxl::read_excel(".\\Data\\dat_int.xls", 
-                     range = "dat_int!A2:N60551",
+int_boat1 <- 
+  readxl::read_excel(".\\Data\\dat_intCI.xls", 
+                     range = "dat_intCI!A2:N30101",
+                     col_names = c("year", "month", "multi", "angl", "port", "hH", "pH", "npH", "lH", "fleet", "target", "stat_area", "E", "yH"), 
+                     col_types = c(rep("numeric", 2), rep("skip", 2), "text", rep("numeric", 4), rep("text", 2), rep("numeric", 3))) %>%
+  dplyr::left_join(stat_areas, by = "stat_area") %>%
+  dplyr::mutate(year = as.numeric(year))
+int_boat2 <- 
+  readxl::read_excel(".\\Data\\dat_intnotCI.xls", 
+                     range = "dat_intnotCI!A2:N46360",
                      col_names = c("year", "month", "multi", "angl", "port", "hH", "pH", "npH", "lH", "fleet", "target", "stat_area", "E", "yH"), 
                      col_types = c(rep("numeric", 2), rep("skip", 2), "text", rep("numeric", 4), rep("text", 2), rep("numeric", 3))) %>%
   dplyr::left_join(stat_areas, by = "stat_area") %>%
   dplyr::mutate(year = as.numeric(year))
 
+int_boat <- rbind(int_boat1, int_boat2)
 lapply(int_boat, table, useNA = "ifany")
 
 #Don't use data prior to 1996
-int_boat <- int_boat[int_boat$year >= 1996, ] #60,576 before, 54,804 after
-
-#Some Cordova entries
-#Not enought to be useable. Delete
-table(int_boat$port)
-int_boat[int_boat$port == "Cordova", ] %>% print(n = 200)
-int_boat <- int_boat[!int_boat$port == "Cordova", ] #54,804 before, 54,665 after
-
-#Rows with H = NA
-H_NA <- is.na(int_boat$hH) & is.na(int_boat$npH) & is.na(int_boat$pH) & is.na(int_boat$lH) & is.na(int_boat$yH)
-table(int_boat$year, H_NA) #OK
+int_boat <- int_boat[int_boat$year >= 1996, ] #76579 before, 69703 after
 
 #Martin tells me every question gets asked and we can assume H = NA is a zero.
 table(is.na(int_boat$hH), int_boat$year)
@@ -88,15 +86,15 @@ table(int_boat$target, useNA = "ifany")
 # note missing areas have bad stat areas or was a halibut trip with no lingcod or rockfish harvest
 table(int_boat$area, int_boat$fleet, useNA = "always")
 int_boat[is.na(int_boat$area), ]
-int_boat <- int_boat[!is.na(int_boat$area), ] #54665 before, 54664 after
+int_boat <- int_boat[!is.na(int_boat$area), ] #69703 before, 69702 after
 
 #Stat area errors? (temporary fixes, check with Martin)
 table(int_boat$area, int_boat$port)
 int_boat[int_boat$port == "Homer" & int_boat$area == "North Gulf", ] #OK
 int_boat[int_boat$port == "Seward" & int_boat$area == "Eastern PWS Inside", ] #Delete
-int_boat <- int_boat[!(int_boat$port == "Seward" & int_boat$area == "Eastern PWS Inside"), ] #54664 before, 54663 after
+int_boat <- int_boat[!(int_boat$port == "Seward" & int_boat$area == "Eastern PWS Inside"), ] #69702 before, 69701 after
 int_boat[int_boat$port == "Valdez" & int_boat$area == "Resurrection Bay", ] #Delete
-int_boat <- int_boat[!(int_boat$port == "Valdez" & int_boat$area == "Resurrection Bay"), ] #54663 before, 54662 after
+int_boat <- int_boat[!(int_boat$port == "Valdez" & int_boat$area == "Resurrection Bay"), ] #69701 before, 69700 after
 table(int_boat$area, int_boat$port)
 
 saveRDS(int_boat, ".//Data//int_boat.rds")

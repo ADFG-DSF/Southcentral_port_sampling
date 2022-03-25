@@ -33,7 +33,7 @@ jags_datH <- lapply(ports, make_jagsdat, dat = int_pr, stat = "H")
 # # * Homer Harvest -----------------------------------------------------------
 # #None of the models are great.
 # #Need to omit Private data... too sparse.
-# postH_Homer <- mapply(jagsUI::jags,
+# postHp_Homer <- mapply(jagsUI::jags,
 #                      parameters.to.save = params, model.file = models,
 #                      MoreArgs = list(data = jags_datH[[1]], n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, store.data = TRUE),
 #                      SIMPLIFY = FALSE)
@@ -45,13 +45,14 @@ jagsUI::traceplot(postHp_Homer[[1]], c("alpha"))
 plot_post(postHp_Homer[[1]], int_pr, "H", ports[1], inc_pred = "mean")
 postHp_Homer[[2]]
 jagsUI::traceplot(postHp_Homer[[2]], c("alpha", "beta"))
-#Can't get model to convergere, alpha modle non-sensical
+plot_post(postHp_Homer[[2]], int_pr, "H", ports[1], inc_pred = "mean")
+#Can't get model to convergere
 
 
 #Try with only Homer Charter data only
-# jags_datH_Homer <- jags_datH[[1]]
-# jags_datH_Homer$count <- jags_datH[[1]]$count[,1,]
-# jags_datH_Homer$M <- jags_datH[[1]]$M[,1]
+jags_datH_Homer <- jags_datH[[1]]
+jags_datH_Homer$count <- jags_datH[[1]]$count[,1,]
+jags_datH_Homer$M <- jags_datH[[1]]$M[,1]
 # ni <- 5E5; nb <- ni/3; nc <- 3; nt <- 50
 # postHp_HomerCharter <- mapply(jagsUI::jags,
 #                              parameters.to.save = params[c(1, 3)], model.file = list(alpha <- modfile_alpha0,epsilon <- modfile_epsilon0),
@@ -199,16 +200,16 @@ jags_datHnp[[1]]$M
 #Insufficent Private data
 
 #Try with only Homer Charter data only
-# jags_datHnp_Homer <- jags_datHnp[[1]]
-# jags_datHnp_Homer$count <- jags_datHnp[[1]]$count[,1,]
-# jags_datHnp_Homer$M <- jags_datHnp[[1]]$M[,1]
-# ni <- 1E5; nb <- ni/3; nc <- 3; nt <- 50
+jags_datHnp_Homer <- jags_datHnp[[1]]
+jags_datHnp_Homer$count <- jags_datHnp[[1]]$count[,1,]
+jags_datHnp_Homer$M <- jags_datHnp[[1]]$M[,1]
+ni <- 1E5; nb <- ni/3; nc <- 3; nt <- 50
 # postHnp_HomerCharter <- mapply(jagsUI::jags,
 #                              parameters.to.save = params[c(1, 3)], model.file = list(alpha <- modfile_alpha0,epsilon <- modfile_epsilon0),
 #                              MoreArgs = list(data = jags_datHnp_Homer, n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, store.data = TRUE),
 #                              SIMPLIFY = FALSE)
 # lapply(postHnp_HomerCharter, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
-# saveRDS(postHnp_HomerCharter, ".\\ROckfish report_96-19\\Interview post\\postHnp_HomerCharter.rds")
+# saveRDS(postHnp_HomerCharter, ".\\Rockfish report_96-19\\Interview post\\postHnp_HomerCharter.rds")
 postHnp_HomerCharter <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHnp_HomerCharter.rds")
 ni <- 1E5; nb <- ni/3; nc <- 3; nt <- 20
 postHnp_HomerCharter[[1]]
@@ -499,13 +500,13 @@ int_E <-
 jags_datE <- lapply(ports, make_jagsdat, dat = int_E, stat = "E")
 
 # # * Homer Harvest --------------------------------------------------------
-# ni <- 5E6; nb <- ni/3; nc <- 3; nt <- 1000
-# postE_Homer <- mapply(jagsUI::jags,
-#                         parameters.to.save = params, model.file = models,
-#                         MoreArgs = list(data = jags_datE[[1]], n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, store.data = TRUE, parallel = TRUE),
-#                         SIMPLIFY = FALSE)
-# lapply(postE_Homer, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
-# saveRDS(postE_Homer, ".\\Rockfish report_96-19\\Interview post\\postE_Homer.rds")
+ni <- 5E6; nb <- ni/3; nc <- 3; nt <- 1000
+postE_Homer <- mapply(jagsUI::jags,
+                        parameters.to.save = params, model.file = models,
+                        MoreArgs = list(data = jags_datE[[1]], n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, store.data = TRUE, parallel = TRUE),
+                        SIMPLIFY = FALSE)
+lapply(postE_Homer, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
+saveRDS(postE_Homer, ".\\Rockfish report_96-19\\Interview post\\postE_Homer.rds")
 postE_Homer  <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Homer.rds")
 postE_Homer[[1]]
 postE_Homer[[2]]
@@ -609,6 +610,23 @@ plot_post(postE_Whittier[[4]], int_E, "E", ports[5])
 
 
 
+postE_Homer <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Homer.rds")
+postE_Kodiak <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Kodiak.rds")
+postE_Seward <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Seward.rds")
+postE_Valdez <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Valdez.rds")
+postE_Whittier <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Whittier.rds")
+postHnp_HomerCharter <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHnp_HomerCharter.rds")
+postHnp_Kodiak <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHnp_Kodiak.rds")
+postHnp_Seward <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHnp_Seward.rds")
+postHnp_Valdez <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHnp_Valdez.rds")
+postHnp_Whittier <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHnp_Whittier.rds")
+postHp_HomerCharter <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHp_HomerCharter.rds")
+postHp_Kodiak <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHp_Kodiak.rds")
+postHp_Seward <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHp_Seward.rds")
+postHp_Valdez <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHp_Valdez.rds")
+postHp_Whittier <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHp_Whittier.rds")
+
+
 comp_plots <- 
   list(plot_HomerE, plot_HomerHp, plot_HomerHnp,
        plot_KodiakE, plot_KodiakHp, plot_KodiakHnp,
@@ -621,21 +639,22 @@ saveRDS(comp_plots, ".\\Rockfish report_96-19\\comp_plots.rds")
 mod_p <- 
   list(
     HomerE = p_post(postE_Homer[[2]], yrs = 0, areas = areas[[1]]),
-    HomerHp = p_post(postH_HomerCharter[[1]], fleet = "charter", yrs = 0, areas = areas[[1]]),
+    HomerHp = p_post(postHp_HomerCharter[[1]], fleet = "charter", yrs = 0, areas = areas[[1]]),
     HomerHnp = p_post(postHnp_HomerCharter[[1]], fleet = "charter", yrs = 0, areas = areas[[1]]),
     KodiakE = p_post(postE_Kodiak[[2]], yrs = 0, areas = areas[[2]]),
-    KodiakHp = p_post(postH_Kodiak[[2]], yrs = 0, areas = areas[[2]]),
+    KodiakHp = p_post(postHp_Kodiak[[2]], yrs = 0, areas = areas[[2]]),
     KodiakHnp = p_post(postHnp_Kodiak[[2]], yrs = 0, areas = areas[[2]]),
     SewardE = p_post(postE_Seward[[2]], yrs = 0, areas = areas[[3]]),
-    SewardHp = p_post(postH_Seward[[3]], yrs = NULL, areas = areas[[3]]),
+    SewardHp = p_post(postHp_Seward[[3]], yrs = NULL, areas = areas[[3]]),
     SewardHnp = p_post(postHnp_Seward[[3]], yrs = NULL, areas = areas[[3]]),
     ValdezE = p_post(postE_Valdez[[3]], yrs = NULL, areas = areas[[4]]),
-    ValdezHp = p_post(postH_Valdez[[3]], yrs = NULL, areas = areas[[4]]),
+    ValdezHp = p_post(postHp_Valdez[[3]], yrs = NULL, areas = areas[[4]]),
     ValdezHnp = p_post(postHnp_Valdez[[3]], yrs = NULL, areas = areas[[4]]),
     WhittierE = p_post(postE_Whittier[[2]], yrs = 0, areas = areas[[5]]),
-    WhittierHp = p_post(postH_Whittier[[2]], yrs = 0, areas = areas[[5]]),
+    WhittierHp = p_post(postHp_Whittier[[2]], yrs = 0, areas = areas[[5]]),
     WhittierHnp = p_post(postHnp_Whittier[[2]], yrs = 0, areas = areas[[5]])
 )
+saveRDS(mod_p, ".\\Rockfish report_96-19\\mod_p.rds")
 WriteXLS::WriteXLS(mod_p, ".\\Rockfish report_96-19\\mod_p.xlsx")
 
 post_list <- list(postHp_Homer=postHp_HomerCharter, postHnp_Homer=postHnp_HomerCharter, postE_Homer=postE_Homer, 

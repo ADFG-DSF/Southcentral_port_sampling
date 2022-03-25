@@ -13,17 +13,29 @@ DATA int0319;
 	SET sasdata.int9204 sasdata.int05 sasdata.int06 sasdata.int07 sasdata.int08
 		sasdata.int09 sasdata.int10 sasdata.int11 sasdata.int12 sasdata.int13
 		sasdata.int14 sasdata.int15 sasdata.int16 sasdata.int17 sasdata.int18 sasdata.int19;
-	if port ne 'CCI';
+	if port in('Homer','CCI') then port = 'CI';
+	if port NE "Cordova";
 	if ADFGStat = . THEN DELETE;
 	if User = 'Unknown' or User = '        ' THEN DELETE;
 run;
-data int; 
-	set int0319 (keep =  year month angl angldays multi port hakept pelkept npkept lckept yekept user target ADFGstat);
+data int_CI; 
+set int0319(keep =  year month angl angldays multi port hakept pelkept npkept lckept yekept user target ADFGstat);
+where port = 'CI';
+run;
+data int_notCI; 
+set int0319(keep =  year month angl angldays multi port hakept pelkept npkept lckept yekept user target ADFGstat);
+where port NE 'CI';
 run;
 
-PROC SORT DATA = int;
-	BY PORT YEAR USER ADFGSTAT Target;
+proc freq data = int_CI; tables port; run;
+proc freq data = int_notCI; tables port; run;
 
-proc export data = int outfile = 'H:\My Documents\Southcentral halibut and groundfish\Data\dat_int.xls'
+PROC SORT DATA = int_CI; BY PORT YEAR USER ADFGSTAT Target;
+PROC SORT DATA = int_notCI; BY PORT YEAR USER ADFGSTAT Target;
+
+proc export data = int_CI outfile = 'H:\My Documents\Southcentral halibut and groundfish\Data\dat_intCI.xls'
+dbms = xls replace;
+run;
+proc export data = int_notCI outfile = 'H:\My Documents\Southcentral halibut and groundfish\Data\dat_intnotCI.xls'
 dbms = xls replace;
 run;

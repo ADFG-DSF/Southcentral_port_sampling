@@ -32,7 +32,23 @@ list_lgage <- readRDS(".\\lengthage\\list_lgage.rds")
 
 comp_plots <- readRDS(".\\comp_plots.rds")
 ```
-
+ 
+```{r, fig.cap="Alaska Department of Fish and Game, Sport Fish Division's Region II management areas."}
+knitr::include_graphics(".//MGMTAreas.png")
+```
+ 
+```{r, fig.cap="Sub-area boundaries for spatial harvest and effort analyses for trips ending in the port of Homer."}
+knitr::include_graphics(".\\CookInlet.png")
+```
+ 
+```{r, fig.cap="Sub-area boundaries for spatial harvest and effort analyses for trips ending in the ports of Seward, Whittier, or Valdez."}
+knitr::include_graphics(".//NorthGulf.png")
+``` 
+ 
+```{r, fig.cap="Sub-area boundaries for spatial harvest and effort analyses for the port of Kodiak."}
+knitr::include_graphics(".//Kodiak.png")
+```
+ 
 ```{r, fig.height = 7, fig.width = 7, fig.cap = "Standard errors for species composition proportions, 2009-2019"}
 sep_spp <- 
   est_spp %>%
@@ -251,17 +267,40 @@ rf_yelloweye %>%
   ggtitle("GOA Yelloweye Rockfish Length at Age")
 ```
     
-```{r, fig.height = 6.5, fig.width = 8.5, fig.cap = "GOA Yelloweye Rockfish estimated asymptotic mean length by port and sex."}
+```{r, fig.height = 6.5, fig.width = 8.5, fig.cap = "GOA Yelloweye Rockfish estimated rate of approach to asymptotic mean length by port and sex."}
+
 ggplot() +
-  geom_point(data=list_lgage[[5]],aes(x=port,y=val, color = sex), position=position_dodge(width=0.5), size = 3) +
-  geom_errorbar(data=list_lgage[[6]],aes(x=port,color = sex, ymin=LCI,ymax=UCI), size = 1, width=0.3, position=position_dodge(width=0.5)) +
+  geom_point(data=list_lgage[[5]][list_lgage[[5]]$var == "K",],aes(x=port,y=val, color = sex), position=position_dodge(width=0.5), size = 3) +
+  geom_errorbar(data=list_lgage[[6]][list_lgage[[6]]$var == "K",],aes(x=port,color = sex, ymin=LCI,ymax=UCI), size = 1, width=0.3, position=position_dodge(width=0.5)) +
   scale_color_manual(values = c("Black", "grey40")) +
-  labs(color = "Sex", x = "Port", y = expression(L[infinity])) +
+  labs(color = "Sex", x = "Port", y = expression(K)) +
   theme_bw(base_size = 16) +
-  ggtitle("GOA Yelloweye Rockfish Asymptotic Mean Length")
+  labs(title = expression(paste("GOA Yelloweye Rockfish rate to Approach ", L[infinity])))
 ```
   
-## Homer
+```{r, fig.height = 6, fig.width = 8.5, fig.cap = "Length distribution and sample size for several Gulf of Alaska rockfish species collected between 2000 and 2019."}
+lgplot_names <- 
+  table(rflgage$species) %>% 
+  as.data.frame() %>% 
+  filter(Freq > 100, !(Var1 %in% c("DuskyDrk"))) %>%
+  mutate(spp2 = factor(Var1, labels = c("Black", "China", "Copper", "Dark", "Dusky", "Quillback", "Shortraker", "Sivergrey", "Tiger", "Yelloweye", "Yellowtail"))) %>%
+  rename(species = Var1)
+
+rflgage %>%
+  filter(species %in% lgplot_names$species) %>%
+  left_join(lgplot_names, by = "species") %>%
+  ggplot(aes(x = spp2, y = length)) +
+    geom_boxplot() +
+    geom_text(data = lgplot_names, aes(x = spp2, Inf, label = format(Freq, digits = 0, big.mark = ",")), vjust = 1) +
+    labs(x = "Species", y = "Length") +
+    theme_bw(base_size = 16) +
+    theme(axis.text.x = element_text(angle = -20, vjust = 0.5, hjust=0.5)) 
+```
+  
+```{r, fig.height = 7, fig.width = 8.5, fig.cap = "R package ielationship between weight and length for primary rockfish species, 1996-2019."}
+readRDS(".\\fig_weight.rds")
+```
+  
 
 ```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of sport fishing effort out of the port of Homer, 2000-2019."}
 comp_plots[[1]] + scale_fill_grey() + scale_color_grey()
@@ -275,8 +314,7 @@ comp_plots[[2]]
 comp_plots[[3]]
 ```
   
-## Kodiak 
-
+  
 ```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of sport fishing effort out of the port of Kodiak, 2000-2019."}
 comp_plots[[4]]
 ```  
@@ -289,9 +327,6 @@ comp_plots[[5]]
 comp_plots[[6]]
 ```
   
-
-  
-## Seward 
   
 ```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of sport fishing effort out of the port of Seward, 2000-2019."}
 comp_plots[[7]]
@@ -306,8 +341,6 @@ comp_plots[[9]]
 ```
 
   
-## Valdez 
-  
 ```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of sport fishing effort out of the port of Valdez, 2000-2019."}
 comp_plots[[10]]
 ```
@@ -320,8 +353,6 @@ comp_plots[[11]]
 comp_plots[[12]]
 ```
 
-  
-## Whittier 
   
 ```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of sport fishing effort out of the port of Whittier, 2000-2019."}
 comp_plots[[13]]

@@ -1,0 +1,32 @@
+---
+output: 
+  word_document:
+    reference_docx: "..\\doc_styles\\word_styles_FDS_break.docx"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, fig.cap = TRUE, fig.align = 'center')
+library(flextable)
+library(tidyverse)
+
+mod_weight <- readRDS(".\\mod_weight.rds")
+```
+
+#########
+Table 11.- Regression parameters for log weight (kg) on log length (cm) for primary rockfish species, 1996-2019.
+```{r}
+mod_weight %>%
+  flextable() %>%
+    set_header_labels(values = list(spp = "Species", N = "N", 
+                           sd_a = "a", sd_a = "sd(a)", 
+                           mean_b = "b", sd_b = "sd(b)", 
+                           mean_df = "df", sd_df = "sd(df)", 
+                           mean_sigma = "\U03C3", sd_sigma = "sd(\U03C3)")) %>%
+    align(j = 2:10, align = "right") %>%
+    colformat_double(j =2:10, digits = 3) %>%
+    line_spacing(space = 0.5) %>%
+    font(fontname = "Times New Roman") %>%
+    fontsize(size = 10) %>%
+    autofit()
+```
+ 

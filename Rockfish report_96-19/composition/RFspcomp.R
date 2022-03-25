@@ -58,7 +58,7 @@ rfcomp0 <-
          port = factor(port, 
                        levels = c("CI", "Kodiak", "Seward", "Valdez", "Whittier"),
                        labels = c("Cook Inlet", "Kodiak", "Seward", "Valdez", "Whittier"))) %>%
-  select(port, user, year, species, sp, spp, assem, sex, length, age, boatname, month, day)
+  select(port, user, year, species, sp, spp, assem, sex, length, weight, age, boatname, month, day)
 table(rfcomp0$sp, rfcomp0$species) #renamed spp = 154 Dusky
 #Note Rares (check file sizes) and small N ports deleted 
 table(rfcomp0$port, rfcomp0$year)
@@ -565,17 +565,24 @@ rfsex <- rfcomp[!is.na(rfcomp$sex) & rfcomp$sex != "", ]
 #Note sample sizes are not great
 #Low sample sizes are problematic w stratification because you could base weight some samples on very poor estimates in one user group.
 table(rfsex$spp, rfsex$year, rfsex$port, rfsex$user)
+
 n_sex <- 
   rfsex %>%
   group_by(port, year, user, spp) %>%
   summarise(n = sum(sex %in% c("M", "F")))
+aggregate(n ~ spp + user, n_sex[!is.na(n_sex$n), ], quantile)
 
 #also not great evidence that stratification needed for sex comps
-test_sex <- 
+test_sex0 <- 
   n_sex %>% 
   filter(spp %in% c("Black", "Yelloweye")) %>%
   pivot_wider(names_from = user, values_from = n) %>% 
-  rowwise() %>%
+  rowwise() 
+#number of 117 combinations of port and year for whcih we have at least 
+aggregate(test_sex0, list(sex = test_sex0$spp), length)
+
+test_sex <- 
+  test_sex0 %>%
   mutate(min = min(Charter, Private)) %>% 
   filter(min > 0) %>% #can't compare sex comps without samples from both users
   select(port, year, spp, min)
@@ -591,9 +598,9 @@ test_sex$p.adjust <- p.adjust(test_sex$pval, method = "BH")
 test_sex$p05a <- ifelse(test_sex$p.adjust < 0.05, TRUE, FALSE)
 test_sex$min_cut <- cut(test_sex$min, c(0, 15, 40, 1000))
 #Note 17 out of 216 with pval < .1, with Bonferroni 0
-table(test_sex$p05)
+table(test_sex$p05, test_sex$spp)
 test_sex[test_sex$p05 == TRUE, ] %>% print(n = 100)
-table(test_sex$p05a)
+table(test_sex$p05a, test_sex$spp)
 min(test_sex$p.adjust)
 table(test_sex$p05, test_sex$min_cut)
 table(test_sex$p05a, test_sex$min_cut)
@@ -770,7 +777,7 @@ est_sex %>%
   geom_abline(slope = 1) +
   labs(x = "SRS SE", y = "bootstrap SE") +
   theme_bw(base_size = 18) +
-  ggtitle("Standard errors for species composition proportions")
+  ggtitle("Standard errors for sex composition proportions")
 lm(est_sex$sepboot_pysx ~ est_sex$sep_pysx)
 
 
@@ -879,11 +886,16 @@ n_age %>%
   rowwise() %>%
   mutate(min = min(Charter, Private)) %>% 
   filter(is.na(min))
-test_age <- 
+
+test_age0 <- 
   n_age %>% 
   filter(spp %in% c("Black", "Yelloweye")) %>%
   pivot_wider(names_from = user, values_from = n) %>% 
-  rowwise() %>%
+  rowwise() 
+aggregate(test_age0, list(sex = test_age0$spp), length)
+
+test_age <- 
+  test_age0 %>%
   mutate(min = min(Charter, Private)) %>% 
   filter(min > 0) #can't compare age comps without samples from both users
 test_age$pval <- NA
@@ -901,7 +913,7 @@ test_age$p05a <- ifelse(test_age$p.adjust < 0.05, TRUE, FALSE)
 test_age$min_cut <- cut(test_age$min, c(0, 15, 50, 1000))
 #47 significant
 table(test_age$p05)
-table(test_age$p05a)
+table(test_age$p05a, test_age$spp)
 table(test_age$p05, test_age$min_cut)
 table(test_age$p05a, test_age$min_cut)
 test_age[test_age$p05a == TRUE, ] %>% arrange(min)
@@ -1350,11 +1362,15 @@ n_lgbin <-
 aggregate(n ~ spp + user, n_lgbin[!is.na(n_lgbin$n), ], quantile)
 
 #Evidence that stratification needed for at least some of the lgbin comps
-test_lgbin <- 
+test_lgbin0 <- 
   n_lgbin %>% 
   filter(spp %in% c("Black", "Yelloweye")) %>%
   pivot_wider(names_from = user, values_from = n) %>% 
-  rowwise() %>%
+  rowwise()
+aggregate(test_lgbin0, list(test_lgbin0$spp), length)
+
+test_lgbin <-
+  test_lgbin0 %>%
   mutate(min = min(Charter, Private)) %>% 
   filter(min > 0) #can't comare lgbin comps without samples from both users
 test_lgbin$pval <- NA
@@ -1369,7 +1385,7 @@ for(i in 1:dim(test_lgbin)[1]){
 test_lgbin$p05 <- ifelse(test_lgbin$pval < 0.05, TRUE, FALSE)
 test_lgbin$p.adjust <- p.adjust(test_lgbin$pval, method = "BH")
 test_lgbin$p05a <- ifelse(test_lgbin$p.adjust < 0.05, TRUE, FALSE)
-test_lgbin$min_cut <- cut(test_lgbin$min, c(0, 15, 40, 1000))
+test_lgbin$min_cut <- cut(test_lgbin$min, c(0, 20, 40, 1000))
 #Note 86 out of 216 with pval < .05
 table(test_lgbin$p05a)
 min(test_lgbin$p.adjust)
@@ -1742,8 +1758,8 @@ lgbin_format <-
   est_lgbin %>%
   rowwise() %>%
   filter(spp %in% c("Black", "Yelloweye")) %>%
-  mutate(p_pysl_report = ifelse(p05a == FALSE | is.na(p05a) | min < 10, ppool_pysl, p_pysl),
-         sep_pysl_report = ifelse(p05a == FALSE | is.na(p05a) | min < 10, seppool_pysl, sep_pysl),
+  mutate(p_pysl_report = ifelse(p05a == FALSE | is.na(p05a) | min < 20, ppool_pysl, p_pysl),
+         sep_pysl_report = ifelse(p05a == FALSE | is.na(p05a) | min < 20, seppool_pysl, sep_pysl),
          est = ifelse(is.na(p_pysl_report),
                       NA,
                       paste0(format(round(p_pysl_report, 3), digits = 3), "(", format(round(sep_pysl_report, 3), digits = 3), ")")),
@@ -1827,3 +1843,4 @@ lgbin_format %>%
   filter(spp == "Yelloweye") %>%
   arrange(year, lgbin, port) %>%
   pivot_wider(id_cols = c("year", "lgbin"), names_from = "port", values_from = "est_ci")
+

@@ -10,6 +10,21 @@ rflgage <-
   filter(!is.na(age) & !is.na(length) & sex != "") %>%
   arrange(spp, year)
 
+#Plot length of all spp.
+lgplot_names <- 
+  table(rflgage$species) %>% 
+  as.data.frame() %>% 
+  filter(Freq > 100, !(Var1 %in% c("DuskyDrk"))) %>%
+  mutate(spp2 = factor(Var1, labels = c("Black", "China", "Copper", "Dark", "Dusky", "Quillback", "Shortraker", "Sivergrey", "Tiger", "Yelloweye", "Yellowtail"))) %>%
+  rename(species = Var1)
+
+rflgage %>%
+  filter(species %in% lgplot_names$species) %>%
+  left_join(lgplot_names, by = "species") %>%
+  ggplot(aes(x = spp2, y = length)) +
+    geom_boxplot() +
+    geom_text(data = lgplot_names, aes(x = spp2, Inf, label = Freq), vjust = 1)
+
 #Prep data for analysis
 rf_black <- rflgage[rflgage$spp == "Black", ]
 
@@ -688,7 +703,7 @@ cfsy <- data.frame(port = rep(ports, each = 2), sex = rep(sexes, times = 5), cfs
 cfsy_long <-
   cfsy %>%
   pivot_longer(cols = -c(port, sex), names_to = "var", values_to = "val") %>%
-  filter(var == "Linf")
+  filter(var %in% c("Linf", "K"))
 cisy <- data.frame(port = rep(ports, each = 2), sex = rep(sexes, times = 5), cisy)
 cisy_long <-
   cisy %>%
@@ -697,13 +712,23 @@ cisy_long <-
          bound = gsub(".*\\.(.*)", ("\\1"), temp)) %>%
   select(-temp) %>%
   pivot_wider(id_cols = c("port", "sex", "var"), names_from = "bound", values_from = "val") %>%
-  filter(var == "Linf") %>%
+  filter(var %in% c("Linf", "K")) %>%
   as.data.frame()
-ggplot() +
-  geom_point(data=cfsy_long,aes(x=port,y=val, color = sex), position=position_dodge(width=0.5), size = 3) +
-  geom_errorbar(data=cisy_long,aes(x=port,color = sex, ymin=LCI,ymax=UCI), size = 1, width=0.3, position=position_dodge(width=0.5)) +
+cfsy_long %>% 
+  filter(var == "Linf") %>%
+  ggplot() +
+  geom_point(aes(x=port,y=val, color = sex), position=position_dodge(width=0.5), size = 3) +
+  geom_errorbar(data = cisy_long[cisy_long$var == "Linf",], aes(x=port,color = sex, ymin=LCI,ymax=UCI), size = 1, width=0.3, position=position_dodge(width=0.5)) +
   scale_color_manual(values = c("Black", "grey40")) +
   labs(color = "Sex", x = "Port", y = expression(L[infinity])) +
+  theme_bw(base_size = 16)
+cfsy_long %>% 
+  filter(var == "K") %>%
+  ggplot() +
+  geom_point(aes(x=port,y=val, color = sex), position=position_dodge(width=0.5), size = 3) +
+  geom_errorbar(data = cisy_long[cisy_long$var == "K",], aes(x=port,color = sex, ymin=LCI,ymax=UCI), size = 1, width=0.3, position=position_dodge(width=0.5)) +
+  scale_color_manual(values = c("Black", "grey40")) +
+  labs(color = "Sex", x = "Port", y = expression(K)) +
   theme_bw(base_size = 16)
 
 #output a list for markdown
