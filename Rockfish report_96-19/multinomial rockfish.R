@@ -239,7 +239,7 @@ postHnp_Kodiak[[2]]
 postHnp_Kodiak[[3]]
 postHnp_Kodiak[[4]]
 plot_post(postHnp_Kodiak[[1]], int_npr, "H", ports[2])
-(plot_KodiakHnp <- plot_post(postHnp_Kodiak[[2]], int_npr, "H", ports[2], title = "Kodiak: Non-Pelagic Rockfish"))
+plot_post(postHnp_Kodiak[[2]], int_npr, "H", ports[2], title = "Kodiak: Non-Pelagic Rockfish")
 plot_post(postHnp_Kodiak[[3]], int_npr, "H", ports[2])
 plot_post(postHnp_Kodiak[[4]], int_npr, "H", ports[2])
 jags_datHnp[[2]]$M
@@ -260,13 +260,13 @@ postHnp_KodiakCharter <- readRDS(".\\Rockfish report_96-19\\Interview post\\post
 ni <- 1E5; nb <- ni/3; nc <- 3; nt <- 20
 postHnp_KodiakCharter[[1]]
 postHnp_KodiakCharter[[2]]
-# (plot_KodiakHnp <-
-#     plot_post(postHnp_KodiakCharter[[1]], 
-#               int_npr, 
-#               "H", 
-#               ports[2], 
-#               charteronly = TRUE,
-#               inc_pred = "mean", title = "Kodiak: Non-Pelagic Rockfish"))
+(plot_KodiakHnp <-
+    plot_post(postHnp_KodiakCharter[[2]],
+              int_npr,
+              "H",
+              ports[2],
+              charteronly = TRUE,
+              inc_pred = "mean", title = "Kodiak: Non-Pelagic Rockfish"))
 plot_post(postHnp_KodiakCharter[[2]], int_npr, "H", ports[2], charteronly = TRUE, inc_pred = "mean")
 
 
@@ -311,8 +311,8 @@ postHnp_Valdez[[4]]
 jagsUI::traceplot(postHnp_Valdez[[4]], c("alpha", "beta", "epsilon", "gamma"))
 plot_post(postHnp_Valdez[[1]], int_npr, "H", ports[4])
 plot_post(postHnp_Valdez[[2]], int_npr, "H", ports[4])
-(plot_ValdezHnp <- plot_post(postHnp_Valdez[[3]], int_npr, "H", ports[4], title = "Valdez: Non-Pelagic Rockfish"))
-plot_post(postHnp_Valdez[[4]], int_npr, "H", ports[4])
+plot_post(postHnp_Valdez[[3]], int_npr, "H", ports[4], title = "Valdez: Non-Pelagic Rockfish")
+(plot_ValdezHnp <- plot_post(postHnp_Valdez[[4]], int_npr, "H", ports[4], title = "Valdez: Non-Pelagic Rockfish"))
 
 
 
@@ -510,15 +510,14 @@ saveRDS(postE_Homer, ".\\Rockfish report_96-19\\Interview post\\postE_Homer.rds"
 postE_Homer  <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Homer.rds")
 postE_Homer[[1]]
 postE_Homer[[2]]
-jagsUI::traceplot(postE_Homer[[2]], c("alpha", "beta"))
 postE_Homer[[3]]
+jagsUI::traceplot(postE_Homer[[3]], c("alpha", "beta", "epsilon")) #Beta converges poorly.
 postE_Homer[[4]]
 plot_post(postE_Homer[[1]], int_E, "E", ports[1])
-(plot_HomerE <- plot_post(postE_Homer[[2]], int_E, "E", ports[1], title = "Homer: Effort"))
-plot_post(postE_Homer[[3]], int_E, "E", ports[1])
+plot_post(postE_Homer[[2]], int_E, "E", ports[1])
+(plot_HomerE <- plot_post(postE_Homer[[3]], int_E, "E", ports[1], title = "Homer: Effort"))
 plot_post(postE_Homer[[4]], int_E, "E", ports[1])
 jags_datE[[1]]$M
-#Convergence is questionable but the results seem stable.
 
 # ni <- 1E5; nb <- ni/3; nc <- 3; nt <- 200
 # # * Kodiak Harvest --------------------------------------------------------
@@ -616,7 +615,7 @@ postE_Seward <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Seward.
 postE_Valdez <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Valdez.rds")
 postE_Whittier <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Whittier.rds")
 postHnp_HomerCharter <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHnp_HomerCharter.rds")
-postHnp_Kodiak <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHnp_Kodiak.rds")
+postHnp_KodiakCharter <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHnp_KodiakCharter.rds")
 postHnp_Seward <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHnp_Seward.rds")
 postHnp_Valdez <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHnp_Valdez.rds")
 postHnp_Whittier <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHnp_Whittier.rds")
@@ -638,27 +637,26 @@ saveRDS(comp_plots, ".\\Rockfish report_96-19\\comp_plots.rds")
 
 mod_p <- 
   list(
-    HomerE = p_post(postE_Homer[[2]], yrs = 0, areas = areas[[1]]),
+    HomerE = p_post(postE_Homer[[3]], yrs = NULL, areas = areas[[1]]),
     HomerHp = p_post(postHp_HomerCharter[[1]], fleet = "charter", yrs = 0, areas = areas[[1]]),
     HomerHnp = p_post(postHnp_HomerCharter[[1]], fleet = "charter", yrs = 0, areas = areas[[1]]),
     KodiakE = p_post(postE_Kodiak[[2]], yrs = 0, areas = areas[[2]]),
     KodiakHp = p_post(postHp_Kodiak[[2]], yrs = 0, areas = areas[[2]]),
-    KodiakHnp = p_post(postHnp_Kodiak[[2]], yrs = 0, areas = areas[[2]]),
+    KodiakHnp = p_post(postHnp_KodiakCharter[[2]], fleet = "charter", yrs = NULL, areas = areas[[2]]),
     SewardE = p_post(postE_Seward[[2]], yrs = 0, areas = areas[[3]]),
     SewardHp = p_post(postHp_Seward[[3]], yrs = NULL, areas = areas[[3]]),
     SewardHnp = p_post(postHnp_Seward[[3]], yrs = NULL, areas = areas[[3]]),
     ValdezE = p_post(postE_Valdez[[3]], yrs = NULL, areas = areas[[4]]),
     ValdezHp = p_post(postHp_Valdez[[3]], yrs = NULL, areas = areas[[4]]),
-    ValdezHnp = p_post(postHnp_Valdez[[3]], yrs = NULL, areas = areas[[4]]),
+    ValdezHnp = p_post(postHnp_Valdez[[4]], yrs = NULL, areas = areas[[4]]),
     WhittierE = p_post(postE_Whittier[[2]], yrs = 0, areas = areas[[5]]),
     WhittierHp = p_post(postHp_Whittier[[2]], yrs = 0, areas = areas[[5]]),
     WhittierHnp = p_post(postHnp_Whittier[[2]], yrs = 0, areas = areas[[5]])
 )
 saveRDS(mod_p, ".\\Rockfish report_96-19\\mod_p.rds")
-WriteXLS::WriteXLS(mod_p, ".\\Rockfish report_96-19\\mod_p.xlsx")
 
 post_list <- list(postHp_Homer=postHp_HomerCharter, postHnp_Homer=postHnp_HomerCharter, postE_Homer=postE_Homer, 
-                  postHp_Kodiak=postHp_Kodiak, postHnp_Kodiak=postHnp_Kodiak, postE_Kodiak=postE_Kodiak, 
+                  postHp_Kodiak=postHp_Kodiak, postHnp_Kodiak=postHnp_KodiakCharter, postE_Kodiak=postE_Kodiak, 
                   postHp_Seward=postHp_Seward, postHnp_Seward=postHnp_Seward, postE_Seward=postE_Seward, 
                   postHp_Valdez=postHp_Valdez, postHnp_Valdez=postHnp_Valdez, postE_Valdez=postE_Valdez, 
                   postHp_Whittier=postHp_Whittier, postHnp_Whittier=postHnp_Whittier, postE_Whittier=postE_Whittier)

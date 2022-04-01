@@ -323,7 +323,7 @@ tab_ll <-
                              " (",
                              format(round(se_diffs), trim = TRUE, big.mark = ","),
                              ")"),
-               p_diff = format(round(prob_diff, 3), trim = TRUE)) %>%
+               p_diff = format(round(prob_diff, 3), nsmall = 3, trim = TRUE)) %>%
       dplyr::mutate(model = if(lg == 2){factor(c("constant mean", "trending mean"),
                                                levels = c("constant mean", "trending mean", "shared mean", "unique mean", "unique mean, shared trend", "unique mean and trend"),
                                                ordered = TRUE)}
