@@ -1,7 +1,7 @@
 ---
 title: "Southcentral Alaska groundfish"
 author: "Adam Reimer"
-date: "July 21, 2021"
+date: "July 17, 2023"
 output: 
   bookdown::word_document2:
 #    pandoc_args: ["-Fpandoc-crossref"]
@@ -49,7 +49,7 @@ knitr::include_graphics(".//NorthGulf.png")
 knitr::include_graphics(".//Kodiak.png")
 ```
  
-```{r, fig.height = 7, fig.width = 7, fig.cap = "Standard errors for species composition proportions, 2009-2019"}
+```{r, fig.height = 7, fig.width = 7, fig.cap = "Bootstrap and simple random sample standard error estiamtes for species composition proportions, 2009-2019"}
 sep_spp <- 
   est_spp %>%
   ungroup() %>%
@@ -88,14 +88,13 @@ rbind(sep_spp, sep_sex) %>%
     geom_point() +
     stat_smooth(method = "lm") +
     geom_abline(slope = 1) +
-    labs(title = "Bootstrap and SRS SE estimates for composition") +
     xlab("SRS standard error") + 
     ylab("Bootstrap standard error") +
     facet_wrap(. ~ Composition, scales = "free") +
     theme_bw(base_size = 16)
 ```
 
-```{r, fig.height = 10.5, fig.width = 8, fig.cap = "GOA Rockfish Species Composition."}
+```{r, fig.height = 10.5, fig.width = 8, fig.cap = "GOA rockfish species composition."}
 est_spp %>%
     ggplot(aes(x = year, y = p_pys, color = spp, fill = spp)) +
       geom_bar(stat = "identity", position = "fill") +
@@ -108,68 +107,10 @@ est_spp %>%
                         name = "Species")  +
       labs(x = "Year", y = "Percent of rockfish catch") +
       theme_bw(base_size = 16) +
-      theme(legend.position = "bottom") +
-      ggtitle("GOA Rockfish Species Composition")
+      theme(legend.position = "bottom")
 ```
 
-```{r, fig.height = 10.5, fig.width = 8, fig.cap = "GOA Rockfish Assembalage Composition."}
-est_assem %>%
-  ggplot(aes(x = year, y = p_pys, color = assem, fill = assem)) +
-  geom_bar(stat = "identity", position = "fill") +
-  facet_grid(port ~ .) +
-  scale_fill_manual(values = c("Pelagic" = "#333333", "non-Pelagic" = "#666666"),
-                    name = "Assemblage") +
-  scale_color_manual(values = c("Pelagic" = "#333333", "non-Pelagic" = "#666666"),
-                     name = "Assemblage")  +
-  labs(x = "Year", y = "Percent of rockfish catch") +
-  theme_bw(base_size = 16) +
-  theme(legend.position = "bottom") +
-  ggtitle("GOA Rockfish Assemblage Composition")
-```
-
-
-```{r, fig.height = 10.5, fig.width = 8, fig.cap = "GOA Black Rockfish Sex Composition."}
-sex_format <- 
-  est_sex %>%
-  mutate(p_pysx_report = ppool_pysx,
-         sep_pysx_report = sqrt(vppool_pysx),
-         est = ifelse(is.na(p_pysx_report),
-                      NA,
-                      paste0(format(round(p_pysx_report, 3), digits = 3), "(", format(round(seppool_pysx, 3), digits = 3), ")")),
-         lcilogitp_pysx = log(p_pysx_report / (1-p_pysx_report)) - 1.96 * sqrt(1 / p_pysx_report^2 / (1-p_pysx_report)^2 * sep_pysx_report^2),
-         ucilogitp_pysx = log(p_pysx_report / (1-p_pysx_report)) + 1.96 * sqrt(1 / p_pysx_report^2 / (1-p_pysx_report)^2 * sep_pysx_report^2),
-         lcip_pysx = exp(lcilogitp_pysx)/(1 + exp(lcilogitp_pysx)),
-         ucip_pysx = exp(ucilogitp_pysx)/(1 + exp(ucilogitp_pysx)))
-
-
-sex_format %>%
-  filter(spp == "Black", sex == "F") %>%
-  ggplot(aes(x = year, y = p_pysx_report, color = sex, fill = sex)) +
-  geom_bar(stat = "identity") +
-  geom_errorbar(aes(ymin = lcip_pysx, ymax = ucip_pysx), color = "black") +
-  facet_grid(port ~ .) +
-  scale_fill_manual(values = c("F" = "light gray"), guide = FALSE) +
-  scale_color_manual(values = c("F" = "light gray"), guide = FALSE)  +
-  labs(x = "Year", y = "Percent of black rockfish catch") +
-  theme_bw(base_size = 16) +
-  ggtitle("GOA Black Rockfish Sex Composition")
-```
-
-```{r, fig.height = 10.5, fig.width = 8, fig.cap = "GOA Yelloweye Rockfish Sex Composition."}
-sex_format %>%
-  filter(spp == "Yelloweye", sex == "F") %>%
-  ggplot(aes(x = year, y = p_pysx_report, color = sex, fill = sex)) +
-  geom_bar(stat = "identity") +
-  geom_errorbar(aes(ymin = lcip_pysx, ymax = ucip_pysx), color = "black") +
-  facet_grid(port ~ .) +
-  scale_fill_manual(values = c("F" = "light gray"), guide = FALSE) +
-  scale_color_manual(values = c("F" = "light gray"), guide = FALSE)  +
-  labs(x = "Year", y = "Percent of yelloweye rockfish catch") +
-  theme_bw(base_size = 16) +
-  ggtitle("GOA Yelloweye Rockfish Sex Composition")
-```
-
-```{r, fig.height = 10.5, fig.width = 8, fig.cap = "GOA Black Rockfish Age Composition."}
+```{r, fig.height = 10.5, fig.width = 8, fig.cap = "GOA black rockfish age composition."}
 age_format <- 
   est_age %>%
   rowwise() %>%
@@ -195,6 +136,7 @@ age_format <-
 
 scale_sec_black <- max(age_format$n[age_format$spp == "Black"]) / max(age_format$age[age_format$spp == "Black"])
 age_format[age_format$spp == "Black", ] %>%
+  filter(!(spp == "Black" & age == 59)) %>% #Martin wanted this removed (Aug 8 2022 email. No justification provided. Asked for one in the report.)
   ggplot(aes(x = year, y = age), fill == "grey") +
   geom_point(aes(size = p_pysa_report), shape = 1) +
   #geom_line(aes(y = n/scale_sec_black), color = "gray") +
@@ -204,28 +146,10 @@ age_format[age_format$spp == "Black", ] %>%
   scale_x_continuous(name = "Year", breaks = seq(1996, 2019, 5)) +
   scale_size_area(name = "Percent", breaks = c(0, .04, .08, .12, .16, .24, .36, .48, .60)) +
   theme_bw(base_size = 16) +
-  theme(legend.position = "bottom") +
-  ggtitle("GOA Black Rockfish Age Composition")
+  theme(legend.position = "bottom")
 ```
 
-
-```{r, fig.height = 10.5, fig.width = 8, fig.cap = "GOA Yelloweye Rockfish Age Composition."}
-scale_sec_yelloweye <- max(age_format$n[age_format$spp == "Yelloweye"]) / max(age_format$age[age_format$spp == "Yelloweye"])
-age_format[age_format$spp == "Yelloweye" & age_format$port != "Kodiak", ] %>%
-  ggplot(aes(x = year, y = age), fill == "grey") +
-  geom_point(aes(size = p_pysa_report), shape = 1) +
-  #geom_line(aes(y = n/scale_sec_yelloweye), color = "gray") +
-  facet_wrap(~ port, 2, 2) +
-  scale_y_continuous(name = "Age", breaks = seq(0, 110, 10)) +
-                     #sec.axis = sec_axis(~. * scale_sec_yelloweye, name = "Sample Size")) +
-  scale_x_continuous(name = "Year", breaks = seq(1996, 2019, 5)) +
-  scale_size_area(name = "Percent", breaks = c(0, .04, .08, .12, .16, .24, .36, .48, .60)) +
-  theme_bw(base_size = 16) +
-  theme(legend.position = "bottom") +
-  ggtitle("GOA Yelloweye Rockfish Age Composition")
-```
-  
-```{r, fig.height = 6.5, fig.width = 8.5, fig.cap = "GOA Black Rockfish Length at Age by port and sex."}
+```{r, fig.height = 6.5, fig.width = 8.5, fig.cap = "GOA black rockfish length at age by port and sex."}
 rf_black %>%
   mutate(sex = factor(sex, c("M", "F"), c("Male", "Female"))) %>%
   ggplot(aes(x = age, y = length, group = age)) +
@@ -237,21 +161,34 @@ rf_black %>%
   scale_y_continuous(name = "Length (cm)", limits = c(20, 70)) +
   scale_x_continuous(name = "Age") +
   theme_bw(base_size = 16) +
-  theme(legend.position = "bottom") +
-  ggtitle("GOA Black Rockfish Length at Age")
+  theme(legend.position = "bottom")
 ```
 
-```{r, fig.height = 6.5, fig.width = 8.5, fig.cap = "GOA Black Rockfish estimated asymptotic mean length by port and sex."}
+```{r, fig.height = 6.5, fig.width = 8.5, fig.cap = "GOA black rockfish estimated asymptotic mean length by port and sex."}
 ggplot() +
   geom_point(data=list_lgage[[2]],aes(x=port,y=val, color = sex), position=position_dodge(width=0.5), size = 3) +
   geom_errorbar(data=list_lgage[[3]],aes(x=port,color = sex, ymin=LCI,ymax=UCI), size = 1, width=0.3, position=position_dodge(width=0.5)) +
   scale_color_manual(values = c("Black", "grey40")) +
   labs(color = "Sex", x = "Port", y = expression(L[infinity])) +
-  theme_bw(base_size = 16)  +
-  ggtitle("GOA Black Rockfish Asymptotic Mean Length")
+  theme_bw(base_size = 16)
 ```
-  
-```{r, fig.height = 6.5, fig.width = 8.5, fig.cap = "GOA Yelloweye Rockfish Length at Age by port and sex."}
+
+```{r, fig.height = 10.5, fig.width = 8, fig.cap = "GOA yelloweye rockfish age Composition."}
+scale_sec_yelloweye <- max(age_format$n[age_format$spp == "Yelloweye"]) / max(age_format$age[age_format$spp == "Yelloweye"])
+age_format[age_format$spp == "Yelloweye" & age_format$port != "Kodiak", ] %>%
+  ggplot(aes(x = year, y = age), fill == "grey") +
+  geom_point(aes(size = p_pysa_report), shape = 1) +
+  #geom_line(aes(y = n/scale_sec_yelloweye), color = "gray") +
+  facet_wrap(~ port, 2, 2) +
+  scale_y_continuous(name = "Age", breaks = seq(0, 110, 10)) +
+                     #sec.axis = sec_axis(~. * scale_sec_yelloweye, name = "Sample Size")) +
+  scale_x_continuous(name = "Year", breaks = seq(1996, 2019, 5)) +
+  scale_size_area(name = "Percent", breaks = c(0, .04, .08, .12, .16, .24, .36, .48, .60)) +
+  theme_bw(base_size = 16) +
+  theme(legend.position = "bottom")
+```
+
+```{r, fig.height = 6.5, fig.width = 8.5, fig.cap = "GOA yelloweye rockfish length at age by port and sex."}
 rf_yelloweye %>%
   mutate(sex = factor(sex, c("M", "F"), c("Male", "Female"))) %>%
   ggplot(aes(x = age, y = length, group = age)) +
@@ -263,21 +200,19 @@ rf_yelloweye %>%
   scale_y_continuous(name = "Length (cm)", limits = c(20, 90)) +
   scale_x_continuous(name = "Age") +
   theme_bw(base_size = 16) +
-  theme(legend.position = "bottom") +
-  ggtitle("GOA Yelloweye Rockfish Length at Age")
+  theme(legend.position = "bottom")
 ```
-    
-```{r, fig.height = 6.5, fig.width = 8.5, fig.cap = "GOA Yelloweye Rockfish estimated rate of approach to asymptotic mean length by port and sex."}
+
+```{r, fig.height = 6.5, fig.width = 8.5, fig.cap = "GOA yelloweye rockfish estimated rate of approach to asymptotic mean length by port and sex."}
 
 ggplot() +
   geom_point(data=list_lgage[[5]][list_lgage[[5]]$var == "K",],aes(x=port,y=val, color = sex), position=position_dodge(width=0.5), size = 3) +
   geom_errorbar(data=list_lgage[[6]][list_lgage[[6]]$var == "K",],aes(x=port,color = sex, ymin=LCI,ymax=UCI), size = 1, width=0.3, position=position_dodge(width=0.5)) +
   scale_color_manual(values = c("Black", "grey40")) +
   labs(color = "Sex", x = "Port", y = expression(K)) +
-  theme_bw(base_size = 16) +
-  labs(title = expression(paste("GOA Yelloweye Rockfish rate to Approach ", L[infinity])))
+  theme_bw(base_size = 16)
 ```
-  
+
 ```{r, fig.height = 6, fig.width = 8.5, fig.cap = "Length distribution and sample size for several Gulf of Alaska rockfish species collected between 2000 and 2019."}
 lgplot_names <- 
   table(rflgage$species) %>% 
@@ -291,19 +226,57 @@ rflgage %>%
   left_join(lgplot_names, by = "species") %>%
   ggplot(aes(x = spp2, y = length)) +
     geom_boxplot() +
-    geom_text(data = lgplot_names, aes(x = spp2, Inf, label = format(Freq, digits = 0, big.mark = ",")), vjust = 1) +
+    geom_text(data = lgplot_names, aes(x = spp2, Inf, label = format(Freq, digits = 1, big.mark = ",")), vjust = 1) +
     labs(x = "Species", y = "Length") +
     theme_bw(base_size = 16) +
     theme(axis.text.x = element_text(angle = -20, vjust = 0.5, hjust=0.5)) 
 ```
-  
-```{r, fig.height = 7, fig.width = 8.5, fig.cap = "R package ielationship between weight and length for primary rockfish species, 1996-2019."}
+
+```{r, fig.height = 10.5, fig.width = 8, fig.cap = "GOA black rockfish sex composition."}
+sex_format <- 
+  est_sex %>%
+  mutate(p_pysx_report = ppool_pysx,
+         sep_pysx_report = sqrt(vppool_pysx),
+         est = ifelse(is.na(p_pysx_report),
+                      NA,
+                      paste0(format(round(p_pysx_report, 3), digits = 3), "(", format(round(seppool_pysx, 3), digits = 3), ")")),
+         lcilogitp_pysx = log(p_pysx_report / (1-p_pysx_report)) - 1.96 * sqrt(1 / p_pysx_report^2 / (1-p_pysx_report)^2 * sep_pysx_report^2),
+         ucilogitp_pysx = log(p_pysx_report / (1-p_pysx_report)) + 1.96 * sqrt(1 / p_pysx_report^2 / (1-p_pysx_report)^2 * sep_pysx_report^2),
+         lcip_pysx = exp(lcilogitp_pysx)/(1 + exp(lcilogitp_pysx)),
+         ucip_pysx = exp(ucilogitp_pysx)/(1 + exp(ucilogitp_pysx)))
+
+
+sex_format %>%
+  filter(spp == "Black", sex == "F") %>%
+  ggplot(aes(x = year, y = p_pysx_report, color = sex, fill = sex)) +
+  geom_bar(stat = "identity") +
+  geom_errorbar(aes(ymin = lcip_pysx, ymax = ucip_pysx), color = "black") +
+  facet_grid(port ~ .) +
+  scale_fill_manual(values = c("F" = "light gray"), guide = FALSE) +
+  scale_color_manual(values = c("F" = "light gray"), guide = FALSE)  +
+  labs(x = "Year", y = "Percent of black rockfish catch") +
+  theme_bw(base_size = 16)
+```
+
+```{r, fig.height = 10.5, fig.width = 8, fig.cap = "GOA yelloweye rockfish sex composition."}
+sex_format %>%
+  filter(spp == "Yelloweye", sex == "F") %>%
+  ggplot(aes(x = year, y = p_pysx_report, color = sex, fill = sex)) +
+  geom_bar(stat = "identity") +
+  geom_errorbar(aes(ymin = lcip_pysx, ymax = ucip_pysx), color = "black") +
+  facet_grid(port ~ .) +
+  scale_fill_manual(values = c("F" = "light gray"), guide = FALSE) +
+  scale_color_manual(values = c("F" = "light gray"), guide = FALSE)  +
+  labs(x = "Year", y = "Percent of yelloweye rockfish catch") +
+  theme_bw(base_size = 16)
+```
+
+```{r, fig.height = 7, fig.width = 8.5, fig.cap = "Relationship between weight and length for primary rockfish species, 1996-2019."}
 readRDS(".\\fig_weight.rds")
 ```
-  
 
 ```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of sport fishing effort out of the port of Homer, 2000-2019."}
-comp_plots[[1]] + scale_fill_grey() + scale_color_grey()
+comp_plots[[1]]
 ```
 
 ```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of the pelagic rockfish harvest out of the port of Homer, 1996-2019."}

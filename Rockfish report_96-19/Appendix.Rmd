@@ -1,7 +1,7 @@
 ---
 output: 
   word_document:
-    reference_docx: "..\\doc_styles\\word_styles_FDS_break.docx"
+    reference_docx: "..\\doc_styles\\draft_styles_FDS_break.docx"
 ---
 
 ```{r setup, include=FALSE}
@@ -22,7 +22,7 @@ WriteXLS::WriteXLS(c("est_spp", "est_assem", "est_sex", "est_age", "est_lgbin"),
 ```
 
 #########
-Appendix A1.- Species composition of rockfish harvests from Cook Inlet ports, 1996-2019.
+Appendix A1.- Species composition of rockfish harvests from five Gulf of Alaska ports, 1996-2019.
 ```{r}
 tab_spp <- 
   est_spp %>%
@@ -33,7 +33,7 @@ tab_spp <-
          year = as.character(year)) %>%
   pivot_wider(id_cols = c("port", "year"), names_from = "spp", values_from = "est")
 
-filter(tab_spp, port == "Cook Inlet") %>%
+filter(tab_spp) %>%
   flextable() %>%
   merge_v(j = ~ port) %>%
   valign(j = 1, valign = "top") %>%
@@ -43,70 +43,6 @@ filter(tab_spp, port == "Cook Inlet") %>%
   font(fontname = "Times New Roman") %>%
   fontsize(size = 10) %>%
   autofit()
-```
-  
-
-#########
-Appendix A2.- Species composition of rockfish harvests from Kodiak Harbor, 1996-2019.
-```{r}
-filter(tab_spp, port == "Kodiak") %>%
-  flextable() %>%
-    merge_v(j = ~ port) %>%
-    valign(j = 1, valign = "top") %>%
-    align(j = c(3:8), align = "right") %>%
-    align(part = "header", j = c(3:8), align = "right") %>%
-    line_spacing(space = 0.5) %>%
-    font(fontname = "Times New Roman") %>%
-    fontsize(size = 10) %>%
-    autofit()
-```
-  
-
-#########
-Appendix A3.- Species composition of rockfish harvests from the Seward Harbor, 1996-2019.
-```{r}
-filter(tab_spp, port == "Seward") %>%
-  flextable() %>%
-    merge_v(j = ~ port) %>%
-    valign(j = 1, valign = "top") %>%
-    align(j = c(3:8), align = "right") %>%
-    align(part = "header", j = c(3:8), align = "right") %>%
-    line_spacing(space = 0.5) %>%
-    font(fontname = "Times New Roman") %>%
-    fontsize(size = 10) %>%
-    autofit()
-```
-  
-
-#########
-Appendix A4.- Species composition of rockfish harvests from Valdez Harbor, 1996-2019.
-```{r}
-filter(tab_spp, port == "Valdez") %>%
-  flextable() %>%
-    merge_v(j = ~ port) %>%
-    valign(j = 1, valign = "top") %>%
-    align(j = c(3:8), align = "right") %>%
-    align(part = "header", j = c(3:8), align = "right") %>%
-    line_spacing(space = 0.5) %>%
-    font(fontname = "Times New Roman") %>%
-    fontsize(size = 10) %>%
-    autofit()
-```
-  
-
-#########
-Appendix A5.- Species composition of rockfish harvests from Whittier Harbor, 1999-2019.
-```{r}
-filter(tab_spp, port == "Whittier") %>%
-  flextable() %>%
-    merge_v(j = ~ port) %>%
-    valign(j = 1, valign = "top") %>%
-    align(j = c(3:8), align = "right") %>%
-    align(part = "header", j = c(3:8), align = "right") %>%
-    line_spacing(space = 0.5) %>%
-    font(fontname = "Times New Roman") %>%
-    fontsize(size = 10) %>%
-    autofit()
 ```
  
 #########
@@ -1064,7 +1000,7 @@ lgbin_format %>%
 ```
  
 #########
-Appendix E2.- Length composition of Yelloweye rockfish in the harvest from five Gulf of Alaska ports. 
+Appendix E1.- Length composition of Yelloweye rockfish in the harvest from five Gulf of Alaska ports. 
 ```{r, results = "asis"}
 lgbin_format <- 
   est_lgbin %>%
@@ -1132,7 +1068,7 @@ est_sex %>%
 ```
  
 #########
-Appendix G2.- Percentage of female of yelloweye rockfish in the harvest from five Gulf of Alaska ports.
+Appendix G1.- Percentage of female of yelloweye rockfish in the harvest from five Gulf of Alaska ports.
 ```{r}
 est_sex %>%
   filter(spp == "Yelloweye" & sex == "F") %>%

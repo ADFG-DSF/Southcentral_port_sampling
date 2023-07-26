@@ -1,13 +1,13 @@
 library(tidyverse)
+library(ggplot2)
 
 
 # Data prep ---------------------------------------------------------------
 
 # * Composition data --------------------------------------------------------
-
 # Original data maker and many comments in 
 # "H:\My Documents\Southcentral halibut and groundfish\Rockfish report_96-19\spp comp\RFspcomp9616_port.sas"
-#  some comments transfered below
+#  some comments transferred below
 rfcomp00 <- haven::read_sas(".\\Rockfish report_96-19\\composition\\rfcompdata.sas7bdat")
 rfcomp00 <- setNames(rfcomp00, tolower(names(rfcomp00)))
 
@@ -66,6 +66,7 @@ table(rfcomp0$species, rfcomp0$assem, useNA = "always")
 #rfcomp00(75838)-Cordova(79)-Whittier98(48)-Rares(16)-sppblank(6)=rfcomp0(75689)
 
 
+
 # * * *  Military and Unknown Users ----------------------------------------------
 table(rfcomp0$user, rfcomp0$year, rfcomp0$port)
 # Military affects Seward 1996-2000
@@ -86,9 +87,9 @@ for(y in 1:5){print(chisq.test(table_Sew[,c(1, 3, 6),y][c(2,3),]))}
 
 #We have estimates of military harvest and have compared pooled (all users) and weighted (charter/private by SWHS, mil by logbook)
 #estimates of stock composition. small differences.
-#Previous researchers focused on this comparision.
+#Previous researchers focused on this comparison.
 est_Sewmil <- 
-  readxl::read_excel("O:\\DSF\\GOAB\\RockfishReport_96-16\\SpeciesComp\\SpeciesCompBefore2001.xlsx",
+  readxl::read_excel(".\\Rockfish report_96-19\\composition\\SpeciesCompBefore2001.xlsx",
                      range = "Seward!AC12:AF53",
                      col_names = c("spp", "n", "pool", "weight")) %>%
   select(-n) %>%
@@ -115,7 +116,7 @@ tab_Val96 <-
 chisq.test(tab_Val96[, c(1, 3)])
 
 #Martin and I can't see why we would not just consider military as charter since that's what was done after 2000.
-#I will revist this after we have estimates w that asumption.
+#I will revisit this after we have estimates w that assumption.
 #Regarding other the best thing seems to be to drop
 table(rfcomp0$user, rfcomp0$year, rfcomp0$port)
 table(rfcomp0$user)
@@ -147,6 +148,7 @@ SWHS <-
   mutate(vH_puy = seH_puy^2) %>%
   select(-seH_puy)
 SWHS <- setNames(SWHS, ifelse(grepl("H", names(SWHS)), names(SWHS), tolower(names(SWHS))))
+#p = port, u = user group, y = year.
 SWHS_puy <- SWHS[SWHS$user %in% c("Charter", "Private"), ]
 SWHS_py <- SWHS[SWHS$user %in% c("Both"), ] %>%
   select(-user)
@@ -156,16 +158,21 @@ SWHS_py <- setNames(SWHS_py, gsub("puy", "py", names(SWHS_py)))
 # Species comp ---------------------------------------------------
 #Note sample sizes OK in most year/port/user combinations
 table(rfcomp$year, rfcomp$port, rfcomp$user)
+
+#number available for composition estimates, used in report.
 n_comp <- 
   rfcomp %>%
   group_by(port, year, user) %>%
   summarise(n = sum(!is.na(spp)))
+#quantiles
 quantile(n_comp$n[n_comp$user == "Charter"], c(0, 0.05, .5, 1))
 quantile(n_comp$n[n_comp$user == "Private"], c(0, 0.05, .5, 1))
+#only 2 port/year combination less than 30 for private anglers
 table(n_comp$n[n_comp$user == "Private"])
 sum(n_comp$n[n_comp$user == "Private"] < 30)
 
-#Stratification likely needed
+#Stratification needed. Most compositions (yeat and port combinations) differ by user group.
+#use the Benjamini–Hochberg procedure to account for false positives associated with multiple tests
 test_comp <- 
   n_comp %>% 
   pivot_wider(names_from = user, values_from = n) %>% 
@@ -180,9 +187,10 @@ for(i in 1:dim(test_comp)[1]){
 test_comp$p05 <- ifelse(test_comp$pval < 0.05, TRUE, FALSE)
 test_comp$p.adjust <- p.adjust(test_comp$pval, method = "BH")
 test_comp$p05a <- ifelse(test_comp$p.adjust < 0.05, TRUE, FALSE)
-#Note 100 out of 117 sig
+#Note 100 out of 117 sig with or wo correction
 table(test_comp$p05)
 table(test_comp$p05a)
+#Benjamini–Hochberg plot
 plot(1:length(test_comp$pval),sort(test_comp$pval))
 abline(0,1:length(test_comp$pval)/length(test_comp$pval)*.05)
 
@@ -199,10 +207,9 @@ prop <-
   mutate (p_puys = cnt / sum(cnt),
           vp_puys = p_puys * (1 - p_puys) / sum(cnt)) %>%
   select(-cnt) 
-#low sample size est by user
+#low sample size est by user are not terrible outliers
 prop[prop$port == "Cook Inlet" & prop$year == 1996, ]
 prop[prop$port == "Cook Inlet" & prop$year == 2006, ]
-#Note: patterns seen in low N years fit with other data points
 plot(prop$p_puys[prop$port == "Cook Inlet" & prop$user == "Charter" & prop$spp == "Yelloweye"], 
      prop$p_puys[prop$port == "Cook Inlet" & prop$user == "Private" & prop$spp == "Yelloweye"])
 abline(a = 0, b = 1)
@@ -286,7 +293,6 @@ boot_p <-
   )
 
 #Check bootstrap distributions 
-library(ggplot2)
 # Map(function(x, y){
 #   ggplot(x, aes(x = p)) +
 #     geom_histogram() +
@@ -348,8 +354,8 @@ est <-
            sep_pys = sqrt(vp_pys),
            sepboot_pys = sqrt(vpboot_pys)) %>%
     select(port, year, spp, p_pys, vp_pys, vpboot_pys, sep_pys, sepboot_pys, starts_with("H_puys"), starts_with("vH_puys"))
-saveRDS(est, ".\\Rockfish report_96-19\\spp comp\\est_spp.rds")
-#est <- readRDS(".\\Rockfish report_96-19\\composition\\est_spp.rds")
+#saveRDS(est, ".\\Rockfish report_96-19\\composition\\est_spp.rds")
+est <- readRDS(".\\Rockfish report_96-19\\composition\\est_spp.rds")
 
 
 #Plot bootstrap and SRS SE's
@@ -374,12 +380,13 @@ bind_Sew <- comp_Sew[, c(3, 2, 4, 14, 15)] %>%
   mutate(method = "comm") %>%
   filter(spp %in% c("Black", "Yelloweye")) %>%
   select(spp, year, method, p_pys, p_pys_l, p_pys_u)
+#notice the CI's of the composite estimates bound either the pooled or weighted estimates calculated before. No need to separate military anglers
 bind_rows(est_Sewmil, bind_Sew) %>%
   ggplot(aes(x = year, y = p_pys, color = method)) +
   geom_point(position=position_dodge(width=0.5)) +
   geom_errorbar(aes(ymin = p_pys_l, ymax = p_pys_u), position=position_dodge(width=0.5)) +
   facet_grid(. ~ spp)
-#% and absolute diff
+#% and absolute diff - small differences
 est_Sewmil %>%
   select(spp, year, method, p_pys_alt= p_pys) %>%
   left_join(bind_Sew, by = c("spp", "year")) %>%
@@ -415,12 +422,14 @@ est_format %>%
 
 
 # Assemblage comp ------------------------------------------------------------
-#Stratification likely needed
+#Stratification likely needed.  >50% compositions (year and port combinations) differ by user group.
+#use the Benjamini–Hochberg procedure to account for false positives associated with multiple tests
 test_assem <- 
   n_comp %>% 
   pivot_wider(names_from = user, values_from = n) %>% 
   rowwise()
 test_assem$pval <- NA
+
 for(i in 1:dim(test_comp)[1]){
   test_assem$pval[i] <- 
     fisher.test(
@@ -519,8 +528,8 @@ assem <-
          sep_pys = sqrt(vp_pys),
          sepboot_pys = sqrt(vpboot_pys)) %>%
   select(port, year, assem, p_pys, vp_pys, vpboot_pys, sep_pys, sepboot_pys)
-saveRDS(assem, ".\\Rockfish report_96-19\\spp comp\\est_assem.rds")
-
+#saveRDS(assem, ".\\Rockfish report_96-19\\composition\\est_assem.rds")
+assem <- readRDS(".\\Rockfish report_96-19\\composition\\est_assem.rds")
 
 #Plot bootstrap and SRS SE's
 assem %>% 
@@ -566,21 +575,25 @@ rfsex <- rfcomp[!is.na(rfcomp$sex) & rfcomp$sex != "", ]
 #Low sample sizes are problematic w stratification because you could base weight some samples on very poor estimates in one user group.
 table(rfsex$spp, rfsex$year, rfsex$port, rfsex$user)
 
+#number available for composition estimates, used in report.
 n_sex <- 
   rfsex %>%
   group_by(port, year, user, spp) %>%
   summarise(n = sum(sex %in% c("M", "F")))
 aggregate(n ~ spp + user, n_sex[!is.na(n_sex$n), ], quantile)
 
-#also not great evidence that stratification needed for sex comps
+
+#Focus on Black and Yelloweye rockfish for tests
 test_sex0 <- 
   n_sex %>% 
   filter(spp %in% c("Black", "Yelloweye")) %>%
   pivot_wider(names_from = user, values_from = n) %>% 
   rowwise() 
-#number of 117 combinations of port and year for whcih we have at least 
+#number of 117 combinations of port and year for which we have at least one sample 
 aggregate(test_sex0, list(sex = test_sex0$spp), length)
 
+#Not no evidence we need to stratify by used group
+#0 out of 216 species, port, year pairs are significant when accounting for multiple tests
 test_sex <- 
   test_sex0 %>%
   mutate(min = min(Charter, Private)) %>% 
@@ -593,23 +606,27 @@ for(i in 1:dim(test_sex)[1]){
       rfsex$user[rfsex$port == test_sex[[i, 1]] & rfsex$year == test_sex[[i, 2]] & rfsex$spp == test_sex[[i, 3]]], 
       rfsex$sex[rfsex$port == test_sex[[i, 1]] & rfsex$year == test_sex[[i, 2]] & rfsex$spp == test_sex[[i, 3]]])$p.value
 }
+#No multiple test adjustment
 test_sex$p05 <- ifelse(test_sex$pval < 0.05, TRUE, FALSE)
-test_sex$p.adjust <- p.adjust(test_sex$pval, method = "BH")
-test_sex$p05a <- ifelse(test_sex$p.adjust < 0.05, TRUE, FALSE)
 test_sex$min_cut <- cut(test_sex$min, c(0, 15, 40, 1000))
-#Note 17 out of 216 with pval < .1, with Bonferroni 0
+#Note 17 out of 216 with pval < .0
 table(test_sex$p05, test_sex$spp)
 test_sex[test_sex$p05 == TRUE, ] %>% print(n = 100)
+#significant tests occur at both large and small sample sizes
+table(test_sex$p05, test_sex$min_cut)
+
+#Benjamini–Hochberg multiple test adjustment
+test_sex$p.adjust <- p.adjust(test_sex$pval, method = "BH")
+test_sex$p05a <- ifelse(test_sex$p.adjust < 0.05, TRUE, FALSE)
+#Note 0 out of 216 with pval < .05 when accounting for multiple tests. 
 table(test_sex$p05a, test_sex$spp)
 min(test_sex$p.adjust)
-table(test_sex$p05, test_sex$min_cut)
-table(test_sex$p05a, test_sex$min_cut)
-#BH pvalue adjustment
+#Benjamini–Hochberg plot
 plot(1:length(test_sex$pval),sort(test_sex$pval))
 abline(0,1:length(test_sex$pval)/length(test_sex$pval)*.05)
 
 
-#Pooled estimates for later comparision 
+#Pooled estimates for later comparison 
 prop_sexpool <- 
   rfsex %>%
   group_by(port, year, spp, sex) %>% 
@@ -646,7 +663,7 @@ boot_p_sex <-
              as_tibble(x) %>%
                unnest(data) %>%
                group_by(spp, sex) %>%
-               filter(sex != "" & spp %in% c("Black", "Dusky/Dark", "Yelloweye", "Quillback")) %>%
+               filter(sex != "" & spp %in% c("Black", "Yelloweye", "Quillback", "Dusky/Dark")) %>%
                summarise(cnt = n()) %>% 
                mutate(p = cnt / sum(cnt)) %>%
                select(spp, sex, p)
@@ -658,7 +675,6 @@ boot_p_sex <-
   )
 
 #Check bootstrap distributions 
-library(ggplot2)
 # Map(function(x, y){
 #   ggplot(x, aes(x = p)) +
 #     geom_histogram() +
@@ -690,7 +706,7 @@ boot_stats_sex <-
 
 
 #Plot bootstrap and SRS SE's
-#note: little evidence bootsrapping is required. Sex compe less subject to bias w cluser sampling 
+#note: little evidence bootstrapping is required. Sex comp less subject to bias w cluster sampling 
 comp_se_sex <- 
   prop_sex %>%
   left_join(boot_stats_sex, by = c("port", "year", "user", "spp", "sex")) %>%
@@ -709,7 +725,7 @@ summary(lm(comp_se_sex$sepboot_puysx[comp_se_sex$n > 15] ~ comp_se_sex$sep_puysx
 
 
 
-#add bootstrap ps to raw proportions and pooled estiamtes
+#add bootstrap ps to raw proportions and pooled estimates
 #Merge w SWHS
 SWHS_puys <- 
   left_join(est %>%
@@ -758,8 +774,8 @@ est_sex <-
   mutate(seppool_pysx = sqrt(vppool_pysx)) %>%
   left_join(aggregate(n ~ port+year+spp, data = n_sex, FUN = sum), by = c("port", "year", "spp")) %>%
   select(port, year, spp, sex, n, p_pysx, pboot_pysx, ppool_pysx, vp_pysx, vpboot_pysx, vppool_pysx, sep_pysx, sepboot_pysx, seppool_pysx)
-saveRDS(est_sex, ".\\Rockfish report_96-19\\spp comp\\est_sex.rds")
-#est_sex <- readRDS(".\\Rockfish report_96-19\\spp comp\\est_sex.rds")
+#saveRDS(est_sex, ".\\Rockfish report_96-19\\composition\\est_sex.rds")
+est_sex <- readRDS(".\\Rockfish report_96-19\\composition\\est_sex.rds")
 
 #very little bias indicated by bootstrap
 n_sex %>%
@@ -782,8 +798,8 @@ lm(est_sex$sepboot_pysx ~ est_sex$sep_pysx)
 
 
 #  * Format for report ----------------------------------------------------
-#I dont see much bias in the se or the point estiamte of p.
-#but the sex comps are not different for the almost all cases, use pooled estimates wo bootsrapping.
+#I don't see much bias in the se or the point estimate of p.
+#but the sex comps are not different for the almost all cases, use pooled estimates wo bootstrapping.
 sex_format <- 
   est_sex %>%
   mutate(p_pysx_report = ppool_pysx,
@@ -857,7 +873,6 @@ sex_format %>%
   theme_bw(base_size = 18) +
   ggtitle("GOA Quillback Rockfish Sex Composition")
 
-
 sex_format %>%
   filter(sex == "F" & spp == "Yelloweye") %>%
   pivot_wider(id_cols = "year", names_from = "port", values_from = "est")
@@ -872,6 +887,7 @@ rfage <- rfcomp[!is.na(rfcomp$age) & rfcomp$age != "", ]
 #Low sample sizes are problematic w stratification because you could base weight some samples on very poor estimates in one user group.
 table(rfage$spp, rfage$year, rfage$user, rfage$port)
 
+#number available for composition estimates, used in report.
 n_age <- 
   rfage %>%
   #filter(spp %in% c("Black", "Yelloweye")) %>%
@@ -907,22 +923,30 @@ for(i in 1:dim(test_age)[1]){
       simulate.p.value = TRUE,
       B = 5000)$p.value
 }
+#no multiple comparison adjustment
 test_age$p05 <- ifelse(test_age$pval < 0.05, TRUE, FALSE)
+test_age$min_cut <- cut(test_age$min, c(0, 15, 50, 1000))
+#56 of 219 are significant
+table(test_age$p05)
+table(test_age$p05, test_age$spp)
+#many significant test for combinations with significant sample sizes
+table(test_age$p05, test_age$min_cut)
+
+#Corrected for multiple comparisons
 test_age$p.adjust <- p.adjust(test_age$pval, method = "BH")
 test_age$p05a <- ifelse(test_age$p.adjust < 0.05, TRUE, FALSE)
-test_age$min_cut <- cut(test_age$min, c(0, 15, 50, 1000))
-#47 significant
-table(test_age$p05)
+#still 47 of 219 are significant when accounting for multiple comparisons
+table(test_age$p05a)
 table(test_age$p05a, test_age$spp)
-table(test_age$p05, test_age$min_cut)
+#many significant test for combinations with significant sample sizes
 table(test_age$p05a, test_age$min_cut)
 test_age[test_age$p05a == TRUE, ] %>% arrange(min)
-#BH pvalue adjustment
+#BH plot
 plot(1:length(test_age$pval),sort(test_age$pval))
 abline(0,1:length(test_age$pval)/length(test_age$pval)*.05)
 
 
-#Pooled estimates for later comparision 
+#Pooled estimates for later comparison 
 prop_agepool <- 
   rfage %>%
   group_by(port, year, spp, age) %>% 
@@ -973,7 +997,6 @@ boot_p_age <-
   )
 
 #Check bootstrap distributions 
-library(ggplot2)
 # Map(function(x, y){
 #   ggplot(x, aes(x = p)) +
 #     geom_histogram() +
@@ -1062,8 +1085,8 @@ est_age <-
   left_join(test_age, by = c("port", "year", "spp")) %>%
   left_join(aggregate(n ~ port+year+spp, data = n_age[n_age$spp %in% c("Black", "Yelloweye"), ], FUN = sum), by = c("port", "year", "spp")) %>%
   select(port, year, spp, age, n, p_pysa, pboot_pysa, ppool_pysa, vp_pysa, vpboot_pysa, vppool_pysa, sep_pysa, sepboot_pysa, seppool_pysa, p05a, min)
-saveRDS(est_age, ".\\Rockfish report_96-19\\spp comp\\est_age.rds")
-#est_age <- readRDS(".\\Rockfish report_96-19\\composition\\est_age.rds")
+#saveRDS(est_age, ".\\Rockfish report_96-19\\spp comp\\est_age.rds")
+est_age <- readRDS(".\\Rockfish report_96-19\\composition\\est_age.rds")
 
 
 #bias indicated by bootstrap might be sample size related
@@ -1085,13 +1108,13 @@ est_age %>%
   ggtitle("Standard errors for species composition proportions")
 lm(est_age$sepboot_pysa ~ est_age$sep_pysa)
 
-#Sig estiamtes 
+#Bias often associated with significant differences between guided and private samples but not always
 est_age %>%
   group_by(port, year, spp) %>%
   filter(p_pysa == max(p_pysa)) %>%
   ggplot(aes(p_pysa, ppool_pysa, color = p05a)) +
   geom_point()
-#note ~ 1/3 > +/- 15%
+#note ~ 1/4 > +/- 15%
 est_age %>%
   mutate(diff = ppool_pysa/p_pysa) %>%
   filter(p05a == TRUE) %>%
@@ -1107,6 +1130,7 @@ plotly::plot_ly(x = est_age$p_pysa, y = est_age$ppool_pysa, z = est_age$min,
                 color = est_age$p05a,
                 text = ~paste(est_age$port, "-", est_age$year, "-", est_age$spp))
 
+#Take a look at some of the most egregious cases.
 #Whittier-2016-Yelloweye
 #Largest bias below 1:1 line
 #Only 4 private samples
@@ -1130,9 +1154,9 @@ n_age[n_age$port == "Whittier" & n_age$year == 2015 & n_age$spp == "Black", ]
 SWHS_puys[SWHS_puys$port == "Whittier" & SWHS_puys$year == 2015 & SWHS_puys$spp == "Black", ]
 
 #Valdez-2011-Yelloweye
-#Largest bias below the 1:1 line w a significat test
+#Largest bias below the 1:1 line w a significant test
 #>50 samples in both user groups but much more private harvest
-#stratified preferable here]
+#stratified preferable here
 est_age[est_age$port == "Valdez" & est_age$year == 2011 & est_age$spp == "Yelloweye", ] %>% 
   pivot_longer(cols = p_pysa:ppool_pysa, names_to = "est", values_to = "p") %>% 
   ggplot(aes(x = age, y = p, fill = est)) + 
@@ -1177,19 +1201,19 @@ prop_age[prop_age$port == "Cook Inlet" & prop_age$year == 1998 & prop_age$spp ==
 n_age[n_age$port == "Cook Inlet" & n_age$year == 1998 & n_age$spp == "Black", ]
 SWHS_puys[SWHS_puys$port == "Cook Inlet" & SWHS_puys$year == 1998 & SWHS_puys$spp == "Black", ]
 
-#### Is there a sample size where we have a fairly good sample w so many catagories
+#### Is there a sample size where we have a fairly good sample w so many categories
 #suggest 50 is decent
 #average ages per port, and year
 rfage %>% 
   group_by(port, year, spp) %>% 
   filter(spp %in% c("Black", "Yelloweye")) %>% 
-  summarise(n = unique(age)) %>%  #Unique ages per port, year spp
-  summarise(n = length(n)) %>% # # of Unique ages per port, year spp 
+  summarise(n = unique(age)) %>%  #Unique ages per port, year, spp
+  summarise(n = length(n)) %>% # # of Unique ages per port, year, spp 
   group_by(spp) %>%
-  summarise(n = mean(n)) #Mean of Unique ages by spp
+  summarise(n = mean(n)) #Mean of unique ages by spp
 
 #Thompson 87 eq 1
-#Can achive around +-0.1 at alpha .1 with ~ 23 samples for the number of catagories we are seeing 
+#Can archive around +-0.1 at alpha .1 with ~ 23 samples for the number of categories we are seeing 
 m <- 20:40
 alpha <- .1
 d <- 0.11
@@ -1211,6 +1235,7 @@ est_age %>%
 sapply(seq(20, 50, 10), function(y) mean(rmultinom(10000, y, c(.15, rep(.85/29, 29))) %>% apply(2, function(x)x[1] > max(x[2:30]))))
 sapply(seq(20, 50, 10), function(y) mean(rmultinom(10000, y, c(.15, .15, rep(.7/28, 28))) %>% apply(2, function(x) min(x[1], x[2]) > max(x[3:30]))))
 
+#small samples by port and spp
 temp <- 
   n_age %>% 
   pivot_wider(id_cols = c("port", "year", "spp"), values_from = "n", names_from = "user") %>% 
@@ -1220,7 +1245,7 @@ table(temp$port, temp$spp, temp$small)
 test_age %>% 
   filter(Charter + Private < 30) %>%
   print( n = 100)
-# 9 of the significat samples have n < 30 for on user group
+# 9 of the significant samples have n < 30 for on user group
 test_age %>% 
   filter((Charter < 30 | Private <30) & p05a == TRUE) %>%
   print( n = 100)
@@ -1277,8 +1302,8 @@ SWHS_puys[SWHS_puys$port == "Whittier" & SWHS_puys$year == 2015 & SWHS_puys$spp 
 
 #  * Format for report ----------------------------------------------------
 #Tricky, I dont think we can do a blanket method
-#Use pooled everywhere (included cases with no samples form one user group and thus no test) but when bonferroni is sig
-#This seems like a good compormise BC all of the very small sample size sig differences are elimiated (min = 20)
+#Use pooled everywhere (included cases with no samples from one user group and thus no test) but when bonferroni is sig
+#This seems like a good compromise BC all of the very small sample size sig differences are eliminated (min = 20)
 table(test_age$min, test_age$p05a)
 age_format <- 
   est_age %>%
@@ -1351,9 +1376,10 @@ rflgbin <-
   rfcomp[!is.na(rfcomp$length) & rfcomp$length != 0, ] %>%
   mutate(lgbin = cut(length, seq(20, 90, 5)))
 #Note sample sizes are not great
-#Low sample sizes are problematic w stratification because you could base weight some samples on very poor estimates in one user group.
+#Low sample sizes are problematic w stratification because you could weight some samples on very poor estimates in one user group.
 table(rflgbin$spp, rflgbin$year, rflgbin$user, rflgbin$port)
 
+#numbers used in report
 n_lgbin <- 
   rflgbin %>%
   #filter(spp %in% c("Black", "Yelloweye")) %>%
@@ -1382,20 +1408,24 @@ for(i in 1:dim(test_lgbin)[1]){
       simulate.p.value = TRUE,
       B = 5000)$p.value
 }
+#adjusted
 test_lgbin$p05 <- ifelse(test_lgbin$pval < 0.05, TRUE, FALSE)
+test_lgbin$min_cut <- cut(test_lgbin$min, c(0, 20, 40, 1000))
+#Note 107 out of 216 with pval < .05
+table(test_lgbin$p05)
+
+#adjusted
 test_lgbin$p.adjust <- p.adjust(test_lgbin$pval, method = "BH")
 test_lgbin$p05a <- ifelse(test_lgbin$p.adjust < 0.05, TRUE, FALSE)
-test_lgbin$min_cut <- cut(test_lgbin$min, c(0, 20, 40, 1000))
-#Note 86 out of 216 with pval < .05
+#Note 83 out of 216 with pval < .05
 table(test_lgbin$p05a)
-min(test_lgbin$p.adjust)
 table(test_lgbin$p05a, test_lgbin$min_cut)
 test_lgbin[test_lgbin$p05a == TRUE, ] %>% arrange(min)
-#BH pvalue adjustment
+#BH plot
 plot(1:length(test_lgbin$pval),sort(test_lgbin$pval))
 abline(0,1:length(test_lgbin$pval)/length(test_lgbin$pval)*.05)
 
-#Pooled estimates for later comparision 
+#Pooled estimates for later comparison 
 prop_lgbinpool <- 
   rflgbin %>%
   group_by(port, year, spp, lgbin) %>% 
@@ -1536,8 +1566,8 @@ est_lgbin <-
   left_join(test_lgbin, by = c("port", "year", "spp")) %>%
   left_join(aggregate(n ~ port+year+spp, data = n_lgbin[n_lgbin$spp %in% c("Black", "Yelloweye"), ], FUN = sum), by = c("port", "year", "spp")) %>%
   select(port, year, spp, lgbin, n, p_pysl, pboot_pysl, ppool_pysl, vp_pysl, vpboot_pysl, vppool_pysl, sep_pysl, sepboot_pysl, seppool_pysl, p05a, min)
-saveRDS(est_lgbin, ".\\Rockfish report_96-19\\spp comp\\est_lgbin.rds")
-#est_lgbin <- readRDS(".\\Rockfish report_96-19\\composition\\est_lgbin.rds")
+#saveRDS(est_lgbin, ".\\Rockfish report_96-19\\spp comp\\est_lgbin.rds")
+est_lgbin <- readRDS(".\\Rockfish report_96-19\\composition\\est_lgbin.rds")
 
 
 #bias indicated by bootstrap might be sample size related
@@ -1559,13 +1589,13 @@ est_lgbin %>%
   ggtitle("Standard errors for length composition proportions")
 lm(est_lgbin$sepboot_pysl ~ est_lgbin$sep_pysl)
 
-#Sig estiamtes 
+#Sig estimates vrs. potential bias 
 est_lgbin %>%
   group_by(port, year, spp) %>%
   filter(p_pysl == max(p_pysl)) %>%
   ggplot(aes(p_pysl, ppool_pysl, color = p05a)) +
   geom_point()
-#note ~ 1/3 > +/- 15%
+#note ~ 1/9 > +/- 15%
 est_lgbin %>%
   mutate(diff = ppool_pysl/p_pysl) %>%
   filter(p05a == TRUE) %>%
@@ -1612,6 +1642,7 @@ est_lgbin %>%
 #and the largest lgbin class is 25 % of the sample
 sapply(seq(5, 30, 5), function(y) mean(rmultinom(10000, y, c(.25, rep(.25/9, 9))) %>% apply(2, function(x)x[1] > max(x[2:10]))))
 
+#small samples by port and spp
 temp <- 
   n_lgbin %>% 
   pivot_wider(id_cols = c("port", "year", "spp"), values_from = "n", names_from = "user") %>% 
@@ -1621,7 +1652,7 @@ table(temp$port, temp$spp, temp$small)
 test_lgbin %>% 
   filter(Charter + Private < 30) %>%
   print( n = 100)
-# 16 of the significat samples have n < 30 for one user group
+# 16 of the significant samples have n < 30 for one user group
 test_lgbin %>% 
   filter((Charter < 30 | Private <30) & p05a == TRUE) %>%
   print( n = 100)
@@ -1750,9 +1781,9 @@ SWHS_puys[SWHS_puys$port == "Valdez" & SWHS_puys$year == 2008 & SWHS_puys$spp ==
 
 
 #  * Format for report ----------------------------------------------------
-#Tricky, I dont think we can do a blanket method
+#Tricky, I don't think we can do a blanket method
 #Use pooled everywhere (included cases with no samples form one user group and thus no test) but when test is sig
-#This seems like a good compormise BC all of the very small sample size sig differences are elimiated (min = 20)
+#This seems like a good compromise BC all of the very small sample size sig differences are eliminated (min = 20)
 table(test_lgbin$min, test_lgbin$p05a)
 lgbin_format <- 
   est_lgbin %>%

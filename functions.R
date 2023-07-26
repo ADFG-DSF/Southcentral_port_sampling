@@ -1,5 +1,14 @@
 ## Make Jags dataset for composition estimates
-##
+# arguments are:
+#  a formatted version of the int_boat.rds
+#  the port of interest
+#  the statistic of interest.
+# the output is:
+#  an array formatted: [years, angler type, area] for stat given
+#  a centered year variable
+#  the total number of areas
+#  the total number of years
+#  the total count for each year and angler type across areas 
 make_jagsdat <- function(dat, port, stat){
   data <- dat[dat$port == port, c("year", "fleet", "area", stat)] %>%
     dplyr::mutate(yearc = year - median(unique(year)))
@@ -25,7 +34,7 @@ make_jagsdat <- function(dat, port, stat){
 ##
 
 ## Make Jags dataset for composition estimates model selection
-##
+# similar to above except argument yr is the year to be in the testing dataset.
 make_jagsdatpred <- function(dat, port, stat, yr){
   loo_yearc <- yr - median(unique(dat$year[dat$port == port]))
   temp <- dat[dat$port == port, c("year", "fleet", "area", stat)] %>%
@@ -91,7 +100,7 @@ plot_post <- function(post, dat, stat, plotport, inc_pred = "mean", bystock = TR
       as.matrix()
   
   out <- data_full %>%
-    ggplot(aes(x = yearc, weight = value, fill = area)) +
+    ggplot(aes(x = yearc, weight = value, fill = area, group = area)) +
     geom_area(stat = "count", position = "fill", color = "white", alpha = 0.25) +
     scale_y_continuous(name = "Percent") +
     scale_x_continuous(name = "Year", breaks = seq(min(data$yearc), max(data$yearc), 4), labels = seq(min(data$year), max(data$year), 4)) +
@@ -195,6 +204,12 @@ plot_post <- function(post, dat, stat, plotport, inc_pred = "mean", bystock = TR
 # }
 
 ## Multinomial probabilities from posterior
+# arguments are:
+#  the posterior output for the port and statistic (effort, pelagic harvest, or non-pelagic harvest) of interest
+#  user groups to induce (default is both but can specify only "Charter" for the few ports w insufficient private sample size)
+#  years to include (0 or NULL). Use 0 to specify a constant mean model and NULL to give all years
+#  Areas included for the port modeled in this posterior
+# the output is a dataframe with the estimated mean proportion of harvest or effort for each area fished out of the port. 
 p_post <- function(post, fleets = c("charter", "private"), yrs, areas){
   stopifnot(yrs %in% c(NULL, 0))
   if(is.null(yrs)) yrsc = post$data$yearc else yrsc = yrs
@@ -241,6 +256,10 @@ p_post <- function(post, fleets = c("charter", "private"), yrs, areas){
 }
 
 #Summarize Interview data
+# arguments are:
+#  int_boat.rds
+#  the statistic of interest from int_boat.rds.
+# the output is a hinge type plot that shows the distribution of reported harvest, effort and cpue by species targeted for each user group
 plot_int <- function(dat, Hvar){
   plottext <- 
     expand.grid(target = levels(int_boat$target),
@@ -333,7 +352,9 @@ tab_ll <-
       dplyr::select(model, ll, diff, p_diff)
   }
 
-#get random effect standard deviation from model posteriors
+# get random effect standard deviation from model posteriors
+# This function works but is poorly written and executed. I hope the next person writes it better if they use it at all.
+# It is included because overdispersion is ridiculously large and anyone who uses the spatial composition results needs to know that and make limited inference as a result.
 get_sd <- function(index, posts, obj_names){
   sapply(posts[[index]], function(x) x$mean$sd) %>%
     as.data.frame() %>%

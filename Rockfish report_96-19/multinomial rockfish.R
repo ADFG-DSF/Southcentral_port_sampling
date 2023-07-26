@@ -1,24 +1,32 @@
-#Looking for a method to fit groundfish harvest and effort compostion data for reporting
+#Looking for a method to fit groundfish harvest and effort composition data for reporting
 #would like to detect a trend to composition data
 library(magrittr)
 library(ggplot2)
+
+# Read in raw data, functions and model code
 int_boat <- readRDS(".\\Data\\int_boat.rds")
 source(".\\functions.R")
 source(".\\models.R")
 
 
 # Pelagic Harvest Composition -----------------------------------------------------
+#Get pelagic rockfish harvest data
 int_pr <- 
   int_boat %>%
   dplyr::group_by(port, year, fleet, area) %>%
   dplyr::summarise(H = sum(pH, na.rm = TRUE), E = sum(E, na.rm = TRUE)) %>%
   dplyr::ungroup()
+# a list of ports to lapply over later
 ports <- unique(int_pr$port)
+#a list of areas associated with each port
 areas <- lapply(ports, function(x) sort(unique(int_pr$area[int_pr$port == x])))
 aggregate(E ~ year + port, int_pr, sum)
 jags_datH <- lapply(ports, make_jagsdat, dat = int_pr, stat = "H")
 
 # #jags w overdisersion on each observation
+# #set up parameter and model files which can be looped over for each combination of port and statistic
+# #Four models considered: 1) constant shared mean, 2) unique constant mean for each angler type, 3) trending shared mean, 4) unique trending mean for each angler type. 
+# #(posteriors contain output for each model in the order listed here)
 # ni <- 1E5; nb <- ni/3; nc <- 3; nt <- 200
 # params <- list(parameters_alpha <- c("alpha", "sd", "re"),
 #                parameters_beta <- c("alpha", "beta", "re", "sd"),
@@ -30,7 +38,7 @@ jags_datH <- lapply(ports, make_jagsdat, dat = int_pr, stat = "H")
 #                gamma <- modfile_gamma)
 # 
 # 
-# # * Homer Harvest -----------------------------------------------------------
+# # * Homer Pelagic Harvest -----------------------------------------------------------
 # #None of the models are great.
 # #Need to omit Private data... too sparse.
 # postHp_Homer <- mapply(jagsUI::jags,
@@ -40,19 +48,22 @@ jags_datH <- lapply(ports, make_jagsdat, dat = int_pr, stat = "H")
 # lapply(postHp_Homer, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
 # saveRDS(postHp_Homer, ".\\Rockfish report_96-19\\Interview post\\postHp_Homer.rds")
 postHp_Homer <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHp_Homer.rds")
+#shared constant mean
 postHp_Homer[[1]]
 jagsUI::traceplot(postHp_Homer[[1]], c("alpha"))
 plot_post(postHp_Homer[[1]], int_pr, "H", ports[1], inc_pred = "mean")
+#constant mean differs by angler type
 postHp_Homer[[2]]
 jagsUI::traceplot(postHp_Homer[[2]], c("alpha", "beta"))
 plot_post(postHp_Homer[[2]], int_pr, "H", ports[1], inc_pred = "mean")
-#Can't get model to convergere
+#Can't get model to converge for private anglers
 
 
 #Try with only Homer Charter data only
-jags_datH_Homer <- jags_datH[[1]]
-jags_datH_Homer$count <- jags_datH[[1]]$count[,1,]
-jags_datH_Homer$M <- jags_datH[[1]]$M[,1]
+#modify jags dataset
+# jags_datH_Homer <- jags_datH[[1]]
+# jags_datH_Homer$count <- jags_datH[[1]]$count[,1,]
+# jags_datH_Homer$M <- jags_datH[[1]]$M[,1]
 # ni <- 5E5; nb <- ni/3; nc <- 3; nt <- 50
 # postHp_HomerCharter <- mapply(jagsUI::jags,
 #                              parameters.to.save = params[c(1, 3)], model.file = list(alpha <- modfile_alpha0,epsilon <- modfile_epsilon0),
@@ -61,9 +72,12 @@ jags_datH_Homer$M <- jags_datH[[1]]$M[,1]
 # lapply(postHp_HomerCharter, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
 # saveRDS(postHp_HomerCharter, ".\\Rockfish report_96-19\\Interview post\\postHp_HomerCharter.rds")
 postHp_HomerCharter <- readRDS( ".\\Rockfish report_96-19\\Interview post\\postHp_HomerCharter.rds")
-ni <- 1E5; nb <- ni/3; nc <- 3; nt <- 20
+#constant mean
 postHp_HomerCharter[[1]]
 jagsUI::traceplot(postHp_HomerCharter[[1]], c("alpha"))
+#trending mean
+#model selection by loo cross validation (see multinomial LOOCV.R)
+#I save the preferred model in this code to present later
 postHp_HomerCharter[[2]]
 (plot_HomerHp <- 
   plot_post(postHp_HomerCharter[[1]], 
@@ -76,7 +90,7 @@ postHp_HomerCharter[[2]]
 plot_post(postHp_HomerCharter[[2]], int_pr[int_pr$fleet == "Charter", ], "H", ports[1], inc_pred = "mean")
 
 
-# * Kodiak Harvest --------------------------------------------------------
+# * Kodiak Pelagic Harvest --------------------------------------------------------
 # postHp_Kodiak <- mapply(jagsUI::jags,
 #                        parameters.to.save = params, model.file = models,
 #                        MoreArgs = list(data = jags_datH[[2]], n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, store.data = TRUE),
@@ -85,11 +99,13 @@ plot_post(postHp_HomerCharter[[2]], int_pr[int_pr$fleet == "Charter", ], "H", po
 # saveRDS(postHp_Kodiak, ".\\Rockfish report_96-19\\Interview post\\postHp_Kodiak.rds")
 postHp_Kodiak <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHp_Kodiak.rds")
 postHp_Kodiak[[1]]
+# Unique constant mean model preferred
 postHp_Kodiak[[2]]
 jagsUI::traceplot(postHp_Kodiak[[2]], c("alpha", "beta"))
 postHp_Kodiak[[3]]
 postHp_Kodiak[[4]]
 plot_post(postHp_Kodiak[[1]], int_pr, "H", ports[2])
+# Unique constant mean model preferred
 (plot_KodiakHp <- plot_post(postHp_Kodiak[[2]], int_pr, "H", ports[2], title= "Kodiak: Pelagic Rockfish"))
 plot_post(postHp_Kodiak[[3]], int_pr, "H", ports[2])
 plot_post(postHp_Kodiak[[4]], int_pr, "H", ports[2])
@@ -98,7 +114,7 @@ jags_datH[[2]]$M
 
 
 
-# * Seward Harvest --------------------------------------------------------
+# * Seward Pelagic Harvest --------------------------------------------------------
 # postHp_Seward <- mapply(jagsUI::jags,
 #                        parameters.to.save = params, model.file = models,
 #                        MoreArgs = list(data = jags_datH[[3]], n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, store.data = TRUE),
@@ -108,11 +124,13 @@ jags_datH[[2]]$M
 postHp_Seward <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHp_Seward.rds")
 postHp_Seward[[1]]
 postHp_Seward[[2]]
+# shared trending mean model preferred
 postHp_Seward[[3]]
 jagsUI::traceplot(postHp_Seward[[3]], c("alpha", "beta", "epsilon"))
 postHp_Seward[[4]]
 plot_post(postHp_Seward[[1]], int_pr, "H", ports[3])
 plot_post(postHp_Seward[[2]], int_pr, "H", ports[3])
+# shared trending mean model preferred
 (plot_SewardHp <- plot_post(postHp_Seward[[3]], int_pr, "H", ports[3], title = "Seward: Pelagic Rockfish"))
 plot_post(postHp_Seward[[4]], int_pr, "H", ports[3])
 
@@ -122,7 +140,7 @@ plot_post(postHp_Seward[[4]], int_pr, "H", ports[3])
 
 
 
-# * Valdez Harvest --------------------------------------------------------
+# * Valdez Pelagic Harvest --------------------------------------------------------
 # postHp_Valdez <- mapply(jagsUI::jags,
 #                        parameters.to.save = params, model.file = models,
 #                        MoreArgs = list(data = jags_datH[[4]], n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, store.data = TRUE),
@@ -132,11 +150,13 @@ plot_post(postHp_Seward[[4]], int_pr, "H", ports[3])
 postHp_Valdez <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHp_Valdez.rds")
 postHp_Valdez[[1]]
 postHp_Valdez[[2]]
+# shared trending mean model preferred
 postHp_Valdez[[3]]
 jagsUI::traceplot(postHp_Valdez[[3]], c("alpha", "beta", "epsilon"))
 postHp_Valdez[[4]]
 plot_post(postHp_Valdez[[1]], int_pr, "H", ports[4])
 plot_post(postHp_Valdez[[2]], int_pr, "H", ports[4])
+# shared trending mean model preferred
 (plot_ValdezHp <- plot_post(postHp_Valdez[[3]], int_pr, "H", ports[4], title = "Valdez: Pelagic Rockfish"))
 plot_post(postHp_Valdez[[4]], int_pr, "H", ports[4])
 
@@ -145,7 +165,7 @@ plot_post(postHp_Valdez[[4]], int_pr, "H", ports[4])
 
 
 
-# * Whittier Harvest ------------------------------------------------------
+# * Whittier Pelagic Harvest ------------------------------------------------------
 # postHp_Whittier <- mapply(jagsUI::jags,
 #                          parameters.to.save = params, model.file = models,
 #                          MoreArgs = list(data = jags_datH[[5]], n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, store.data = TRUE),
@@ -154,10 +174,14 @@ plot_post(postHp_Valdez[[4]], int_pr, "H", ports[4])
 # saveRDS(postHp_Whittier, ".\\Rockfish report_96-19\\Interview post\\postHp_Whittier.rds")
 postHp_Whittier <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHp_Whittier.rds")
 postHp_Whittier[[1]]
+# Unique constant mean model preferred
 postHp_Whittier[[2]]
 jagsUI::traceplot(postHp_Whittier[[2]], c("alpha", "beta"))
 postHp_Whittier[[3]]
 postHp_Whittier[[4]]
+#Large variance estimated for random effect.
+#We are assuming our model section criteria is robust to this variability.
+#but need to make sure biologists understand the models are used to distinguish patterns rather than make predictions.
 lapply(postHp_Whittier, function(x) x$sims.list$sd) %>% 
   do.call(cbind, .) %>% 
   as.data.frame() %>% 
@@ -167,6 +191,7 @@ lapply(postHp_Whittier, function(x) x$sims.list$sd) %>%
   geom_histogram() + 
   facet_grid(name ~ .)
 plot_post(postHp_Whittier[[1]], int_pr, "H", ports[5])
+# Unique constant mean model preferred
 (plot_WhittierHp <- plot_post(postHp_Whittier[[2]], int_pr, "H", ports[5], title = "Whittier: Pelagic Rockfish"))
 plot_post(postHp_Whittier[[3]], int_pr, "H", ports[5])
 plot_post(postHp_Whittier[[4]], int_pr, "H", ports[5])
@@ -176,6 +201,7 @@ plot_post(postHp_Whittier[[4]], int_pr, "H", ports[5])
 
 
 # Non-Pelagic Harvest Composition -----------------------------------------------------
+#follows format above
 int_npr <- 
   int_boat %>%
   dplyr::group_by(port, year, fleet, area) %>%
@@ -184,7 +210,7 @@ int_npr <-
 jags_datHnp <- lapply(ports, make_jagsdat, dat = int_npr, stat = "H")
 
 
-# # * Homer Harvest -----------------------------------------------------------
+# # * Homer Non-Pelagic Harvest -----------------------------------------------------------
 # #None of the models are great.
 # #Need to omit Private data... too sparse.
 # postHnp_Homer <- mapply(jagsUI::jags,
@@ -197,13 +223,13 @@ postHnp_Homer  <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHnp_Hom
 postHnp_Homer[[1]]
 plot_post(postHnp_Homer[[1]], int_npr, "H", ports[1])
 jags_datHnp[[1]]$M
-#Insufficent Private data
+#Insufficient Private data
 
 #Try with only Homer Charter data only
-jags_datHnp_Homer <- jags_datHnp[[1]]
-jags_datHnp_Homer$count <- jags_datHnp[[1]]$count[,1,]
-jags_datHnp_Homer$M <- jags_datHnp[[1]]$M[,1]
-ni <- 1E5; nb <- ni/3; nc <- 3; nt <- 50
+# jags_datHnp_Homer <- jags_datHnp[[1]]
+# jags_datHnp_Homer$count <- jags_datHnp[[1]]$count[,1,]
+# jags_datHnp_Homer$M <- jags_datHnp[[1]]$M[,1]
+# ni <- 1E5; nb <- ni/3; nc <- 3; nt <- 50
 # postHnp_HomerCharter <- mapply(jagsUI::jags,
 #                              parameters.to.save = params[c(1, 3)], model.file = list(alpha <- modfile_alpha0,epsilon <- modfile_epsilon0),
 #                              MoreArgs = list(data = jags_datHnp_Homer, n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, store.data = TRUE),
@@ -211,10 +237,10 @@ ni <- 1E5; nb <- ni/3; nc <- 3; nt <- 50
 # lapply(postHnp_HomerCharter, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
 # saveRDS(postHnp_HomerCharter, ".\\Rockfish report_96-19\\Interview post\\postHnp_HomerCharter.rds")
 postHnp_HomerCharter <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHnp_HomerCharter.rds")
-ni <- 1E5; nb <- ni/3; nc <- 3; nt <- 20
 postHnp_HomerCharter[[1]]
 jagsUI::traceplot(postHnp_HomerCharter[[1]], c("alpha"))
 postHnp_HomerCharter[[2]]
+#constant mean model preferred
 (plot_HomerHnp <-
   plot_post(postHnp_HomerCharter[[1]], 
             int_npr, 
@@ -225,7 +251,7 @@ postHnp_HomerCharter[[2]]
 plot_post(postHnp_HomerCharter[[2]], int_npr[int_npr$fleet == "Charter", ], "H", ports[1], inc_pred = "mean")
 
 
-# # * Kodiak Harvest --------------------------------------------------------
+# # * Kodiak Non-Pelagic Harvest --------------------------------------------------------
 # postHnp_Kodiak <- mapply(jagsUI::jags,
 #                        parameters.to.save = params, model.file = models,
 #                        MoreArgs = list(data = jags_datHnp[[2]], n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, store.data = TRUE),
@@ -243,6 +269,7 @@ plot_post(postHnp_Kodiak[[2]], int_npr, "H", ports[2], title = "Kodiak: Non-Pela
 plot_post(postHnp_Kodiak[[3]], int_npr, "H", ports[2])
 plot_post(postHnp_Kodiak[[4]], int_npr, "H", ports[2])
 jags_datHnp[[2]]$M
+#Private data is too sparse for non-pelagic rockfish in Kodiak
 
 
 #Try with only Kodiak Charter data only
@@ -257,9 +284,9 @@ jags_datHnp[[2]]$M
 # lapply(postHnp_KodiakCharter, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
 # saveRDS(postHnp_KodiakCharter, ".\\ROckfish report_96-19\\Interview post\\postHnp_KodiakCharter.rds")
 postHnp_KodiakCharter <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHnp_KodiakCharter.rds")
-ni <- 1E5; nb <- ni/3; nc <- 3; nt <- 20
 postHnp_KodiakCharter[[1]]
 postHnp_KodiakCharter[[2]]
+#Trending mean model prefered
 (plot_KodiakHnp <-
     plot_post(postHnp_KodiakCharter[[2]],
               int_npr,
@@ -272,7 +299,7 @@ plot_post(postHnp_KodiakCharter[[2]], int_npr, "H", ports[2], charteronly = TRUE
 
 
 
-# * Seward Harvest --------------------------------------------------------
+# * Seward Non-Pelagic Harvest --------------------------------------------------------
 # postHnp_Seward <- mapply(jagsUI::jags,
 #                        parameters.to.save = params, model.file = models,
 #                        MoreArgs = list(data = jags_datHnp[[3]], n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, store.data = TRUE),
@@ -287,6 +314,7 @@ jagsUI::traceplot(postHnp_Seward[[3]], c("alpha", "beta", "epsilon"))
 postHnp_Seward[[4]]
 plot_post(postHnp_Seward[[1]], int_npr, "H", ports[3])
 plot_post(postHnp_Seward[[2]], int_npr, "H", ports[3])
+#shared trending mean model preferred
 (plot_SewardHnp <- plot_post(postHnp_Seward[[3]], int_npr, "H", ports[3], title = "Seward:Non-Pelagic Rockfish"))
 plot_post(postHnp_Seward[[4]], int_npr, "H", ports[3])
 
@@ -296,7 +324,7 @@ plot_post(postHnp_Seward[[4]], int_npr, "H", ports[3])
 
 
 
-# * Valdez Harvest --------------------------------------------------------
+# * Valdez Non-Pelagic Harvest --------------------------------------------------------
 # postHnp_Valdez <- mapply(jagsUI::jags,
 #                        parameters.to.save = params, model.file = models,
 #                        MoreArgs = list(data = jags_datHnp[[4]], n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, store.data = TRUE),
@@ -312,13 +340,14 @@ jagsUI::traceplot(postHnp_Valdez[[4]], c("alpha", "beta", "epsilon", "gamma"))
 plot_post(postHnp_Valdez[[1]], int_npr, "H", ports[4])
 plot_post(postHnp_Valdez[[2]], int_npr, "H", ports[4])
 plot_post(postHnp_Valdez[[3]], int_npr, "H", ports[4], title = "Valdez: Non-Pelagic Rockfish")
+#Unique trending mean model preferred
 (plot_ValdezHnp <- plot_post(postHnp_Valdez[[4]], int_npr, "H", ports[4], title = "Valdez: Non-Pelagic Rockfish"))
 
 
 
 
 
-# * Whittier Harvest ------------------------------------------------------
+# * Whittier Non-Pelagic Harvest ------------------------------------------------------
 # postHnp_Whittier <- mapply(jagsUI::jags,
 #                          parameters.to.save = params, model.file = models,
 #                          MoreArgs = list(data = jags_datHnp[[5]], n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, store.data = TRUE),
@@ -332,6 +361,7 @@ jagsUI::traceplot(postHnp_Whittier[[2]], c("alpha", "beta"))
 postHnp_Whittier[[3]]
 postHnp_Whittier[[4]]
 plot_post(postHnp_Whittier[[1]], int_npr, "H", ports[5])
+#unique constant mean model preferred
 (plot_WhittierHnp <- plot_post(postHnp_Whittier[[2]], int_npr, "H", ports[5], title = "Whittier: Non-Pelagic Rockfish"))
 plot_post(postHnp_Whittier[[3]], int_npr, "H", ports[5])
 plot_post(postHnp_Whittier[[4]], int_npr, "H", ports[5])
@@ -342,12 +372,16 @@ jags_datHnp[[5]]$M
 
 
 # Effort Description --------------------------------------------------
+#Not sure how to best describe effort since it is reported by trip and most trips include salmon and halibut effort that may not correlate with rockfish effort.
+#In the past they have excluded halibut trips but Martin wanted to see if there was a better option.
+#Many more halibut and salmon+bottom fish trips than anything else.
 # * Harvest by target group ---------------------------------------
 table(int_boat$year, int_boat$target)
 table(int_boat$target)
 
 
 #  * *  Pelagic Rockfish  -----------------------------------------------------
+#pelagic harvest distributed between bottomfish, salmon and bottomfish and halibut trips. port dependent (rows in table below)
 pH_target <- 
   aggregate(pH ~ port + target, int_boat, sum) %>%
   tidyr::pivot_wider(id_cols = port, names_from = target, values_from = pH)
@@ -370,6 +404,7 @@ expand.grid(list(year = unique(dat$year),
 
 
 #  * * Non-pelagic Rockfish -----------------------------------------------
+#non-pelagic harvest distributed between bottomfish, salmon and bottomfish and halibut trips. port dependent (rows in table below)
 npyH_target <- 
   aggregate(npyH ~ port + target, int_boat, sum) %>%
   tidyr::pivot_wider(id_cols = port, names_from = target, values_from = npyH)
@@ -390,13 +425,12 @@ expand.grid(list(year = unique(dat$year),
   theme_bw(base_size = 16) +
   theme(legend.position = "bottom")
 
-
-
 # * Interview stats ------------------------------------------------------
 # Boat scale distribution of Rockfish harvest, total effort and CPUE by target species and fleet.
+# very skewed data
 plot_int(int_boat, "pH")
 plot_int(int_boat, "npyH")
-#On the area scale Harvest is spread across several target groups.
+#On the area scale Harvest is concentrated in bottomfish, salmon and bottomfish and halibut trips.
 int_boat %>%
   dplyr::group_by(year, fleet, target, area) %>%
   dplyr::summarize(H = sum(pH), E = sum(E)) %>%
@@ -408,27 +442,35 @@ int_boat %>%
 
 
 # * Alternative filters -----------------------------------------------------
+# Filter to only include trips where rockfish were the majority of the harvest
 #  * * Rockfish>target -------------------------------------------------------
+#pelagic rockfish
 int_pgtt <- int_boat[(!(int_boat$npyH + int_boat$lH + int_boat$hH >= int_boat$pH) & 
                        int_boat$target %in% c("Rockfish", "Bottomfish", "Bottomfish & Salmon", "Lingcod")) &
                         !(int_boat$hH >= int_boat$pH & int_boat$target == "Halibut") & 
                         int_boat$target %in% c("Rockfish", "Bottomfish", "Bottomfish & Salmon", "Halibut", "Lingcod"), ]
 plot_int(int_pgtt , "pH")
+#small percentage of interviews retained
 table(int_pgtt$port) / table(int_boat$port)
+#better percentage of harvest retained
 aggregate(pH ~ port, int_pgtt, sum)[,2] / aggregate(pH ~ port, int_boat, sum)[,2]
 
+#non-pelagic rockfish
 int_npygtt <- int_boat[(!(int_boat$pH + int_boat$lH + int_boat$hH >= int_boat$npyH) & 
                         int_boat$target %in% c("Rockfish", "Bottomfish", "Bottomfish & Salmon", "Lingcod")) &
                        !(int_boat$hH >= int_boat$pH & int_boat$target == "Halibut") & 
                        int_boat$target %in% c("Rockfish", "Bottomfish", "Bottomfish & Salmon", "Halibut", "Lingcod"), ]
 plot_int(int_npygtt, "npyH")
+#small percentage of interviews and harvest retained
 table(int_npygtt$port) / table(int_boat$port)
 aggregate(npyH ~ port, int_npygtt, sum)[,2] / aggregate(npyH ~ port, int_boat, sum)[,2]
 
+
+
 # * * CPUE > 1 --------------------------------------------------------------
-#Martin suggests a hard number of lingcod per boat but I think we should at least scale it by angler days.
-#H/E > 1
-#applies to moderate ammint of trips
+#Martin suggested a hard number of rockfish per boat but I think we should at least scale it by angler days... i.e. H/E > 1
+#pelagic rockfish
+#applies to moderate amount of trips
 sapply(unique(int_boat$port), function(x){
   sum(!is.na(int_boat$E) & int_boat$pH / int_boat$E > 1 & int_boat$port == x, na.rm = TRUE) / 
     sum(!is.na(int_boat$E) & int_boat$port == x, na.rm = TRUE)
@@ -439,7 +481,8 @@ sapply(unique(int_boat$port), function(x){
     sum(int_boat$lH[!is.na(int_boat$E) & int_boat$port == x], na.rm = TRUE)
 })
 
-#applies to moderate amm0nt of trips
+#non-pelagic rockfish
+#applies to moderate amount of trips
 sapply(unique(int_boat$port), function(x){
   sum(!is.na(int_boat$E) & int_boat$npyH / int_boat$E > 1 & int_boat$port == x, na.rm = TRUE) / 
     sum(!is.na(int_boat$E) & int_boat$port == x, na.rm = TRUE)
@@ -450,10 +493,6 @@ sapply(unique(int_boat$port), function(x){
     sum(int_boat$lH[!is.na(int_boat$E) & int_boat$port == x], na.rm = TRUE)
 })
 
-int_CPUE1 <- int_boat[!is.na(int_boat$E) & int_boat$lH / int_boat$E > 1, ]
-plot_int(int_CPUE1, "lH")
-table(int_CPUE1$port) / table(int_boat$port)
-aggregate(lH ~ port, int_CPUE1, sum)[,2] / aggregate(lH ~ port, int_boat, sum)[,2]
 
 
 # * H comp by target group -----------------------------------------------
@@ -470,6 +509,7 @@ H_comp <-
   tidyr::pivot_longer(cols = dplyr::ends_with("H"))
 
 # * * Halibut trips -------------------------------------------------------
+#Mostly halibut for most areas/user groups
 ggplot(H_comp[H_comp$target == "Halibut", ], aes(x = year, weight = value, fill = name)) +
   geom_area(stat = "count", position = "fill", color = "white", alpha = 0.25) +
   facet_grid(port ~ fleet) +
@@ -479,6 +519,7 @@ ggplot(H_comp[H_comp$target == "Halibut", ], aes(x = year, weight = value, fill 
   theme(legend.position = "bottom")
 
 # * * Bottomfish trips ----------------------------------------------------
+#large percentages of halibut for most areas/user groups but less than 50% for most areas/user groups
 ggplot(H_comp[H_comp$target %in% c("Rockfish", "Bottomfish", "Bottomfish & Salmon", "Lingcod"), ], aes(x = year, weight = value, fill = name)) +
   geom_area(stat = "count", position = "fill", color = "white", alpha = 0.25) +
   facet_grid(port ~ fleet) +
@@ -491,6 +532,8 @@ ggplot(H_comp[H_comp$target %in% c("Rockfish", "Bottomfish", "Bottomfish & Salmo
 
 
 # Effort Composition -----------------------------------------------------
+#Elected to eliminate Halibut focused trips from the analysis. This is consistent with past practices and the other options we identified eliminated so may interviews.
+#As such this section really describes bottomfish effort in general and could be replicated unaltered in a future lingcod report.
 int_E <-
   int_boat[int_boat$target %in% c("Rockfish", "Bottomfish", "Bottomfish & Salmon", "Lingcod"), ] %>%
   dplyr::group_by(port, year, fleet, area) %>%
@@ -499,28 +542,31 @@ int_E <-
   dplyr::filter(year >= 2000)
 jags_datE <- lapply(ports, make_jagsdat, dat = int_E, stat = "E")
 
-# # * Homer Harvest --------------------------------------------------------
-ni <- 5E6; nb <- ni/3; nc <- 3; nt <- 1000
-postE_Homer <- mapply(jagsUI::jags,
-                        parameters.to.save = params, model.file = models,
-                        MoreArgs = list(data = jags_datE[[1]], n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, store.data = TRUE, parallel = TRUE),
-                        SIMPLIFY = FALSE)
-lapply(postE_Homer, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
-saveRDS(postE_Homer, ".\\Rockfish report_96-19\\Interview post\\postE_Homer.rds")
+# # * Homer Effort --------------------------------------------------------
+# ni <- 5E6; nb <- ni/3; nc <- 3; nt <- 1000
+# postE_Homer <- mapply(jagsUI::jags,
+#                         parameters.to.save = params, model.file = models,
+#                         MoreArgs = list(data = jags_datE[[1]], n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, store.data = TRUE, parallel = TRUE),
+#                         SIMPLIFY = FALSE)
+# lapply(postE_Homer, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
+# saveRDS(postE_Homer, ".\\Rockfish report_96-19\\Interview post\\postE_Homer.rds")
 postE_Homer  <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Homer.rds")
 postE_Homer[[1]]
 postE_Homer[[2]]
+#shared trend model preferred
+#note ns differences for unique mean
 postE_Homer[[3]]
 jagsUI::traceplot(postE_Homer[[3]], c("alpha", "beta", "epsilon")) #Beta converges poorly.
 postE_Homer[[4]]
 plot_post(postE_Homer[[1]], int_E, "E", ports[1])
 plot_post(postE_Homer[[2]], int_E, "E", ports[1])
+#shared trend model preferred
 (plot_HomerE <- plot_post(postE_Homer[[3]], int_E, "E", ports[1], title = "Homer: Effort"))
 plot_post(postE_Homer[[4]], int_E, "E", ports[1])
 jags_datE[[1]]$M
 
 # ni <- 1E5; nb <- ni/3; nc <- 3; nt <- 200
-# # * Kodiak Harvest --------------------------------------------------------
+# # * Kodiak Effort --------------------------------------------------------
 # postE_Kodiak <- mapply(jagsUI::jags,
 #                          parameters.to.save = params, model.file = models,
 #                          MoreArgs = list(data = jags_datE[[2]], n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, store.data = TRUE),
@@ -529,11 +575,13 @@ jags_datE[[1]]$M
 # saveRDS(postE_Kodiak, ".\\Rockfish report_96-19\\Interview post\\postE_Kodiak.rds")
 postE_Kodiak  <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Kodiak.rds")
 postE_Kodiak[[1]]
+#unique mean preferred
 postE_Kodiak[[2]]
 jagsUI::traceplot(postE_Kodiak[[2]], c("alpha", "beta"))
 postE_Kodiak[[3]]
 postE_Kodiak[[4]]
 plot_post(postE_Kodiak[[1]], int_E, "E", ports[2])
+#unique mean preferred
 (plot_KodiakE <- plot_post(postE_Kodiak[[2]], int_E, "E", ports[2], title = "Kodiak: Effort"))
 plot_post(postE_Kodiak[[3]], int_E, "E", ports[2])
 plot_post(postE_Kodiak[[4]], int_E, "E", ports[2])
@@ -541,7 +589,7 @@ plot_post(postE_Kodiak[[4]], int_E, "E", ports[2])
 
 
 
-# * Seward Harvest --------------------------------------------------------
+# * Seward Effort --------------------------------------------------------
 # postE_Seward <- mapply(jagsUI::jags,
 #                          parameters.to.save = params, model.file = models,
 #                          MoreArgs = list(data = jags_datE[[3]], n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, store.data = TRUE),
@@ -550,11 +598,13 @@ plot_post(postE_Kodiak[[4]], int_E, "E", ports[2])
 # saveRDS(postE_Seward, ".\\Rockfish report_96-19\\Interview post\\postE_Seward.rds")
 postE_Seward <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Seward.rds")
 postE_Seward[[1]]
+#unique mean preferred
 postE_Seward[[2]]
 jagsUI::traceplot(postE_Seward[[2]], c("alpha", "beta"))
 postE_Seward[[3]]
 postE_Seward[[4]]
 plot_post(postE_Seward[[1]], int_E, "E", ports[3])
+#unique mean preferred
 (plot_SewardE <- plot_post(postE_Seward[[2]], int_E, "E", ports[3], title = "Seward: Effort"))
 plot_post(postE_Seward[[3]], int_E, "E", ports[3])
 plot_post(postE_Seward[[4]], int_E, "E", ports[3])
@@ -565,7 +615,7 @@ plot_post(postE_Seward[[4]], int_E, "E", ports[3])
 
 
 
-# * Valdez Harvest --------------------------------------------------------
+# * Valdez Effort --------------------------------------------------------
 # postE_Valdez <- mapply(jagsUI::jags,
 #                          parameters.to.save = params, model.file = models,
 #                          MoreArgs = list(data = jags_datE[[4]], n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, store.data = TRUE),
@@ -575,21 +625,19 @@ plot_post(postE_Seward[[4]], int_E, "E", ports[3])
 postE_Valdez <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Valdez.rds")
 postE_Valdez[[1]]
 postE_Valdez[[2]]
+#shared trend model preferred
 postE_Valdez[[3]]
 jagsUI::traceplot(postE_Valdez[[3]], c("alpha", "beta", "epsilon"))
 postE_Valdez[[4]]
 plot_post(postE_Valdez[[1]], int_E, "E", ports[4])
 plot_post(postE_Valdez[[2]], int_E, "E", ports[4])
+#shared trend model preferred
 (plot_ValdezE <- plot_post(postE_Valdez[[3]], int_E, "E", ports[4], title = "Valdez: Effort"))
 plot_post(postE_Valdez[[4]], int_E, "E", ports[4])
 jags_datE[[4]]$M
 
 
-
-
-
-
-# * Whittier Harvest ------------------------------------------------------
+# * Whittier Effort ------------------------------------------------------
 # postE_Whittier <- mapply(jagsUI::jags,
 #                            parameters.to.save = params, model.file = models,
 #                            MoreArgs = list(data = jags_datE[[5]], n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, store.data = TRUE),
@@ -598,34 +646,38 @@ jags_datE[[4]]$M
 # saveRDS(postE_Whittier, ".\\Rockfish report_96-19\\Interview post\\postE_Whittier.rds")
 postE_Whittier  <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Whittier.rds")
 postE_Whittier[[1]]
+#unique mean preferred
 postE_Whittier[[2]]
 jagsUI::traceplot(postE_Whittier[[2]], c("alpha", "beta"))
 postE_Whittier[[3]]
 postE_Whittier[[4]]
 plot_post(postE_Whittier[[1]], int_E, "E", ports[5])
+#unique mean preferred
 (plot_WhittierE <- plot_post(postE_Whittier[[2]], int_E, "E", ports[5], title = "Whittier: Effort"))
 plot_post(postE_Whittier[[3]], int_E, "E", ports[5])
 plot_post(postE_Whittier[[4]], int_E, "E", ports[5])
 
 
 
-postE_Homer <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Homer.rds")
-postE_Kodiak <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Kodiak.rds")
-postE_Seward <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Seward.rds")
-postE_Valdez <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Valdez.rds")
-postE_Whittier <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Whittier.rds")
-postHnp_HomerCharter <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHnp_HomerCharter.rds")
-postHnp_KodiakCharter <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHnp_KodiakCharter.rds")
-postHnp_Seward <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHnp_Seward.rds")
-postHnp_Valdez <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHnp_Valdez.rds")
-postHnp_Whittier <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHnp_Whittier.rds")
-postHp_HomerCharter <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHp_HomerCharter.rds")
-postHp_Kodiak <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHp_Kodiak.rds")
-postHp_Seward <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHp_Seward.rds")
-postHp_Valdez <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHp_Valdez.rds")
-postHp_Whittier <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHp_Whittier.rds")
+# Save results ------------------------------------------------------------
+#code to load all the posteriors
+# postE_Homer <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Homer.rds")
+# postE_Kodiak <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Kodiak.rds")
+# postE_Seward <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Seward.rds")
+# postE_Valdez <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Valdez.rds")
+# postE_Whittier <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Whittier.rds")
+# postHnp_HomerCharter <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHnp_HomerCharter.rds")
+# postHnp_KodiakCharter <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHnp_KodiakCharter.rds")
+# postHnp_Seward <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHnp_Seward.rds")
+# postHnp_Valdez <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHnp_Valdez.rds")
+# postHnp_Whittier <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHnp_Whittier.rds")
+# postHp_HomerCharter <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHp_HomerCharter.rds")
+# postHp_Kodiak <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHp_Kodiak.rds")
+# postHp_Seward <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHp_Seward.rds")
+# postHp_Valdez <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHp_Valdez.rds")
+# postHp_Whittier <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHp_Whittier.rds")
 
-
+#save comp plots
 comp_plots <- 
   list(plot_HomerE, plot_HomerHp, plot_HomerHnp,
        plot_KodiakE, plot_KodiakHp, plot_KodiakHnp,
@@ -634,7 +686,7 @@ comp_plots <-
        plot_WhittierE, plot_WhittierHp, plot_WhittierHnp)
 saveRDS(comp_plots, ".\\Rockfish report_96-19\\comp_plots.rds")
 
-
+#save model posterior estimates
 mod_p <- 
   list(
     HomerE = p_post(postE_Homer[[3]], yrs = NULL, areas = areas[[1]]),

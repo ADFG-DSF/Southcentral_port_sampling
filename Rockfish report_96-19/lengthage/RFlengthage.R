@@ -1,5 +1,5 @@
 library(tidyverse)
-library(FSA)
+library(FSA) #contains the length-age models used in the code.
 library(car)
 library(boot)
 
@@ -40,7 +40,7 @@ rf_black$portsexyear2 <- as.factor(paste0(rf_black$port, rf_black$sex, unique(rf
 
 #  * Francis parameterization ----------------------------------------------------
 #  Francis worked for Black but switched to typical since I could not get nls to find global minimums w Francis for yelloweye
-#  THis code is dated
+#  This code is dated
 table(rf_black$age)
 ages_black <- c(7, 28)
 mean(rf_black$length[rf_black$age == ages_black[1]])
