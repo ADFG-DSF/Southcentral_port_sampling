@@ -9,16 +9,17 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, fig.cap = TRUE, fig.align =
 library(flextable)
 library(tidyverse)
 
-mod_weight <- readRDS(".\\mod_weight.rds")
+tab_weight <- readRDS(".\\tab_weight.rds")
+list_lgageparams <- readRDS(".\\lengthage\\list_lgageparams.rds")
 ```
 
 #########
 Table 11.- Regression parameters for log weight (kg) on log length (cm) for primary rockfish species, 1996-2019.
 ```{r}
-mod_weight %>%
+tab_weight %>%
   flextable() %>%
     set_header_labels(values = list(spp = "Species", N = "N", 
-                           sd_a = "a", sd_a = "sd(a)", 
+                           mean_a = "a", sd_a = "sd(a)", 
                            mean_b = "b", sd_b = "sd(b)", 
                            mean_df = "df", sd_df = "sd(df)", 
                            mean_sigma = "\U03C3", sd_sigma = "sd(\U03C3)")) %>%
@@ -29,4 +30,105 @@ mod_weight %>%
     fontsize(size = 10) %>%
     autofit()
 ```
+
+\newpage
+
+#########
+Table xx.- Regression parameters for Von-Bertalanffy length(cm)-at-age relationship for black rockfish by port and sex, 1996-2019.
+```{r}
+flextable(list_lgageparams[[1]]) %>%
+  set_header_labels(values = list(sex = "Sex",
+                                  port = "Port", 
+                                  Linf_val = "Mean", 
+                                  Linf_LCI = "Lower", 
+                                  Linf_UCI = "Upper", 
+                                  K_val = "Mean", 
+                                  K_LCI = "Lower", 
+                                  K_UCI = "Upper", 
+                                  t0_val = "Mean", 
+                                  t0_LCI = "Lower", 
+                                  t0_UCI = "Upper")) %>%
+  add_header_row(values = c("", "95% CI", "", "95% CI", "", "95% CI"), colwidths = c(3, 2, 1, 2, 1, 2)) %>%
+  add_header_row(values = c("", "Linf", "K", "t0"), colwidths = c(2, 3, 3, 3)) %>%
+  colformat_double(j = c(3:5, 9:11), digits = 1) %>%
+  colformat_double(j = 6:8, digits = 3) %>%
+  align(align = "center", part = "header") %>%
+  font(fontname = "Times New Roman") %>%
+  fontsize(size = 10) %>%
+  vline(j = c(2, 5, 8), part = "body") %>%
+  vline(i = 1, j = c(2, 5, 8), part = "header") %>%
+  vline(i = 2, j = c(2, 3, 5, 6, 8, 9), part = "header") %>%
+  vline(i = 3, j = c(2, 5, 8), part = "header") %>%
+  merge_v(j = ~ port) %>%
+  valign(j = 1, valign = "top", part = "body") %>%
+  autofit()
+```
  
+\newpage
+ 
+Table xx.- Regression parameters for Von-Bertalanffy length(cm)-at-age relationship for black rockfish, 1996-2019.
+```{r}
+list_lgageparams[[2]] %>%
+  flextable() %>%
+    set_header_labels(values = list(var = "Parameter", 
+                                    val = "Mean", 
+                                    LCI = "Lower CI Bound (95%)", 
+                                    UCI = "Upper CI Bound (95%)")) %>%
+    align(j = 2:4, align = "right") %>%
+    colformat_double(j =2:4, digits = 3) %>%
+    line_spacing(space = 0.5) %>%
+    font(fontname = "Times New Roman") %>%
+    fontsize(size = 10) %>%
+    autofit()
+```
+
+\newpage
+
+#########
+Table yy.- Regression parameters for Von-Bertalanffy length(cm)-at-age relationship for yelloweye rockfish by port and sex, 1996-2019.
+```{r}
+flextable(list_lgageparams[[3]]) %>%
+  set_header_labels(values = list(sex = "Sex",
+                                  port = "Port", 
+                                  Linf_val = "Mean", 
+                                  Linf_LCI = "Lower", 
+                                  Linf_UCI = "Upper", 
+                                  K_val = "Mean", 
+                                  K_LCI = "Lower", 
+                                  K_UCI = "Upper", 
+                                  t0_val = "Mean", 
+                                  t0_LCI = "Lower", 
+                                  t0_UCI = "Upper")) %>%
+  add_header_row(values = c("", "95% CI", "", "95% CI", "", "95% CI"), colwidths = c(3, 2, 1, 2, 1, 2)) %>%
+  add_header_row(values = c("", "Linf", "K", "t0"), colwidths = c(2, 3, 3, 3)) %>%
+  colformat_double(j = c(3:5, 9:11), digits = 1) %>%
+  colformat_double(j = 6:8, digits = 3) %>%
+  align(align = "center", part = "header") %>%
+  font(fontname = "Times New Roman") %>%
+  fontsize(size = 10) %>%
+  vline(j = c(2, 5, 8), part = "body") %>%
+  vline(i = 1, j = c(2, 5, 8), part = "header") %>%
+  vline(i = 2, j = c(2, 3, 5, 6, 8, 9), part = "header") %>%
+  vline(i = 3, j = c(2, 5, 8), part = "header") %>%
+  merge_v(j = ~ port) %>%
+  valign(j = 1, valign = "top", part = "body") %>%
+  autofit()
+```
+ 
+\newpage
+ 
+Table y.- Regression parameters for Von-Bertalanffy length(cm)-at-age relationship for yelloweye rockfish, 1996-2019.
+```{r}
+list_lgageparams[[4]] %>%
+  flextable() %>%
+    set_header_labels(values = list(var = "Parameter", 
+                                    val = "Mean", 
+                                    LCI = "Lower CI Bound (95%)", 
+                                    UCI = "Upper CI Bound (95%)")) %>%
+    align(j = 2:4, align = "right") %>%
+    colformat_double(j =2:4, digits = 3) %>%
+    line_spacing(space = 0.5) %>%
+    font(fontname = "Times New Roman") %>%
+    fontsize(size = 10) %>%
+    autofit()
+```

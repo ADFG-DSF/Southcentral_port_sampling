@@ -51,6 +51,7 @@ mod2 <-
               seed = 1)},
          simplify = FALSE, USE.NAMES = TRUE)
 
+mod2
 point_fit <- lapply(mod2, function(x) fitted(x)[, 1])
 point_resid <- lapply(mod2, function(x) residuals(x)[, 1])
 par(mfrow = c(3,2))
@@ -86,7 +87,10 @@ fig_weight <-
     theme_bw(base_size = 16) +
     theme(legend.position = "bottom")
 fig_weight
-saveRDS(fig_weight, ".\\Rockfish report_96-19\\fig_weight.rds")
+ggsave("fig_weight.png", 
+       plot = fig_weight,
+       device = "png",
+       path = ".\\Rockfish report_96-19")
 
  
 par_t0 <- lapply(mod2, 
@@ -98,7 +102,7 @@ par_t <-
   mapply(function(x, y) mutate(x, spp = y), x = par_t0, y = names_t, SIMPLIFY = FALSE) %>%
   bind_rows() %>%
   mutate(var = ifelse(var =="nu", "df", "sigma")) %>%
-  pivot_wider(spp, names_from = var, values_from = c(mean, sd))
+  pivot_wider(id_cols = spp, names_from = var, values_from = c(mean, sd))
 
 par_f0 <- lapply(mod2, 
                  function(x) summary(x)$fixed %>%
@@ -109,7 +113,7 @@ par_f <-
   mapply(function(x, y) mutate(as.data.frame(x), spp = y), x = par_f0, y = names_f, SIMPLIFY = FALSE) %>%
   bind_rows() %>%
   mutate(var = ifelse(var =="Intercept", "a", "b")) %>%
-  pivot_wider(spp, names_from = var, values_from = c(mean, sd))
+  pivot_wider(id_cols = spp, names_from = var, values_from = c(mean, sd))
 
 mod_n0 <- lapply(mod2, function(x) length(x$data$logW))
 names_n <- names(mod_n0)
@@ -117,8 +121,8 @@ mod_n <-
   mapply(function(x, y) mutate(setNames(as.data.frame(x), "N"), spp = y), x = mod_n0, y = names_n, SIMPLIFY = FALSE) %>%
   bind_rows()
 
-mod_weight <- 
+tab_weight <- 
  left_join(mod_n, par_f, "spp") %>% 
   left_join(par_t, "spp") %>%
   select(spp, N, ends_with("_a"), ends_with("b"), ends_with("df"), ends_with("sigma"))
-saveRDS(mod_weight, ".\\Rockfish report_96-19\\mod_weight.rds")
+saveRDS(tab_weight, ".\\Rockfish report_96-19\\tab_weight.rds")

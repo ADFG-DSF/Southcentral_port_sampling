@@ -86,15 +86,15 @@ postHp_HomerCharter[[2]]
             ports[1], 
             inc_pred = "mean", 
             charteronly = TRUE,
-            title = "Homer: Pelagic Rockfish"))
+            title = "Cook Inlet: Pelagic Rockfish"))
 plot_post(postHp_HomerCharter[[2]], int_pr[int_pr$fleet == "Charter", ], "H", ports[1], inc_pred = "mean")
 
 
 # * Kodiak Pelagic Harvest --------------------------------------------------------
-# postHp_Kodiak <- mapply(jagsUI::jags,
-#                        parameters.to.save = params, model.file = models,
-#                        MoreArgs = list(data = jags_datH[[2]], n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, store.data = TRUE),
-#                        SIMPLIFY = FALSE)
+postHp_Kodiak <- mapply(jagsUI::jags,
+                       parameters.to.save = params, model.file = models,
+                       MoreArgs = list(data = jags_datH[[2]], n.chains = nc, n.thin = nt, n.iter = 1.5 * ni, n.burnin = nb, store.data = TRUE),
+                       SIMPLIFY = FALSE)
 # lapply(postHp_Kodiak, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
 # saveRDS(postHp_Kodiak, ".\\Rockfish report_96-19\\Interview post\\postHp_Kodiak.rds")
 postHp_Kodiak <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHp_Kodiak.rds")
@@ -247,7 +247,7 @@ postHnp_HomerCharter[[2]]
             "H", 
             ports[1], 
             charteronly = TRUE,
-            inc_pred = "mean", title = "Homer: Non-Pelagic Rockfish"))
+            inc_pred = "mean", title = "Cook Inlet: Non-Pelagic Rockfish"))
 plot_post(postHnp_HomerCharter[[2]], int_npr[int_npr$fleet == "Charter", ], "H", ports[1], inc_pred = "mean")
 
 
@@ -286,7 +286,7 @@ jags_datHnp[[2]]$M
 postHnp_KodiakCharter <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHnp_KodiakCharter.rds")
 postHnp_KodiakCharter[[1]]
 postHnp_KodiakCharter[[2]]
-#Trending mean model prefered
+#Trending mean model preferred
 (plot_KodiakHnp <-
     plot_post(postHnp_KodiakCharter[[2]],
               int_npr,
@@ -348,10 +348,10 @@ plot_post(postHnp_Valdez[[3]], int_npr, "H", ports[4], title = "Valdez: Non-Pela
 
 
 # * Whittier Non-Pelagic Harvest ------------------------------------------------------
-# postHnp_Whittier <- mapply(jagsUI::jags,
-#                          parameters.to.save = params, model.file = models,
-#                          MoreArgs = list(data = jags_datHnp[[5]], n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, store.data = TRUE),
-#                          SIMPLIFY = FALSE)
+postHnp_Whittier <- mapply(jagsUI::jags,
+                         parameters.to.save = params, model.file = models,
+                         MoreArgs = list(data = jags_datHnp[[5]], n.chains = nc, n.thin = nt, n.iter = 1.5 * ni, n.burnin = nb, store.data = TRUE),
+                         SIMPLIFY = FALSE)
 # lapply(postHnp_Whittier, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
 # saveRDS(postHnp_Whittier, ".\\Rockfish report_96-19\\Interview post\\postHnp_Whittier.rds")
 postHnp_Whittier  <- readRDS(".\\Rockfish report_96-19\\Interview post\\postHnp_Whittier.rds")
@@ -544,10 +544,10 @@ jags_datE <- lapply(ports, make_jagsdat, dat = int_E, stat = "E")
 
 # # * Homer Effort --------------------------------------------------------
 # ni <- 5E6; nb <- ni/3; nc <- 3; nt <- 1000
-# postE_Homer <- mapply(jagsUI::jags,
-#                         parameters.to.save = params, model.file = models,
-#                         MoreArgs = list(data = jags_datE[[1]], n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, store.data = TRUE, parallel = TRUE),
-#                         SIMPLIFY = FALSE)
+postE_Homer <- mapply(jagsUI::jags,
+                        parameters.to.save = params, model.file = models,
+                        MoreArgs = list(data = jags_datE[[1]], n.chains = nc, n.thin = nt, n.iter = 2 * ni, n.burnin = nb, store.data = TRUE, parallel = TRUE),
+                        SIMPLIFY = FALSE)
 # lapply(postE_Homer, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
 # saveRDS(postE_Homer, ".\\Rockfish report_96-19\\Interview post\\postE_Homer.rds")
 postE_Homer  <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Homer.rds")
@@ -561,16 +561,16 @@ postE_Homer[[4]]
 plot_post(postE_Homer[[1]], int_E, "E", ports[1])
 plot_post(postE_Homer[[2]], int_E, "E", ports[1])
 #shared trend model preferred
-(plot_HomerE <- plot_post(postE_Homer[[3]], int_E, "E", ports[1], title = "Homer: Effort"))
+(plot_HomerE <- plot_post(postE_Homer[[3]], int_E, "E", ports[1], title = "Cook Inlet: Effort"))
 plot_post(postE_Homer[[4]], int_E, "E", ports[1])
 jags_datE[[1]]$M
 
 # ni <- 1E5; nb <- ni/3; nc <- 3; nt <- 200
 # # * Kodiak Effort --------------------------------------------------------
-# postE_Kodiak <- mapply(jagsUI::jags,
-#                          parameters.to.save = params, model.file = models,
-#                          MoreArgs = list(data = jags_datE[[2]], n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, store.data = TRUE),
-#                          SIMPLIFY = FALSE)
+postE_Kodiak <- mapply(jagsUI::jags,
+                         parameters.to.save = params, model.file = models,
+                         MoreArgs = list(data = jags_datE[[2]], n.chains = nc, n.thin = nt, n.iter = 1.5 * ni, n.burnin = nb, store.data = TRUE),
+                         SIMPLIFY = FALSE)
 # lapply(postE_Kodiak, function(x) quantile(unlist(x$Rhat), probs = c(0.5, 0.9, 0.95, 0.99, 1), na.rm = TRUE))
 # saveRDS(postE_Kodiak, ".\\Rockfish report_96-19\\Interview post\\postE_Kodiak.rds")
 postE_Kodiak  <- readRDS(".\\Rockfish report_96-19\\Interview post\\postE_Kodiak.rds")
@@ -679,12 +679,26 @@ plot_post(postE_Whittier[[4]], int_E, "E", ports[5])
 
 #save comp plots
 comp_plots <- 
-  list(plot_HomerE, plot_HomerHp, plot_HomerHnp,
-       plot_KodiakE, plot_KodiakHp, plot_KodiakHnp,
-       plot_SewardE, plot_SewardHp, plot_SewardHnp, 
-       plot_ValdezE, plot_ValdezHp, plot_ValdezHnp,
-       plot_WhittierE, plot_WhittierHp, plot_WhittierHnp)
-saveRDS(comp_plots, ".\\Rockfish report_96-19\\comp_plots.rds")
+  list(plot_HomerE = plot_HomerE, 
+       plot_HomerHp = plot_HomerHp, 
+       plot_HomerHnp = plot_HomerHnp,
+       plot_KodiakE = plot_KodiakE, 
+       plot_KodiakHp = plot_KodiakHp, 
+       plot_KodiakHnp = plot_KodiakHnp,
+       plot_SewardE = plot_SewardE, 
+       plot_SewardHp = plot_SewardHp, 
+       plot_SewardHnp = plot_SewardHnp, 
+       plot_ValdezE = plot_ValdezE, 
+       plot_ValdezHp = plot_ValdezHp, 
+       plot_ValdezHnp = plot_ValdezHnp,
+       plot_WhittierE = plot_WhittierE, 
+       plot_WhittierHp = plot_WhittierHp, 
+       plot_WhittierHnp = plot_WhittierHnp)
+mapply(ggsave, 
+       filename = paste0(names(comp_plots), ".png"), 
+       plot = comp_plots, 
+       MoreArgs = list(device = "png", 
+                       path = ".\\Rockfish report_96-19\\"))
 
 #save model posterior estimates
 mod_p <- 

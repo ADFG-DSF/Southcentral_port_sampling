@@ -13,6 +13,7 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, fig.cap = TRUE, fig.align =
 library(bookdown)
 library(tidyverse)
 library(FSA)
+library(FSAmisc)
 library(car)
 library(boot)
 est_spp <- readRDS(".\\composition\\est_spp.rds")
@@ -29,8 +30,6 @@ rf_black <- rflgage[rflgage$spp == "Black", ]
 rf_yelloweye <- rflgage[rflgage$spp == "Yelloweye", ]
 
 list_lgage <- readRDS(".\\lengthage\\list_lgage.rds")
-
-comp_plots <- readRDS(".\\comp_plots.rds")
 ```
  
 ```{r, fig.cap="Alaska Department of Fish and Game, Sport Fish Division's Region II management areas."}
@@ -166,8 +165,15 @@ rf_black %>%
 
 ```{r, fig.height = 6.5, fig.width = 8.5, fig.cap = "GOA black rockfish estimated asymptotic mean length by port and sex."}
 ggplot() +
-  geom_point(data=list_lgage[[2]],aes(x=port,y=val, color = sex), position=position_dodge(width=0.5), size = 3) +
-  geom_errorbar(data=list_lgage[[3]],aes(x=port,color = sex, ymin=LCI,ymax=UCI), size = 1, width=0.3, position=position_dodge(width=0.5)) +
+  geom_point(data = list_lgage[[2]][list_lgage[[2]]$var == "Linf", ],
+             aes(x = port, y = val, color = sex), 
+             position = position_dodge(width = 0.5), 
+             size = 3) +
+  geom_errorbar(data=list_lgage[[3]][list_lgage[[3]]$var == "Linf", ],
+                aes(x=port, color = sex, ymin=LCI, ymax=UCI), 
+                size = 1, 
+                width = 0.3, 
+                position = position_dodge(width = 0.5)) +
   scale_color_manual(values = c("Black", "grey40")) +
   labs(color = "Sex", x = "Port", y = expression(L[infinity])) +
   theme_bw(base_size = 16)
@@ -204,10 +210,16 @@ rf_yelloweye %>%
 ```
 
 ```{r, fig.height = 6.5, fig.width = 8.5, fig.cap = "GOA yelloweye rockfish estimated rate of approach to asymptotic mean length by port and sex."}
-
 ggplot() +
-  geom_point(data=list_lgage[[5]][list_lgage[[5]]$var == "K",],aes(x=port,y=val, color = sex), position=position_dodge(width=0.5), size = 3) +
-  geom_errorbar(data=list_lgage[[6]][list_lgage[[6]]$var == "K",],aes(x=port,color = sex, ymin=LCI,ymax=UCI), size = 1, width=0.3, position=position_dodge(width=0.5)) +
+  geom_point(data = list_lgage[[5]][list_lgage[[5]]$var == "K",],
+             aes(x = port, y = val, color = sex), 
+             position = position_dodge(width = 0.5), 
+             size = 3) +
+  geom_errorbar(data=list_lgage[[6]][list_lgage[[6]]$var == "K",],
+                aes(x = port, color = sex, ymin = LCI, ymax = UCI), 
+                size = 1, 
+                width = 0.3, 
+                position = position_dodge(width = 0.5)) +
   scale_color_manual(values = c("Black", "grey40")) +
   labs(color = "Sex", x = "Port", y = expression(K)) +
   theme_bw(base_size = 16)
@@ -272,69 +284,69 @@ sex_format %>%
 ```
 
 ```{r, fig.height = 7, fig.width = 8.5, fig.cap = "Relationship between weight and length for primary rockfish species, 1996-2019."}
-readRDS(".\\fig_weight.rds")
+knitr::include_graphics(".//fig_weight.png")
 ```
 
-```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of sport fishing effort out of the port of Homer, 2000-2019."}
-comp_plots[[1]]
+```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of sport fishing effort in Cook Inlet, 2000-2019."}
+knitr::include_graphics(".//plot_HomerE.png")
 ```
 
-```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of the pelagic rockfish harvest out of the port of Homer, 1996-2019."}
-comp_plots[[2]]
+```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of the pelagic rockfish harvest in Cook Inlet, 1996-2019."}
+knitr::include_graphics(".//plot_HomerHp.png")
 ```
   
-```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of the non-pelagic rockfish harvest out of the port of Homer, 1996-2019."}
-comp_plots[[3]]
+```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of the non-pelagic rockfish harvest in Cook Inlet, 1996-2019."}
+knitr::include_graphics(".//plot_HomerHnp.png")
 ```
   
   
 ```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of sport fishing effort out of the port of Kodiak, 2000-2019."}
-comp_plots[[4]]
+knitr::include_graphics(".//plot_KodiakE.png")
 ```  
   
 ```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of the pelagic rockfish harvest out of the port of Kodiak, 1996-2019."}
-comp_plots[[5]]
+knitr::include_graphics(".//plot_KodiakHp.png")
 ```
   
 ```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of the non-pelagic rockfish harvest out of the port of Kodiak, 1996-2019."}
-comp_plots[[6]]
+knitr::include_graphics(".//plot_KodiakHnp.png")
 ```
   
   
 ```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of sport fishing effort out of the port of Seward, 2000-2019."}
-comp_plots[[7]]
+knitr::include_graphics(".//plot_SewardE.png")
 ```
   
 ```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of the pelagic rockfish harvest out of the port of Seward, 1996-2019."}
-comp_plots[[8]]
+knitr::include_graphics(".//plot_SewardHp.png")
 ```
   
 ```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of the non-pelagic rockfish harvest out of the port of Seward, 1996-2019."}
-comp_plots[[9]]
+knitr::include_graphics(".//plot_SewardHnp.png")
 ```
 
   
 ```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of sport fishing effort out of the port of Valdez, 2000-2019."}
-comp_plots[[10]]
+knitr::include_graphics(".//plot_ValdezE.png")
 ```
 
 ```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of the pelagic rockfish harvest out of the port of Valdez, 1996-2019."}
-comp_plots[[11]]
+knitr::include_graphics(".//plot_ValdezHp.png")
 ```
   
 ```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of the non-pelagic rockfish harvest out of the port of Valdez, 1996-2019."}
-comp_plots[[12]]
+knitr::include_graphics(".//plot_ValdezHnp.png")
 ```
 
   
 ```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of sport fishing effort out of the port of Whittier, 2000-2019."}
-comp_plots[[13]]
+knitr::include_graphics(".//plot_WhittierE.png")
 ```
   
 ```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of the pelagic rockfish harvest out of the port of Whittier, 1996-2019."}
-comp_plots[[14]]
+knitr::include_graphics(".//plot_WhittierHp.png")
 ```
   
 ```{r, fig.height = 6, fig.width = 7.5, fig.cap = "Empirical spatial composition (areas) and estimated mean spatial composition (lines) of the non-pelagic rockfish harvest out of the port of Whittier, 1996-2019."}
-comp_plots[[15]]
+knitr::include_graphics(".//plot_WhittierHnp.png")
 ```

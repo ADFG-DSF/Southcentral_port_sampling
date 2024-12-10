@@ -1,7 +1,7 @@
 ---
 output: 
   word_document:
-    reference_docx: "..\\doc_styles\\draft_styles_FDS_break.docx"
+    reference_docx: "..\\doc_styles\\word_styles_FDS_break.docx"
 ---
 
 ```{r setup, include=FALSE}
