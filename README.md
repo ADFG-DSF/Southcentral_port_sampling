@@ -2,7 +2,7 @@
 
 Data analysis for the ADF&G port sampling project in the ports of Homer, Kodiak, Seward, Valdez, and Whittier.
 
-The working directory for this repository is located at S:\\BIO\\Southcentral halibut and groundfish.
+The working directory for this repository is located at S:\\RTS\\Reimer\\Southcentral halibut and groundfish\\.
 
 In general there has been minimal biometric support for this project prior to what is documented here. That said, the original project biologist was a good SAS programmer and has written a voluminous amount of SAS code to produce data sets and output associated with this project. The analysis in this repository moves everything associated whit the rockfish report into R, although most of the datasets are still coming from SAS. A complete transition to R would be a good intermediate term goal.
 
